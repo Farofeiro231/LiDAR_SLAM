@@ -14,6 +14,14 @@ from skimage.measure import ransac, LineModelND
 PNT_NBR = 50
 
 
+#   Function to extract the line represented by the set of points for each subset of rangings
+
+def landmark_extraction(xPoints, yPoints, ransacModel):
+    data =  np.column_stack([xPoints, yPoints])
+    
+
+
+
 def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
@@ -89,9 +97,6 @@ def plotting(my_q):
                 elif measure[-1] == 0:
                     ax.cla()
                     ax.grid()
-                    # for medida in measure:
-                    #    if medida != 0 and medida[0][3] < 1000:
-                    #        fd.write("Distance: %s Angle: %s\n" % (medida[0][3], medida[0][2]))
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
                     del theta[:]
@@ -100,7 +105,6 @@ def plotting(my_q):
                     graph.draw()
                     del measure[:]
                     i = 0
-                    # fd.write("\n\n")
         except KeyboardInterrupt:
             pass
 
@@ -120,7 +124,6 @@ def plotting(my_q):
 if __name__ == '__main__':
     processes = []
     try:
-        fd = open("scanning_data.txt", "w+")
         my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(my_queue,))
         data_acquisition.start()
