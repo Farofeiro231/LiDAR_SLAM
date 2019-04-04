@@ -11,8 +11,9 @@ import numpy as np
 import time
 from skimage.measure import ransac, LineModelND
 
+PI = np.pi
 PNT_NBR = 30
-
+ANGLE_TO_RAD = PI / 180
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
@@ -84,7 +85,7 @@ def plotting(my_q):
             while flag:
                 measure.append(my_q.get(True),)  # reads from the Queue without blocking
                 if measure[-1] != 0 and measure[-1][0][3] < 5000:
-                    angle = -measure[-1][0][2]*np.pi/180+np.pi/2
+                    angle = -measure[-1][0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[-1][0][3]
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
@@ -92,6 +93,7 @@ def plotting(my_q):
                     yPoints.append(dist*np.sin(angle))
                     if i == k * PNT_NBR:
                          
+                        k += 1
                     i += 1
                 elif measure[-1] == 0:
                     ax.cla()
@@ -104,6 +106,7 @@ def plotting(my_q):
                     graph.draw()
                     del measure[:]
                     i = 0
+                    k = 1
         except KeyboardInterrupt:
             pass
 
