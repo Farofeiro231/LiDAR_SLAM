@@ -11,13 +11,18 @@ import numpy as np
 import time
 from skimage.measure import ransac, LineModelND
 
-PNT_NBR = 50
+PNT_NBR = 30
 
 
-#   Function to extract the line represented by the set of points for each subset of rangings
+#   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints, ransacModel):
     data =  np.column_stack([xPoints, yPoints])
+    model_robust, inliers = ransac(data, LineModelND, min_samples=10,  # Inliers returns an array of True or False with inliers as True.
+                                   residual_threshold=5, max_trials=20)
+    xBase = np.array(xPoints)
+    yPredicted = model_robust.predict_y(xBase[inliers])
+    return xBase, yPredicted
     
 
 
@@ -73,6 +78,7 @@ def plotting(my_q):
         xPoints, yPoints = list(), list()
         angle, dist = 0., 0.
         i = 0
+        k = 1
         trained = False
         try:
             while flag:
@@ -84,15 +90,8 @@ def plotting(my_q):
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
-                    if i == PNT_NBR and not trained:
-                        data = np.column_stack([xPoints, yPoints])
-                        model_robust, inliers = ransac(data, LineModelND, min_samples=2,
-                                                       residual_threshold=10, max_trials=1000)
-                        trained = True
-                        del xPoints[:]
-                        del yPoints[:]
-                    elif i == PNT_NBR:
-
+                    if i == k * PNT_NBR:
+                         
                     i += 1
                 elif measure[-1] == 0:
                     ax.cla()
