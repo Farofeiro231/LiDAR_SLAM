@@ -66,6 +66,10 @@ def plotting(my_q):
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
     ax.grid()
+    ax1 = fig.add_subplot(121)#, projection="polar")
+    ax1.set_xlabel("X axis")
+    ax1.set_ylabel("Y axis")
+    ax1.grid()
 
     graph = FigureCanvasTkAgg(fig, master=root)
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
@@ -95,18 +99,23 @@ def plotting(my_q):
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
                     if i == k * PNT_NBR:
+                        print("Entrei!")
                         temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         k += 1
                     i += 1
                 elif measure == 0:
+                    print("Valor de i:{:}" .format(i))
                     ax.cla()
                     ax.grid()
+                    ax1.cla()
+                    ax1.grid()
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
-                    xMask = np.array(xInliers)
-                    yMask = np.array(yInliers)
+                    xMask = np.concatenate(xInliers, axis=0)
+                    yMask = np.concatenate(yInliers, axis=0)
+                    print(xMask.shape)
                     del xPoints[:]
                     del yPoints [:]
                     del xInliers[:]
@@ -114,9 +123,8 @@ def plotting(my_q):
                     del theta[:]
                     del distance[:]
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
-                    ax.scatter(xMask, yMask, marker=".")
+                    ax1.scatter(xMask, yMask, marker=".")
                     graph.draw()
-                    i = 0
                     k = 1
         except KeyboardInterrupt:
             pass
