@@ -19,8 +19,8 @@ ANGLE_TO_RAD = PI / 180
 
 def landmark_extraction(xPoints, yPoints):
     data =  np.column_stack([xPoints, yPoints])
-    model_robust, inliers = ransac(data, LineModelND, min_samples=10,  # Inliers returns an array of True or False with inliers as True.
-                                   residual_threshold=5, max_trials=20)
+    model_robust, inliers = ransac(data, LineModelND, min_samples=2,  # Inliers returns an array of True or False with inliers as True.
+                                   residual_threshold=5, max_trials=100)
     xBase = np.array(data[inliers, 0])
     yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
@@ -36,7 +36,7 @@ def scanning(my_q):
     try:
         for measure in iterator:
             #print("medindo...")
-            if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
+            if time.time() - start_time > 2:  # Given the time for the Lidar to "heat up"
                 my_q.put(measure)
                 if measure[0][0]:
                     nbr_tours += 1
@@ -66,7 +66,7 @@ def plotting(my_q):
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
     ax.grid()
-    ax1 = fig.add_subplot(121)#, projection="polar")
+    ax1 = fig.add_subplot(221)#, projection="polar")
     ax1.set_xlabel("X axis")
     ax1.set_ylabel("Y axis")
     ax1.grid()
@@ -98,15 +98,16 @@ def plotting(my_q):
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
-                    if i == k * PNT_NBR:
-                        print("Entrei!")
+                    if i >= k * PNT_NBR:
+                        print("Entrei! Valor de i e k: {:}, {:}" .format(i, k))
                         temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         k += 1
                     i += 1
-                elif measure == 0:
+                elif measure == 0 and len(xInliers) > 1:
                     print("Valor de i:{:}" .format(i))
+                    print("Formato de xInliers:{:}" .format(len(xInliers)))
                     ax.cla()
                     ax.grid()
                     ax1.cla()
@@ -126,6 +127,7 @@ def plotting(my_q):
                     ax1.scatter(xMask, yMask, marker=".")
                     graph.draw()
                     k = 1
+                    i = 0
         except KeyboardInterrupt:
             pass
 
