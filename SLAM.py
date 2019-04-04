@@ -21,7 +21,7 @@ def landmark_extraction(xPoints, yPoints):
     data =  np.column_stack([xPoints, yPoints])
     model_robust, inliers = ransac(data, LineModelND, min_samples=10,  # Inliers returns an array of True or False with inliers as True.
                                    residual_threshold=5, max_trials=20)
-    xBase = np.array(xPoints[inliers])
+    xBase = np.array(data[inliers, 0])
     yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
     
@@ -95,7 +95,7 @@ def plotting(my_q):
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
                     if i == k * PNT_NBR:
-                        temp_x, temp_y = landmark_extraction(xPoints[k * PNT_NBR : i ], yPoints[k * PNT_NBR : i])
+                        temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         k += 1
@@ -114,7 +114,7 @@ def plotting(my_q):
                     del theta[:]
                     del distance[:]
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
-                    ax.scatter(xMask, yMask, marker="*r", s=5)
+                    ax.scatter(xMask, yMask, marker=".")
                     graph.draw()
                     i = 0
                     k = 1
