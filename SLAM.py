@@ -14,13 +14,14 @@ from skimage.measure import ransac, LineModelND
 PI = np.pi
 PNT_NBR = 30
 ANGLE_TO_RAD = PI / 180
-
+THRESHOLD=2
+MAX_TRIALS=50
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
     data =  np.column_stack([xPoints, yPoints])
     model_robust, inliers = ransac(data, LineModelND, min_samples=2,  # Inliers returns an array of True or False with inliers as True.
-                                   residual_threshold=5, max_trials=100)
+                                   residual_threshold=THRESHOLD, max_trials=MAX_TRIALS)
     xBase = np.array(data[inliers, 0])
     yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
@@ -62,11 +63,11 @@ def plotting(my_q):
 
     fig = Figure()
 
-    ax = fig.add_subplot(111, projection="polar")
-    ax.set_xlabel("X axis")
-    ax.set_ylabel("Y axis")
-    ax.grid()
-    ax1 = fig.add_subplot(221)#, projection="polar")
+    #ax = fig.add_subplot(111, projection="polar")
+    #ax.set_xlabel("X axis")
+    #ax.set_ylabel("Y axis")
+    #ax.grid()
+    ax1 = fig.add_subplot(111)#, projection="polar")
     ax1.set_xlabel("X axis")
     ax1.set_ylabel("Y axis")
     ax1.grid()
@@ -99,31 +100,31 @@ def plotting(my_q):
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
                     if i >= k * PNT_NBR:
-                        print("Entrei! Valor de i e k: {:}, {:}" .format(i, k))
+                        #print("Entrei! Valor de i e k: {:}, {:}" .format(i, k))
                         temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         k += 1
                     i += 1
                 elif measure == 0 and len(xInliers) > 1:
-                    print("Valor de i:{:}" .format(i))
-                    print("Formato de xInliers:{:}" .format(len(xInliers)))
-                    ax.cla()
-                    ax.grid()
+                    #print("Valor de i:{:}" .format(i))
+                    #print("Formato de xInliers:{:}" .format(len(xInliers)))
+                    #ax.cla()
+                    #ax.grid()
                     ax1.cla()
                     ax1.grid()
-                    theta_array = np.array(theta, dtype="float")
-                    distance_array = np.array(distance, dtype="float")
+                    #theta_array = np.array(theta, dtype="float")
+                    #distance_array = np.array(distance, dtype="float")
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
-                    print(xMask.shape)
+                    #print(xMask.shape)
                     del xPoints[:]
                     del yPoints [:]
                     del xInliers[:]
                     del yInliers[:]
                     del theta[:]
                     del distance[:]
-                    ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax1.scatter(xMask, yMask, marker=".")
                     graph.draw()
                     k = 1
