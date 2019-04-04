@@ -104,7 +104,6 @@ def plotting(my_q):
                     del distance[:]
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
                     graph.draw()
-                    del measure[:]
                     i = 0
                     k = 1
         except KeyboardInterrupt:
