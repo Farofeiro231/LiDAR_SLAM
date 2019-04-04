@@ -74,7 +74,7 @@ def plotting(my_q):
 
     def plot():
         nonlocal flag
-        measure = list()
+        measure = 0
         theta, distance = list(), list()
         xPoints, yPoints = list(), list()
         angle, dist = 0., 0.
@@ -83,10 +83,10 @@ def plotting(my_q):
         trained = False
         try:
             while flag:
-                measure.append(my_q.get(True),)  # reads from the Queue without blocking
-                if measure[-1] != 0 and measure[-1][0][3] < 5000:
-                    angle = -measure[-1][0][2] * ANGLE_TO_RAD + PI/2.
-                    dist = measure[-1][0][3]
+                measure = my_q.get(True) # reads from the Queue without blocking
+                if measure != 0 and measure[0][3] < 5000:
+                    angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
+                    dist = measure[0][3]
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     xPoints.append(dist*np.cos(angle))
@@ -95,7 +95,7 @@ def plotting(my_q):
                          
                         k += 1
                     i += 1
-                elif measure[-1] == 0:
+                elif measure == 0:
                     ax.cla()
                     ax.grid()
                     theta_array = np.array(theta, dtype="float")
