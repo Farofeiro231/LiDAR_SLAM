@@ -17,12 +17,12 @@ ANGLE_TO_RAD = PI / 180
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
-def landmark_extraction(xPoints, yPoints, ransacModel):
+def landmark_extraction(xPoints, yPoints):
     data =  np.column_stack([xPoints, yPoints])
     model_robust, inliers = ransac(data, LineModelND, min_samples=10,  # Inliers returns an array of True or False with inliers as True.
                                    residual_threshold=5, max_trials=20)
-    xBase = np.array(xPoints)
-    yPredicted = model_robust.predict_y(xBase[inliers])
+    xBase = np.array(xPoints[inliers])
+    yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
     
 
@@ -75,8 +75,11 @@ def plotting(my_q):
     def plot():
         nonlocal flag
         measure = 0
+        xMask, yMask = 0., 0.
         theta, distance = list(), list()
         xPoints, yPoints = list(), list()
+        xInliers, yInliers = list(), list()
+        temp_x, temp_y = 0., 0.
         angle, dist = 0., 0.
         i = 0
         k = 1
@@ -92,7 +95,9 @@ def plotting(my_q):
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
                     if i == k * PNT_NBR:
-                         
+                        temp_x, temp_y = landmark_extraction(xPoints[k * PNT_NBR : i ], yPoints[k * PNT_NBR : i])
+                        xInliers.append(temp_x)
+                        yInliers.append(temp_y)
                         k += 1
                     i += 1
                 elif measure == 0:
@@ -100,9 +105,16 @@ def plotting(my_q):
                     ax.grid()
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
+                    xMask = np.array(xInliers)
+                    yMask = np.array(yInliers)
+                    del xPoints[:]
+                    del yPoints [:]
+                    del xInliers[:]
+                    del yInliers[:]
                     del theta[:]
                     del distance[:]
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    ax.scatter(xMask, yMask, marker="*r", s=5)
                     graph.draw()
                     i = 0
                     k = 1
