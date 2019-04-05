@@ -12,16 +12,17 @@ import time
 from skimage.measure import ransac, LineModelND
 
 PI = np.pi
-PNT_NBR = 30
+PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
-THRESHOLD=2
-MAX_TRIALS=50
+THRESHOLD = 1
+MAX_TRIALS = 100
+MIN_SAMPLES = 5
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
-    data =  np.column_stack([xPoints, yPoints])
-    model_robust, inliers = ransac(data, LineModelND, min_samples=2,  # Inliers returns an array of True or False with inliers as True.
-                                   residual_threshold=THRESHOLD, max_trials=MAX_TRIALS)
+    data =  np.column_stack([xPoints, yPoints])  # Inliers returns an array of True or False with inliers as True.
+    model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
+                                   residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
     xBase = np.array(data[inliers, 0])
     yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
@@ -63,10 +64,10 @@ def plotting(my_q):
 
     fig = Figure()
 
-    #ax = fig.add_subplot(111, projection="polar")
-    #ax.set_xlabel("X axis")
-    #ax.set_ylabel("Y axis")
-    #ax.grid()
+    ax = fig.add_subplot(221, projection="polar")
+    ax.set_xlabel("X axis")
+    ax.set_ylabel("Y axis")
+    ax.grid()
     ax1 = fig.add_subplot(111)#, projection="polar")
     ax1.set_xlabel("X axis")
     ax1.set_ylabel("Y axis")
@@ -109,26 +110,27 @@ def plotting(my_q):
                 elif measure == 0 and len(xInliers) > 1:
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
-                    #ax.cla()
-                    #ax.grid()
+                    ax.cla()
+                    ax.grid()
                     ax1.cla()
                     ax1.grid()
-                    #theta_array = np.array(theta, dtype="float")
-                    #distance_array = np.array(distance, dtype="float")
+                    theta_array = np.array(theta, dtype="float")
+                    distance_array = np.array(distance, dtype="float")
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
-                    del xPoints[:]
-                    del yPoints [:]
-                    del xInliers[:]
-                    del yInliers[:]
-                    del theta[:]
-                    del distance[:]
-                    #ax.scatter(theta_array, distance_array, marker="+", s=3)
-                    ax1.scatter(xMask, yMask, marker=".")
+                    ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    for i in range(len(xInliers)):
+                        ax1.plot(xInliers[i], yInliers[i])
                     graph.draw()
                     k = 1
                     i = 0
+                    del xPoints[:]
+                    del yPoints [:]
+                    del theta[:]
+                    del distance[:]
+                    del xInliers[:]
+                    del yInliers[:]
         except KeyboardInterrupt:
             pass
 
