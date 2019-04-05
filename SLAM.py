@@ -14,9 +14,9 @@ from skimage.measure import ransac, LineModelND
 PI = np.pi
 PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
-THRESHOLD = 1
-MAX_TRIALS = 100
-MIN_SAMPLES = 5
+THRESHOLD = 0.5
+MAX_TRIALS = 1000
+MIN_SAMPLES = 2
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
@@ -27,8 +27,12 @@ def landmark_extraction(xPoints, yPoints):
     yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
     
-
-
+def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
+    ax = figure.add_subplot(lin, col, pos, projection=mode)
+    ax.set_xlabel("X axis")
+    ax.set_ylabel("Y axis")
+    ax.grid()
+    return ax
 
 def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
@@ -64,14 +68,8 @@ def plotting(my_q):
 
     fig = Figure()
 
-    ax = fig.add_subplot(221, projection="polar")
-    ax.set_xlabel("X axis")
-    ax.set_ylabel("Y axis")
-    ax.grid()
-    ax1 = fig.add_subplot(111)#, projection="polar")
-    ax1.set_xlabel("X axis")
-    ax1.set_ylabel("Y axis")
-    ax1.grid()
+    ax = config_plot(fig, pos=1, mode="polar")
+    ax1 = config_plot(fig, pos=2)
 
     graph = FigureCanvasTkAgg(fig, master=root)
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
