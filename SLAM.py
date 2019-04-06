@@ -12,11 +12,12 @@ import time
 from skimage.measure import ransac, LineModelND
 
 PI = np.pi
+DISTANCE_LIMIT = 40  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
 THRESHOLD = 0.5
 MAX_TRIALS = 1000
-MIN_SAMPLES = 2
+MIN_SAMPLES = 5
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
@@ -26,13 +27,19 @@ def landmark_extraction(xPoints, yPoints):
     xBase = np.array(data[inliers, 0])
     yPredicted = model_robust.predict_y(xBase)
     return xBase, yPredicted
-    
+   
+#  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
 def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
     ax = figure.add_subplot(lin, col, pos, projection=mode)
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
     ax.grid()
     return ax
+
+#   Calculates the distance between two measures
+def distance_between_measures(new_measure, old_measure):
+    distance = np.absolute(new_measure[0][3] - old_measure[0][3])
+    return distance
 
 def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
@@ -118,8 +125,9 @@ def plotting(my_q):
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
-                    for i in range(len(xInliers)):
-                        ax1.plot(xInliers[i], yInliers[i])
+                    ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
+                    #for i in range(len(xInliers)):
+                    #    ax1.plot(xInliers[i], yInliers[i])
                     graph.draw()
                     k = 1
                     i = 0
