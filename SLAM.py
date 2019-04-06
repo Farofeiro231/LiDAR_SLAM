@@ -92,6 +92,7 @@ def plotting(my_q):
         xInliers, yInliers = list(), list()
         temp_x, temp_y = 0., 0.
         angle, dist = 0., 0.
+        neighboors = 0
         i = 0
         k = 1
         trained = False
@@ -103,6 +104,8 @@ def plotting(my_q):
                     dist = measure[0][3]
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
+                    if distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
+                        
                     xPoints.append(dist*np.cos(angle))
                     yPoints.append(dist*np.sin(angle))
                     if i >= k * PNT_NBR:
