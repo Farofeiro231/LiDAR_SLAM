@@ -40,9 +40,8 @@ def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
 #   just return a unacceptable distance so the program runs the RANSAC calculation.
 def distance_between_measures(new_measure, old_measure):
     if new_measure != 0:
-        distance = np.absolute(new_measure[0][3] - old_measure[0][3])
+        distance = np.absolute(new_measure[0][3] - old_measure)
     else:
-        print('lol')
         distance = DISTANCE_LIMIT + 10
     return distance
 
