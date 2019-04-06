@@ -12,13 +12,13 @@ import time
 from skimage.measure import ransac, LineModelND
 
 PI = np.pi
-DISTANCE_LIMIT = 100  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
+DISTANCE_LIMIT = 50  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
-THRESHOLD = 20
-MAX_TRIALS = 100
+THRESHOLD = 50
+MAX_TRIALS = 1000
 MIN_SAMPLES = 2
-MIN_NEIGHBOORS = 10
+MIN_NEIGHBOORS = 25
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
@@ -115,6 +115,7 @@ def plotting(my_q):
                         yPoints.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
+#                        print("Numero de neighboors: {:}" .format(neighboors))
                         temp_x, temp_y = landmark_extraction(xPoints, yPoints)
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
@@ -154,8 +155,8 @@ def plotting(my_q):
                     ax.grid()
                     ax1.cla()
                     ax1.grid()
-                    #theta_array = np.array(theta, dtype="float")
-                    #distance_array = np.array(distance, dtype="float")
+                    theta_array = np.array(theta, dtype="float")
+                    distance_array = np.array(distance, dtype="float")
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
