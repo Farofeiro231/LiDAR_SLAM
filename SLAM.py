@@ -42,6 +42,7 @@ def distance_between_measures(new_measure, old_measure):
     if new_measure != 0:
         distance = np.absolute(new_measure[0][3] - old_measure[0][3])
     else:
+        print('lol')
         distance = DISTANCE_LIMIT + 10
     return distance
 
@@ -104,6 +105,7 @@ def plotting(my_q):
             while flag:
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
+                    print("Valor da medida: {}" .format(measure))
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     theta.append(angle)
@@ -133,8 +135,19 @@ def plotting(my_q):
                     #    yInliers.append(temp_y)
                     #    k += 1
                     #i += 1
-                #elif measure == 0 and len(xInliers) > 1:
-                if len(xInliers) > 1:
+                elif measure == 0 and len(xInliers) > 1:
+                    if neighboors > 4:
+                        temp_x, temp_y = landmark_extraction(xPoints, yPoints)
+                        xInliers.append(temp_x)
+                        yInliers.append(temp_y)
+                        del xPoints[:]
+                        del yPoints[:]
+                        neighboors = 0
+                    else:
+                        del xPoints[:]
+                        del yPoints[:]
+                        neighboors = 0
+
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
                     ax.cla()
@@ -153,8 +166,8 @@ def plotting(my_q):
                     graph.draw()
                     #k = 1
                     #i = 0
-                    del xPoints[:]
-                    del yPoints [:]
+                    #del xPoints[:]
+                   # del yPoints [:]
                     del theta[:]
                     del distance[:]
                     del xInliers[:]
