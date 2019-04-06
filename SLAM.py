@@ -17,7 +17,7 @@ PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
 THRESHOLD = 0.5
 MAX_TRIALS = 1000
-MIN_SAMPLES = 5
+MIN_SAMPLES = 2
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
@@ -36,9 +36,13 @@ def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
     ax.grid()
     return ax
 
-#   Calculates the distance between two measures
+#   Calculates the distance between two measures. If the received measure is the stop signal (0),
+#   just return a unacceptable distance so the program runs the RANSAC calculation.
 def distance_between_measures(new_measure, old_measure):
-    distance = np.absolute(new_measure[0][3] - old_measure[0][3])
+    if new_measure != 0:
+        distance = np.absolute(new_measure[0][3] - old_measure[0][3])
+    else:
+        distance = DISTANCE_LIMIT + 10
     return distance
 
 def scanning(my_q):
@@ -104,18 +108,33 @@ def plotting(my_q):
                     dist = measure[0][3]
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
+                    # Verify if the points are close enough to each other to be ransacked
                     if distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        
-                    xPoints.append(dist*np.cos(angle))
-                    yPoints.append(dist*np.sin(angle))
-                    if i >= k * PNT_NBR:
-                        #print("Entrei! Valor de i e k: {:}, {:}" .format(i, k))
-                        temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
+                        xPoints.append(dist * np.cos(angle))
+                        yPoints.append(dist * np.sin(angle))
+                        neighboors += 1
+                    elif neightboors > 4:
+                        temp_x, temp_y = landmark_extraction(xPoints, yPoints)
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
-                        k += 1
-                    i += 1
-                elif measure == 0 and len(xInliers) > 1:
+                        del xPoints[:]
+                        del yPoints[:]
+                        neighboors = 0
+                    else:
+                        del xPoints[:]
+                        del yPoints[:]
+                        neighboors = 0
+                    #xPoints.append(dist*np.cos(angle))
+                    #yPoints.append(dist*np.sin(angle))
+                    #if i >= k * PNT_NBR:
+                        #print("Entrei! Valor de i e k: {:}, {:}" .format(i, k))
+                    #    temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
+                    #    xInliers.append(temp_x)
+                    #    yInliers.append(temp_y)
+                    #    k += 1
+                    #i += 1
+                #elif measure == 0 and len(xInliers) > 1:
+                if len(xInliers) > 1:
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
                     ax.cla()
@@ -132,8 +151,8 @@ def plotting(my_q):
                     #for i in range(len(xInliers)):
                     #    ax1.plot(xInliers[i], yInliers[i])
                     graph.draw()
-                    k = 1
-                    i = 0
+                    #k = 1
+                    #i = 0
                     del xPoints[:]
                     del yPoints [:]
                     del theta[:]
