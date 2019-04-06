@@ -15,8 +15,8 @@ PI = np.pi
 DISTANCE_LIMIT = 40  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
-THRESHOLD = 0.5
-MAX_TRIALS = 1000
+THRESHOLD = 1
+MAX_TRIALS = 100
 MIN_SAMPLES = 2
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
@@ -40,7 +40,9 @@ def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
 #   just return a unacceptable distance so the program runs the RANSAC calculation.
 def distance_between_measures(new_measure, old_measure):
     if new_measure != 0:
-        distance = np.absolute(new_measure[0][3] - old_measure)
+        #print("Nova medida x velha medida: {0:.2f} x {1:.2f}".format(new_measure[0][3], old_measure))
+        distance = abs(new_measure[0][3] - old_measure)
+        #print("Calculated distance: {:+f}".format(distance))
     else:
         distance = DISTANCE_LIMIT + 10
     return distance
@@ -104,17 +106,14 @@ def plotting(my_q):
             while flag:
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
-                    print("Valor da medida: {}" .format(measure))
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
-                    theta.append(angle)
-                    distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     # Verify if the points are close enough to each other to be ransacked
-                    if distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
+                    if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
                         xPoints.append(dist * np.cos(angle))
                         yPoints.append(dist * np.sin(angle))
                         neighboors += 1
-                    elif neightboors > 4:
+                    elif neighboors > 4:
                         temp_x, temp_y = landmark_extraction(xPoints, yPoints)
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
@@ -124,7 +123,9 @@ def plotting(my_q):
                     else:
                         del xPoints[:]
                         del yPoints[:]
-                        neighboors = 0
+                        neighboors = 0 
+                    theta.append(angle)
+                    distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #xPoints.append(dist*np.cos(angle))
                     #yPoints.append(dist*np.sin(angle))
                     #if i >= k * PNT_NBR:
@@ -146,7 +147,7 @@ def plotting(my_q):
                         del xPoints[:]
                         del yPoints[:]
                         neighboors = 0
-
+                    print("Desenhando...\n")
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
                     ax.cla()
