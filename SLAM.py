@@ -104,6 +104,7 @@ def plotting(my_q):
         tempo = 0. 
         try:
             while flag:
+                tempo = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
@@ -115,9 +116,8 @@ def plotting(my_q):
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
 #                        print("Numero de neighboors: {:}" .format(neighboors))
-                        tempo = time.time()
+                        #tempo = time.time()
                         temp_x, temp_y = landmark_extraction(xPoints, yPoints)
-                        print("Time to extract landmarks: {:.2f}".format(time.time() - tempo))
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         del xPoints[:]
@@ -141,6 +141,7 @@ def plotting(my_q):
                     #    k += 1
                     #i += 1
                 elif measure == 0 and len(xInliers) > 1:
+                    tempo = time.time()
                     if neighboors > MIN_NEIGHBOORS:
                         temp_x, temp_y = landmark_extraction(xPoints, yPoints)
                         xInliers.append(temp_x)
@@ -154,7 +155,6 @@ def plotting(my_q):
                         neighboors = 0
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
-                    tempo = time.time()
                     #ax.cla()
                     #ax.grid()
                     ax1.cla()
@@ -170,7 +170,7 @@ def plotting(my_q):
                     #for i in range(len(xInliers)):
                     #    ax1.plot(xInliers[i], yInliers[i])
                     graph.draw()
-                    print("Time to draw the plots: {:.2f}".format(time.time()-tempo))
+                    print("Time to draw the plots: {:.3f}".format(time.time()-tempo))
                     #k = 1
                     #i = 0
                     #del xPoints[:]
@@ -181,6 +181,7 @@ def plotting(my_q):
                     del distance[:]
                     del xInliers[:]
                     del yInliers[:]
+                print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             pass
 
