@@ -12,7 +12,7 @@ import time
 
 
 def scanning(my_q):
-    range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
+    range_finder = Lidar('/dev/ttyUSB1')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=350)  # returns a yield containing each measure
@@ -55,27 +55,34 @@ def plotting(my_q):
 
     def plot():
         nonlocal flag
+        tempo = 0.
         measure = list()
         theta, distance = list(), list()
         try:
             while flag:
-                measure.append(my_q.get(True),)  # reads from the Queue without blocking
-                if (measure[-1]) == 0:
+                tempo = time.time()
+                measure = my_q.get(True)  # reads from the Queue without blocking
+                if measure != 0 and measure[0][3] < 5000:
+                    theta.append(-measure[0][2]*np.pi/180+np.pi/2)
+                    distance.append(measure[0][3])
+                elif measure == 0:
+                    tempo = time.time()
                     ax.cla()
                     ax.grid()
-                    for medida in measure:
-                        if medida != 0 and medida[0][3] < 1000:
-                            fd.write("Distance: %s Angle: %s\n" % (medida[0][3], medida[0][2]))
-                            theta.append(-medida[0][2]*np.pi/180+np.pi/2)
-                            distance.append(medida[0][3])
+                    #for medida in measure:
+                     #   if medida != 0 and medida[0][3] < 1000:
+                     #       fd.write("Distance: %s Angle: %s\n" % (medida[0][3], medida[0][2]))
+                     #       theta.append(-medida[0][2]*np.pi/180+np.pi/2)
+                     #       distance.append(medida[0][3])
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
                     del theta[:]
                     del distance[:]
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
                     graph.draw()
-                    del measure[:]
-                    fd.write("\n\n")
+                    print("Time to plot: {:.3f}".format(time.time() - tempo))
+                    #fd.write("\n\n")
+                print("Loop process time: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             pass
 
