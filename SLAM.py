@@ -26,9 +26,9 @@ def landmark_extraction(xPoints, yPoints):
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
     xBase = np.array(data[inliers, 0])
-    yBase = np.array(data[inliers, 1]
+    yBase = np.array(data[inliers, 1])
     #yPredicted = model_robust.predict_y(xBase)
-    return xBase, yBase#yPredicted
+    return xBase, yBase  #yPredicted
    
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
 def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
