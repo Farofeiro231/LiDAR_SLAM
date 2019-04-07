@@ -15,7 +15,7 @@ PI = np.pi
 DISTANCE_LIMIT = 50  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 PNT_NBR = 10
 ANGLE_TO_RAD = PI / 180
-THRESHOLD = 50
+THRESHOLD = 100
 MAX_TRIALS = 1000
 MIN_SAMPLES = 2
 MIN_NEIGHBOORS = 25
@@ -26,8 +26,9 @@ def landmark_extraction(xPoints, yPoints):
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
     xBase = np.array(data[inliers, 0])
-    yPredicted = model_robust.predict_y(xBase)
-    return xBase, yPredicted
+    yBase = np.array(data[inliers, 1]
+    #yPredicted = model_robust.predict_y(xBase)
+    return xBase, yBase#yPredicted
    
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
 def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
@@ -49,7 +50,7 @@ def distance_between_measures(new_measure, old_measure):
     return distance
 
 def scanning(my_q):
-    range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
+    range_finder = Lidar('/dev/ttyUSB1')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
