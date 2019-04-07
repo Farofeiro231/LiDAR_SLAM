@@ -12,13 +12,12 @@ import time
 from skimage.measure import ransac, LineModelND
 
 PI = np.pi
-DISTANCE_LIMIT = 50  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
-PNT_NBR = 10
+DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-THRESHOLD = 100
+THRESHOLD = 30
 MAX_TRIALS = 1000
 MIN_SAMPLES = 2
-MIN_NEIGHBOORS = 25
+MIN_NEIGHBOORS = 10
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
@@ -53,7 +52,7 @@ def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB1')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=350)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
@@ -98,6 +97,7 @@ def plotting(my_q):
         theta, distance = list(), list()
         xPoints, yPoints = list(), list()
         xInliers, yInliers = list(), list()
+        x, y = list(), list()
         temp_x, temp_y = 0., 0.
         angle, dist = 0., 0.
         neighboors = 0
@@ -129,6 +129,8 @@ def plotting(my_q):
                         neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
+                    x.append(dist * np.cos(angle))
+                    y.append(dist * np.cos(angle))
                     #xPoints.append(dist*np.cos(angle))
                     #yPoints.append(dist*np.sin(angle))
                     #if i >= k * PNT_NBR:
@@ -161,7 +163,8 @@ def plotting(my_q):
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
-                    ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    #ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    ax.scatter(x, y, marker="+", s=3)
                     ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     #for i in range(len(xInliers)):
                     #    ax1.plot(xInliers[i], yInliers[i])
