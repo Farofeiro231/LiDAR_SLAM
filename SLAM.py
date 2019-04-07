@@ -14,10 +14,10 @@ from skimage.measure import ransac, LineModelND
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-THRESHOLD = 30
+THRESHOLD = 30  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 1000
 MIN_SAMPLES = 2
-MIN_NEIGHBOORS = 10
+MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC processing
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 
 def landmark_extraction(xPoints, yPoints):
@@ -82,7 +82,7 @@ def plotting(my_q):
 
     fig = Figure()
 
-    ax = config_plot(fig, pos=1, mode="polar")
+    ax = config_plot(fig, pos=1)#, mode="polar")
     ax1 = config_plot(fig, pos=2)
 
     graph = FigureCanvasTkAgg(fig, master=root)
@@ -101,9 +101,7 @@ def plotting(my_q):
         temp_x, temp_y = 0., 0.
         angle, dist = 0., 0.
         neighboors = 0
-        i = 0
-        k = 1
-        trained = False
+        tempo = 0. 
         try:
             while flag:
                 measure = my_q.get(True) # reads from the Queue without blocking
@@ -117,7 +115,9 @@ def plotting(my_q):
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
 #                        print("Numero de neighboors: {:}" .format(neighboors))
+                        tempo = time.time()
                         temp_x, temp_y = landmark_extraction(xPoints, yPoints)
+                        print("Time to extract landmarks: {:.2f}".format(time.time() - tempo))
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         del xPoints[:]
@@ -130,7 +130,7 @@ def plotting(my_q):
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     x.append(dist * np.cos(angle))
-                    y.append(dist * np.cos(angle))
+                    y.append(dist * np.sin(angle))
                     #xPoints.append(dist*np.cos(angle))
                     #yPoints.append(dist*np.sin(angle))
                     #if i >= k * PNT_NBR:
@@ -154,25 +154,29 @@ def plotting(my_q):
                         neighboors = 0
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
+                    tempo = time.time()
                     ax.cla()
                     ax.grid()
                     ax1.cla()
                     ax1.grid()
-                    theta_array = np.array(theta, dtype="float")
-                    distance_array = np.array(distance, dtype="float")
+                    #theta_array = np.array(theta, dtype="float")
+                    #distance_array = np.array(distance, dtype="float")
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
-                    ax.scatter(x, y, marker="+", s=3)
+                    #ax.scatter(x, y, marker="+", s=3)
                     ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     #for i in range(len(xInliers)):
                     #    ax1.plot(xInliers[i], yInliers[i])
                     graph.draw()
+                    print("Time to draw the plots: {:.2f}".format(time.time()-tempo))
                     #k = 1
                     #i = 0
                     #del xPoints[:]
                    # del yPoints [:]
+                    del x[:]
+                    del y[:]
                     del theta[:]
                     del distance[:]
                     del xInliers[:]
