@@ -30,7 +30,7 @@ def landmark_extraction(xPoints, yPoints):
     return xBase, yBase  #yPredicted
    
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
-def config_plot(figure, lin=1, col=2, pos=1, mode="rectilinear"):
+def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     ax = figure.add_subplot(lin, col, pos, projection=mode)
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
@@ -82,8 +82,8 @@ def plotting(my_q):
 
     fig = Figure()
 
-    ax = config_plot(fig, pos=1)#, mode="polar")
-    ax1 = config_plot(fig, pos=2)
+    #ax = config_plot(fig, pos=1)#, mode="polar")
+    ax1 = config_plot(fig, pos=1)
 
     graph = FigureCanvasTkAgg(fig, master=root)
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
@@ -155,8 +155,8 @@ def plotting(my_q):
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
                     tempo = time.time()
-                    ax.cla()
-                    ax.grid()
+                    #ax.cla()
+                    #ax.grid()
                     ax1.cla()
                     ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
