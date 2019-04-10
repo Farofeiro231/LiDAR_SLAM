@@ -28,7 +28,7 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(keyFlags, xPoints, yPoints, xInliers, yInliers):
+def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_t = 0., 0.
     while True:
         if keyFlags['go']:
@@ -93,6 +93,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
 
     def plot():
+        nonlocal keyFlags
         nonlocal flag
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
@@ -154,6 +155,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #yInliers.append(temp_y)
                         #del xPoints[:]
                         #del yPoints[:]
+                        print("GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
                         keyFlags['go'] = True
                         neighboors = 0
                     else:
