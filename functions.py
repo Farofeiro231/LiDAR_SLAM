@@ -7,7 +7,33 @@ from lidar import Lidar
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-from skimage.measure import ransac, LineModelND
+from ransac import landmark_extraction
+
+PI = np.pi
+DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
+ANGLE_TO_RAD = PI / 180
+
+
+#  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
+def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
+    ax = figure.add_subplot(lin, col, pos, projection=mode)
+    ax.set_xlabel("X axis")
+    ax.set_ylabel("Y axis")
+    ax.grid()
+    return ax
+
+
+#   Calculates the distance between two measures. If the received measure is the stop signal (0),
+#   just return a unacceptable distance so the program runs the RANSAC calculation.
+def distance_between_measures(new_measure, old_measure):
+    if new_measure != 0:
+        #print("Nova medida x velha medida: {0:.2f} x {1:.2f}".format(new_measure[0][3], old_measure))
+        distance = abs(new_measure[0][3] - old_measure)
+        #print("Calculated distance: {:+f}".format(distance))
+    else:
+        distance = DISTANCE_LIMIT + 10
+    return distance
+
 
 def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
