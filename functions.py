@@ -7,7 +7,7 @@ from lidar import Lidar
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-from ransac import landmark_extraction
+import ransac_functions
 
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
