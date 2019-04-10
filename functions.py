@@ -8,10 +8,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import ransac_functions
+import threading
 
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
+MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -103,7 +105,7 @@ def plotting(my_q):
                     elif neighboors > MIN_NEIGHBOORS:
 #                        print("Numero de neighboors: {:}" .format(neighboors))
                         #tempo = time.time()
-                        temp_x, temp_y = landmark_extraction(xPoints, yPoints)
+                        temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         del xPoints[:]
@@ -129,7 +131,7 @@ def plotting(my_q):
                 elif measure == 0 and len(xInliers) > 1:
                     tempo = time.time()
                     if neighboors > MIN_NEIGHBOORS:
-                        temp_x, temp_y = landmark_extraction(xPoints, yPoints)
+                        temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
                         xInliers.append(temp_x)
                         yInliers.append(temp_y)
                         del xPoints[:]
