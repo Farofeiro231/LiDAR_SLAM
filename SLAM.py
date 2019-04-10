@@ -9,6 +9,7 @@ if __name__ == '__main__':
     keyFlags = manager.dict()
     keyFlags['go'] = False
     keyFlags['plot'] = False
+    print("keyFlags: {}" .format(keyFlags))
     x, y = list(), list()
     theta, distance = list(), list()
     xPoints, yPoints = list(), list()
@@ -19,8 +20,8 @@ if __name__ == '__main__':
         data_plotting = mp.Process(target=plotting, args=(my_queue, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y, ))
         ransac_process = mp.Process(target=ransac_core, args=(my_queue, keyFlags, xPoints, yPoints, xInliers, yInliers, ))
         data_acquisition.start()
-        ransac_process.start()
         data_plotting.start()
+        ransac_process.start()
         processes.append(data_plotting)
         processes.append(data_acquisition)
         processes.append(ransac_process)
