@@ -32,7 +32,7 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_t = 0., 0.
     while True:
         if keyFlags['go']:
-            print("Ransac...")
+            print("RANSAAAAAAAAAAAAAAAAAAAAC...")
             temp_x, tempy = ransac_functions.landmark_extraction(xPoints, yPoints)
             xInliers.append(temp_x)
             yInliers.append(temp_y)
@@ -121,7 +121,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         yPoints.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
-#                        print("Numero de neighboors: {:}" .format(neighboors))
+                        print("Numero de neighboors: {:}" .format(neighboors))
                         #tempo = time.time()
                         #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
                         #xInliers.append(temp_x)
