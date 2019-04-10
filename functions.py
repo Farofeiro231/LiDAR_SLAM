@@ -9,6 +9,8 @@ import numpy as np
 import time
 import ransac_functions
 import threading
+import multiprocessing as mp
+
 
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
@@ -27,7 +29,15 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(keyFlags, xPoints, yPoints, xInliers, yInliers):
-
+    temp_x, temp_t = 0., 0.
+    while True:
+        if keyFlags['Go']:
+            temp_x, tempy = ransac_functions.landmark_extraction(xPoints, yPoints)
+            xInliers.append(temp_x)
+            yInliers.append(temp_y)
+            del xPoints[:]
+            del yPoints[:]
+            keyFlags['Go'] = False
 
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -94,7 +104,10 @@ def plotting(my_q):
         temp_x, temp_y = 0., 0.
         angle, dist = 0., 0.
         neighboors = 0
-        tempo = 0. 
+        tempo = 0.
+
+        
+
         try:
             while flag:
                 tempo = time.time()
