@@ -194,7 +194,8 @@ def plotting(my_q):
 
     #b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
     #b.pack()
-
+    threading.Thread(target=plot).start()
+    print("lol")
     root.mainloop()
 
 
