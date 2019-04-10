@@ -25,6 +25,11 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     return ax
 
 
+#   Here I run the landmark_extraction code inside an indepent process
+def ransac_core(keyFlags, xPoints, yPoints, xInliers, yInliers):
+
+
+
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
 #   just return a unacceptable distance so the program runs the RANSAC calculation.
 def distance_between_measures(new_measure, old_measure):
@@ -59,7 +64,7 @@ def scanning(my_q):
 
 def plotting(my_q):
 
-    update = {'value': True}
+    keyFlags = {'Go': False, 'Plot': False}
     flag = False
     
     root = Tk()
