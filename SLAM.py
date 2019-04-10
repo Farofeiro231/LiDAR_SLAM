@@ -3,8 +3,12 @@ from functions import *
 
 
 if __name__ == '__main__':
+    manager = mp.Manager()
     processes = []
-    keyFlags = {'go': False, 'plot': False}
+    #keyFlags = {'go': False, 'plot': False}
+    keyFlags = manager.dict()
+    keyFlags['go'] = False
+    keyFlags['plot'] = False
     x, y = list(), list()
     theta, distance = list(), list()
     xPoints, yPoints = list(), list()

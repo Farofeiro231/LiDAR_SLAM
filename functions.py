@@ -31,7 +31,7 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
     while True:
-        if keyFlags['go']:
+        if keyFlags['go'] == True:
             print("RANSAAAAAAAAAAAAAAAAAAAAC...")
             temp_x, tempy = ransac_functions.landmark_extraction(xPoints, yPoints)
             xInliers.append(temp_x)
@@ -74,6 +74,7 @@ def scanning(my_q):
 
 def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
 
+
     flag = False
     
     root = Tk()
@@ -92,7 +93,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
 
     def plot():
-        global keyFlags
+        nonlocal keyFlags
         nonlocal flag
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
