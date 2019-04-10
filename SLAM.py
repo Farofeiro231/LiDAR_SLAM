@@ -185,17 +185,15 @@ def plotting(my_q):
         except KeyboardInterrupt:
             pass
 
-    #def run_gui():
-    #    print('beginning')
-    #    threading.Thread(target=plot).start()
-        #nonlocal flag
-        #flag = not flag
+    def run_gui():
+        print('beginning')
+        nonlocal flag
+        flag = not flag
         #update['value'] = not update['value']
 
-    #b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
-    #b.pack()
+    b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
+    b.pack()
     threading.Thread(target=plot).start()
-    print("lol")
     root.mainloop()
 
 
