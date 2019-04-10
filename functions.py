@@ -31,13 +31,14 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 def ransac_core(keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_t = 0., 0.
     while True:
-        if keyFlags['Go']:
+        if keyFlags['go']:
+            print("Ransac...")
             temp_x, tempy = ransac_functions.landmark_extraction(xPoints, yPoints)
             xInliers.append(temp_x)
             yInliers.append(temp_y)
             del xPoints[:]
             del yPoints[:]
-            keyFlags['Go'] = False
+            keyFlags['go'] = False
 
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -121,11 +122,12 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     elif neighboors > MIN_NEIGHBOORS:
 #                        print("Numero de neighboors: {:}" .format(neighboors))
                         #tempo = time.time()
-                        temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                        xInliers.append(temp_x)
-                        yInliers.append(temp_y)
-                        del xPoints[:]
-                        del yPoints[:]
+                        #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
+                        #xInliers.append(temp_x)
+                        #yInliers.append(temp_y)
+                        #del xPoints[:]
+                        #del yPoints[:]
+                        keyFlags['go'] = True
                         neighboors = 0
                     else:
                         del xPoints[:]
@@ -147,11 +149,12 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                 elif measure == 0 and len(xInliers) > 1:
                     tempo = time.time()
                     if neighboors > MIN_NEIGHBOORS:
-                        temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                        xInliers.append(temp_x)
-                        yInliers.append(temp_y)
-                        del xPoints[:]
-                        del yPoints[:]
+                        #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
+                        #xInliers.append(temp_x)
+                        #yInliers.append(temp_y)
+                        #del xPoints[:]
+                        #del yPoints[:]
+                        keyFlags['go'] = True
                         neighboors = 0
                     else:
                         del xPoints[:]
