@@ -72,7 +72,7 @@ def plotting(my_q):
 
     update = {'value': True}
     flag = False
-
+    
     root = Tk()
     root.config(background='white')     # configure the root window to contain the plot
     root.geometry("1000x700")
@@ -215,8 +215,14 @@ def plotting(my_q):
     worker = DisplayPoints(my_q)
     worker.start()
 
+    print("fodase")
+    windowThread = TkinterLoop(my_q, root)
+    windowThread.start()
+
+    #worker.join()
+    #windowThread.join()
     #threading.Thread(target=plot).start()
-    root.mainloop()
+    #root.mainloop()
 
 
 if __name__ == '__main__':
