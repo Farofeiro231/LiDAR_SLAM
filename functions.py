@@ -72,7 +72,7 @@ def scanning(my_q):
             my_q.put(None)
 
 
-def plotting(my_q):
+def plotting(my_q, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
 
     keyFlags = {'Go': False, 'Plot': False}
     flag = False
@@ -97,17 +97,16 @@ def plotting(my_q):
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
-        theta, distance = list(), list()
-        xPoints, yPoints = list(), list()
-        xInliers, yInliers = list(), list()
-        x, y = list(), list()
+        #theta, distance = list(), list()
+        #xPoints, yPoints = list(), list()
+        #xInliers, yInliers = list(), list()
+        #x, y = list(), list()
         temp_x, temp_y = 0., 0.
         angle, dist = 0., 0.
         neighboors = 0
         tempo = 0.
 
         
-
         try:
             while flag:
                 tempo = time.time()
