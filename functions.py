@@ -72,9 +72,8 @@ def scanning(my_q):
             my_q.put(None)
 
 
-def plotting(my_q, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
 
-    keyFlags = {'Go': False, 'Plot': False}
     flag = False
     
     root = Tk()
