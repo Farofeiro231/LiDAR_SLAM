@@ -49,7 +49,7 @@ def distance_between_measures(new_measure, old_measure):
     return distance
 
 def scanning(my_q):
-    range_finder = Lidar('/dev/ttyUSB1')  # initializes serial connection with the lidar
+    range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=350)  # returns a yield containing each measure
@@ -185,15 +185,15 @@ def plotting(my_q):
         except KeyboardInterrupt:
             pass
 
-    def run_gui():
-        print('beginning')
-        threading.Thread(target=plot).start()
+    #def run_gui():
+    #    print('beginning')
+    #    threading.Thread(target=plot).start()
         #nonlocal flag
         #flag = not flag
         #update['value'] = not update['value']
 
-    b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
-    b.pack()
+    #b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
+    #b.pack()
 
     root.mainloop()
 
