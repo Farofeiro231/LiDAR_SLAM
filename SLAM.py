@@ -71,7 +71,7 @@ def scanning(my_q):
 def plotting(my_q):
 
     update = {'value': True}
-    flag = True
+    flag = False
 
     root = Tk()
     root.config(background='white')     # configure the root window to contain the plot
@@ -88,18 +88,27 @@ def plotting(my_q):
     graph = FigureCanvasTkAgg(fig, master=root)
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
 
+    class TkinterLoop(threading.Thread):
+
+        def __init__(self, queue, root):
+            threading.Thread.__init__(self)
+            self.root = root
+            self.queue = queue
+
+        def run(self):
+            root.mainloop()
 
     class DisplayPoints(threading.Thread):
         
-        def __init__(self, queue)
-        Thread.__init__(self)
-        self.queue = queue
+        def __init__(self, queue):
+            threading.Thread.__init__(self)
+            self.queue = queue
 
         def run(self):
-            while True:
                 self.plot()
                 
         def plot(self):
+            print("Estou na função tal...")
             nonlocal flag
             measure = 0
             xMask, yMask = 0., 0.
