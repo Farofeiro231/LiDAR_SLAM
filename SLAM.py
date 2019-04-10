@@ -105,7 +105,6 @@ def plotting(my_q):
             while flag:
                 tempo = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
-                print(measure)
                 if measure != 0 and measure[0][3] < 5000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
@@ -184,19 +183,17 @@ def plotting(my_q):
                 print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             pass
-        root.after(0, plot)
 
     def run_gui():
         print('beginning')
         nonlocal flag
         flag = not flag
-        #threading.Thread(target=plot).start()
+        threading.Thread(target=plot).start()
         #update['value'] = not update['value']
 
     b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
     b.pack()
     
-    root.after(0, plot)
     root.mainloop()
 
 
