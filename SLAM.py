@@ -184,18 +184,19 @@ def plotting(my_q):
                 print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             pass
-        print("Novo valor de flag: {}" .format(flag))
+        root.after(0, plot)
 
     def run_gui():
         print('beginning')
         nonlocal flag
         flag = not flag
-        threading.Thread(target=plot).start()
+        #threading.Thread(target=plot).start()
         #update['value'] = not update['value']
 
     b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
     b.pack()
     
+    root.after(0, plot)
     root.mainloop()
 
 
