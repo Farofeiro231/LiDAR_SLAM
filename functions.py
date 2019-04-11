@@ -74,7 +74,7 @@ def scanning(my_q):
 
 def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
 
-
+    print("Valor de keyFlags: {}" .format(keyFlags))
     flag = False
     
     root = Tk()

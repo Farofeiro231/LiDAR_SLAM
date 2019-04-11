@@ -10,10 +10,10 @@ if __name__ == '__main__':
     keyFlags['go'] = False
     keyFlags['plot'] = False
     print("keyFlags: {}" .format(keyFlags))
-    x, y = list(), list()
-    theta, distance = list(), list()
-    xPoints, yPoints = list(), list()
-    xInliers, yInliers = list(), list()
+    x, y = manager.list(), manager.list()
+    theta, distance = manager.list(), manager.list()
+    xPoints, yPoints = manager.list(), manager.list()
+    xInliers, yInliers = manager.list(), manager.list()
     time.sleep(1)
     try:
         my_queue = mp.Queue()
@@ -29,6 +29,6 @@ if __name__ == '__main__':
         for proc in processes:
             proc.join()
     except KeyboardInterrupt:
-        for proc in processes:
-            proc.join()
+#        for proc in processes:
+#            proc.join()
         exit()
