@@ -109,7 +109,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
         #xPoints, yPoints = list(), list()
         #xInliers, yInliers = list(), list()
         #x, y = list(), list()
-        temp_x, temp_y = 0., 0.
+        temp_x, temp_y = list(), list()
         angle, dist = 0., 0.
         neighboors = 0
         tempo = 0.
@@ -124,8 +124,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        xPoints.append(dist * np.cos(angle))
-                        yPoints.append(dist * np.sin(angle))
+                        temp_x.append(dist * np.cos(angle))
+                        temp_y.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
                         #'print("Numero de neighboors: {:}" .format(neighboors))
