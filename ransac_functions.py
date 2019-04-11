@@ -3,7 +3,7 @@ import numpy as np
 
 
 THRESHOLD = 30  # maximum distance between a point and the line from the model for inlier classification
-MAX_TRIALS = 100
+MAX_TRIALS = 10
 MIN_SAMPLES = 2
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 

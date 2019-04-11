@@ -35,7 +35,7 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
             if keyFlags['go'] == True:
                 inicio = time.time()
                 temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                print("Tempo de ransac: {:.6f}" .format(inicio - time.time())
+                #print("Tempo de ransac: {:.6f}" .format(inicio - time.time()))
                 xInliers.append(temp_x)
                 yInliers.append(temp_y)
                 #del xPoints[:]
@@ -181,7 +181,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     del distance[:]
                     del xInliers[:]
                     del yInliers[:]
-                print("Time to loop: {:.6f}" .format(time.time() - tempo))
+                #print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             pass
 
