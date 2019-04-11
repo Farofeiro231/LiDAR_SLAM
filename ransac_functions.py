@@ -18,5 +18,6 @@ def landmark_extraction(xPoints, yPoints):
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
     xBase = np.array(data[inliers, 0])
     yBase = np.array(data[inliers, 1])
+    print("--------------------- Finished running RANSAC -----------------")
     #yPredicted = model_robust.predict_y(xBase)
     return xBase, yBase  #yPredicted

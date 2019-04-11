@@ -14,7 +14,6 @@ if __name__ == '__main__':
     theta, distance = manager.list(), manager.list()
     xPoints, yPoints = manager.list(), manager.list()
     xInliers, yInliers = manager.list(), manager.list()
-    time.sleep(1)
     try:
         my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(my_queue,))
