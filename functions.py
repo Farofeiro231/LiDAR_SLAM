@@ -32,7 +32,6 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
     while True:
         if keyFlags['go'] == True:
-            print("RANSAAAAAAAAAAAAAAAAAAAAC...")
             temp_x, tempy = ransac_functions.landmark_extraction(xPoints, yPoints)
             xInliers.append(temp_x)
             yInliers.append(temp_y)
@@ -131,9 +130,10 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         keyFlags['go'] = True
                         neighboors = 0
                     else:
-                        del xPoints[:]
-                        del yPoints[:]
-                        neighboors = 0 
+                        if not keyFlags['go']:
+                            del xPoints[:]
+                            del yPoints[:]
+                            neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     x.append(dist * np.cos(angle))
@@ -159,9 +159,10 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         keyFlags['go'] = True
                         neighboors = 0
                     else:
-                        del xPoints[:]
-                        del yPoints[:]
-                        neighboors = 0
+                        if not keyFlags['go']:
+                            del xPoints[:]
+                            del yPoints[:]
+                            neighboors = 0
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
                     #ax.cla()
