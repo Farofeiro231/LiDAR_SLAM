@@ -14,6 +14,7 @@ if __name__ == '__main__':
     theta, distance = list(), list()
     xPoints, yPoints = list(), list()
     xInliers, yInliers = list(), list()
+    time.sleep(1)
     try:
         my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(my_queue,))
@@ -25,8 +26,9 @@ if __name__ == '__main__':
         processes.append(data_plotting)
         processes.append(data_acquisition)
         processes.append(ransac_process)
+        for proc in processes:
+            proc.join()
     except KeyboardInterrupt:
         for proc in processes:
             proc.join()
-        fd.close()
         exit()
