@@ -32,7 +32,7 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
     while True:
         if keyFlags['go'] == True:
-            temp_x, tempy = ransac_functions.landmark_extraction(xPoints, yPoints)
+            temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
             xInliers.append(temp_x)
             yInliers.append(temp_y)
             del xPoints[:]
@@ -171,7 +171,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
-                    print("Values of xInliers: {}" .format(xInliers))
+                    print("Values of xInliers: {}" .format((xInliers[:])))
+                    print("Values of xInliers: {}" .format((yInliers[:])))
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
