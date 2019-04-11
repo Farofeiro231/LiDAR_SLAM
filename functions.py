@@ -85,8 +85,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
 
     fig = Figure()
 
-    ax = config_plot(fig, pos=1)#, mode="polar")
-    ax1 = config_plot(fig, pos=1)
+    ax = config_plot(fig, col=2, pos=2)#, mode="polar")
+    ax1 = config_plot(fig, col=2, pos=1)
 
     graph = FigureCanvasTkAgg(fig, master=root)
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
