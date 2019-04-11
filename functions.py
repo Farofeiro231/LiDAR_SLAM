@@ -30,14 +30,19 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
-    while True:
-        if keyFlags['go'] == True:
-            temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-            xInliers.append(temp_x)
-            yInliers.append(temp_y)
-            #del xPoints[:]
-            #del yPoints[:]
-            keyFlags['go'] = False
+    try:
+        while True:
+            if keyFlags['go'] == True:
+                inicio = time.time()
+                temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
+                print("Tempo de ransac: {:.6f}" .format(inicio - time.time())
+                xInliers.append(temp_x)
+                yInliers.append(temp_y)
+                #del xPoints[:]
+                #del yPoints[:]
+                keyFlags['go'] = False
+    except KeyboardInterrupt:
+        pass
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
 #   just return a unacceptable distance so the program runs the RANSAC calculation.
@@ -71,6 +76,9 @@ def scanning(my_q):
             my_q.put(None)
 
 
+
+
+
 def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
 
     print("Valor de keyFlags: {}" .format(keyFlags))
@@ -85,7 +93,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
 
     fig = Figure()
 
-    ax = config_plot(fig, col=2, pos=2)#, mode="polar")
+    ax = config_plot(fig, col=2, pos=2, mode='polar')#, mode="polar")
     ax1 = config_plot(fig, col=2, pos=1)
 
     graph = FigureCanvasTkAgg(fig, master=root)
@@ -120,7 +128,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         yPoints.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
-                        print("Numero de neighboors: {:}" .format(neighboors))
+                        #'print("Numero de neighboors: {:}" .format(neighboors))
                         #tempo = time.time()
                         #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
                         #xInliers.append(temp_x)
@@ -128,7 +136,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #del xPoints[:]
                         #del yPoints[:]
                         keyFlags['go'] = True
-                        time.sleep(0.1)
+                        time.sleep(0.001)
                         neighboors = 0
                     else:
                         if not keyFlags['go']:
@@ -139,15 +147,6 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     x.append(dist * np.cos(angle))
                     y.append(dist * np.sin(angle))
-                    #xPoints.append(dist*np.cos(angle))
-                    #yPoints.append(dist*np.sin(angle))
-                    #if i >= k * PNT_NBR:
-                        #print("Entrei! Valor de i e k: {:}, {:}" .format(i, k))
-                    #    temp_x, temp_y = landmark_extraction(xPoints[(k - 1) * PNT_NBR : i ], yPoints[ (k - 1) * PNT_NBR : i])
-                    #    xInliers.append(temp_x)
-                    #    yInliers.append(temp_y)
-                    #    k += 1
-                    #i += 1
                 elif measure == 0 and len(xInliers) > 1:
                     tempo = time.time()
                     if neighboors > MIN_NEIGHBOORS:
@@ -157,37 +156,25 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #del xPoints[:]
                         #del yPoints[:]
                         keyFlags['go'] = True
-                        time.sleep(0.1)
+                        time.sleep(0.001)
                         neighboors = 0
                     else:
                         if not keyFlags['go']:
                             del xPoints[:]
                             del yPoints[:]
                             neighboors = 0
-                    #print("Valor de i:{:}" .format(i))
-                    #print("Formato de xInliers:{:}" .format(len(xInliers)))
                     ax.cla()
                     ax.grid()
                     ax1.cla()
                     ax1.grid()
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
-                    #print("Values of xInliers: {}" .format((xInliers[:])))
-                    #print("Values of xInliers: {}" .format((yInliers[:])))
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
-                    #print(xMask.shape)
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
                     #ax.scatter(x, y, marker="+", s=3)
                     ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
-                    #for i in range(len(xInliers)):
-                    #    ax1.plot(xInliers[i], yInliers[i])
                     graph.draw()
-                    print("Time to draw the plots: {:.3f}".format(time.time()-tempo))
-                    #k = 1
-                    #i = 0
-                    #del xPoints[:]
-                    #del yPoints [:]
                     del x[:]
                     del y[:]
                     del theta[:]
