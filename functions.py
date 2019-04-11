@@ -85,7 +85,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
 
     fig = Figure()
 
-    #ax = config_plot(fig, pos=1)#, mode="polar")
+    ax = config_plot(fig, pos=1)#, mode="polar")
     ax1 = config_plot(fig, pos=1)
 
     graph = FigureCanvasTkAgg(fig, master=root)
@@ -165,18 +165,18 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                             neighboors = 0
                     #print("Valor de i:{:}" .format(i))
                     #print("Formato de xInliers:{:}" .format(len(xInliers)))
-                    #ax.cla()
-                    #ax.grid()
+                    ax.cla()
+                    ax.grid()
                     ax1.cla()
                     ax1.grid()
-                    #theta_array = np.array(theta, dtype="float")
-                    #distance_array = np.array(distance, dtype="float")
+                    theta_array = np.array(theta, dtype="float")
+                    distance_array = np.array(distance, dtype="float")
                     print("Values of xInliers: {}" .format((xInliers[:])))
                     print("Values of xInliers: {}" .format((yInliers[:])))
                     xMask = np.concatenate(xInliers, axis=0)
                     yMask = np.concatenate(yInliers, axis=0)
                     #print(xMask.shape)
-                    #ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    ax.scatter(theta_array, distance_array, marker="+", s=3)
                     #ax.scatter(x, y, marker="+", s=3)
                     ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     #for i in range(len(xInliers)):
@@ -186,7 +186,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     #k = 1
                     #i = 0
                     #del xPoints[:]
-                   # del yPoints [:]
+                    #del yPoints [:]
                     del x[:]
                     del y[:]
                     del theta[:]
