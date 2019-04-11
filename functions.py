@@ -35,8 +35,8 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
             temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
             xInliers.append(temp_x)
             yInliers.append(temp_y)
-            del xPoints[:]
-            del yPoints[:]
+            #del xPoints[:]
+            #del yPoints[:]
             keyFlags['go'] = False
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -128,6 +128,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #del xPoints[:]
                         #del yPoints[:]
                         keyFlags['go'] = True
+                        time.sleep(0.1)
                         neighboors = 0
                     else:
                         if not keyFlags['go']:

@@ -12,6 +12,8 @@ def landmark_extraction(xPoints, yPoints):
         #print("Tamanho de yPoints: {}" .format(len(yPoints)))
     temp_x = xPoints[:].copy()
     temp_y = yPoints[:].copy()
+    del xPoints[:]
+    del yPoints[:]
     data =  np.column_stack([temp_x, temp_y])  # Inliers returns an array of True or False with inliers as True.
     print("Data size of array: {}" .format(data.shape))
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
