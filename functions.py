@@ -27,6 +27,7 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     return ax
 
 
+#  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
 def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
     temp_x, temp_y = list(), list()
     while True:
@@ -39,6 +40,13 @@ def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
         else:
             del xList[:]
             del yList[:]
+
+
+def get_inliers(xInliers, yInliers, xPlot, yPlot):
+    while True:
+        xPlot.append(xInliers.get(True))
+        yPlot.append(yInliers.get(True))
+
 
 
 #   Here I run the landmark_extraction code inside an indepent process
@@ -101,7 +109,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
     xPoints, yPoints = mp.Queue(), mp.Queue()
     xInliers, yInliers = mp.Queue(), mp.Queue()
     theta, distance = list(), list()
-    x, y = list(), list()
+    xPlot, yPlot = list(), list()
     print("Valor de keyFlags: {}" .format(keyFlags))
     print("Valor de keyFlags: {}" .format(my_q))
     print("Valor de keyFlags: {}" .format(xPoints))
@@ -111,8 +119,9 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
     ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, yPoints, xInliers, yInliers, ))
     ransac_process.daemon = True  # exits the process as soon as the main program stops
     ransac_process.start()
-    print("I haven't yet quite understood the start and join of processes")
 
+    inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    inliersThread.start()
 
     root = Tk()
     root.config(background='white')     # configure the root window to contain the plot
@@ -135,18 +144,18 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
         nonlocal theta, distance
         nonlocal xPoints, yPoints
         nonlocal xInliers, yInliers
-        nonlocal x, y
+        nonlocal xPlot, yPlot
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
         #theta, distance = list(), list()
         #xPoints, yPoints = list(), list()
         #xInliers, yInliers = list(), list()
-        #x, y = list(), list()
-        temp_x, temp_y = list(), list()
         angle, dist = 0., 0.
         neighboors = 0
         tempo = 0. 
+
+
 
         try:
             while flag:
@@ -202,18 +211,21 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     #ax1.grid()
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
-                    xMask = np.concatenate(xInliers, axis=0)
-                    yMask = np.concatenate(yInliers, axis=0)
+                    print(xInliers)
+                    #xMask = np.concatenate(xInliers, axis=0)
+                    #yMask = np.concatenate(yInliers, axis=0)
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
                     #ax.scatter(x, y, marker="+", s=3)
-                    ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
+                    #ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
                     #del x[:]
                     #del y[:]
                     del theta[:]
                     del distance[:]
-                    del xInliers[:]
-                    del yInliers[:]
+                    del xPlot[:]
+                    del yPlot[:]
+                    #xInliers.queue.clear()
+                    #yInliers.queue.clear()
                 #print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             myThread.join()
