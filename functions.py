@@ -31,10 +31,9 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
     temp_x, temp_y = list(), list()
     while True:
-        print("I'm checking for the RANSAC")
+        #print("I'm checking for the RANSAC")
         if keyFlags.get(True):
             temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
-            print("Value of temp_X: {}" .format(temp_x))
             xInliers.put(temp_x)
             yInliers.put(temp_y)
         else:
@@ -42,8 +41,10 @@ def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
             del yList[:]
 
 
+#  Here we empty the xInliers and yInliers queue to be able to plot their data latter
 def get_inliers(xInliers, yInliers, xPlot, yPlot):
     while True:
+        #print("I'm extracting the data from the xInliers inside the dedicated thread")
         xPlot.append(xInliers.get(True))
         yPlot.append(yInliers.get(True))
 
@@ -59,7 +60,7 @@ def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
         while True:
             xList.append(xPoints.get(True))
             yList.append(yPoints.get(True))
-            print("I'm in the ransac loop")
+            #print("I'm adding points to the xList and yList for them to be ransacked or discarded latter")
             #if flags_queue.get(True):
             #    print("Entered the ransac core function...")
             #    temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
@@ -85,7 +86,7 @@ def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=350)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=250)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
@@ -166,52 +167,36 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        print("Points added to queue.")
                         xPoints.put(dist * np.cos(angle))
                         yPoints.put(dist * np.sin(angle))
-                        #temp_x.append(dist * np.cos(angle))
-                        #temp_y.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
-                        #xPoints.put(temp_x[:])
-                        #yPoints.put(temp_y[:])
                         keyFlags.put(True)
-                        time.sleep(0.001)
-                        #del temp_x[:]
-                        #del temp_y[:]
+                        time.sleep(0.0001)
                         neighboors = 0
                     else:
-                        #    del temp_x[:]
-                        #    del temp_y[:]
                             keyFlags.put(False)
                             neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
-                    print("Length of xInliers: {}" .format(xInliers.empty()))
-                elif measure == 0 and not xInliers.empty():
+                    #print("Is the xInliers queue empty: {}" .format(xInliers.empty()))
+                elif measure == 0:# and not xInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
-                        #xPoints.put(temp_x[:])
-                        #yPoints.put(temp_y[:])
                         keyFlags.put(True)
-                        time.sleep(0.001)
-                        #del temp_x[:]
-                        #del temp_y[:]
+                        time.sleep(0.0001)
                         neighboors = 0
                     else:
-                        #del temp_x[:]
-                        #del temp_y[:]
                         keyFlags.put(False)
                         neighboors = 0
-                    print("Plotting...")
+                    #print("Plotting...")
                     ax.cla()
                     ax.grid()
                     #ax1.cla()
                     #ax1.grid()
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
-                    print(xInliers)
                     #xMask = np.concatenate(xInliers, axis=0)
                     #yMask = np.concatenate(yInliers, axis=0)
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
@@ -226,7 +211,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     del yPlot[:]
                     #xInliers.queue.clear()
                     #yInliers.queue.clear()
-                #print("Time to loop: {:.6f}" .format(time.time() - tempo))
+                print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             myThread.join()
             pass
