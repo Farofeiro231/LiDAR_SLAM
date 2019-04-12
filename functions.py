@@ -28,22 +28,15 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
-    #global keyFlags
-    #global xPoints, yPoints
-    #global xInliers, yInliers
+def ransac_core(keyFlags, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
     try:
         while True:
             if keyFlags['go'] == True:
-                #inicio = time.time()
                 temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-               # print("Tempo de ransac: {:.6f}" .format(inicio - time.time()))
                 xInliers.append(temp_x)
                 yInliers.append(temp_y)
                 print(xInliers)
-                #del xPoints[:]
-                #del yPoints[:]
                 keyFlags['go'] = False
     except KeyboardInterrupt:
         pass
@@ -83,7 +76,8 @@ def scanning(my_q):
 
 
 
-def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+    keyFlags = {'go': False, 'plot': False}
     theta, distance = list(), list()
     xPoints, yPoints = list(), list()
     xInliers, yInliers = list(), list()
@@ -91,6 +85,11 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
     print("Valor de keyFlags: {}" .format(keyFlags))
     flag = False
     
+    ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, yPoints, xInliers, yInliers, ))
+    ransac_process.start()
+    ransac_process.join()
+
+
     root = Tk()
     root.config(background='white')     # configure the root window to contain the plot
     root.geometry("1000x700")
@@ -123,9 +122,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
         temp_x, temp_y = list(), list()
         angle, dist = 0., 0.
         neighboors = 0
-        tempo = 0.
-
-        
+        tempo = 0. 
 
         try:
             while flag:
@@ -156,14 +153,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
-                elif measure == 0:# and len(xInliers) > 1:
-                    #tempo = time.time()
+                elif measure == 0 and len(xInliers) > 1:
                     if neighboors > MIN_NEIGHBOORS:
-                        #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                        #xInliers.append(temp_x)
-                        #yInliers.append(temp_y)
-                        #del xPoints[:]
-                        #del yPoints[:]
                         xPoints.append(temp_x[:])
                         yPoints.append(temp_y[:])
                         keyFlags['go'] = True
@@ -176,6 +167,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                             del temp_x[:]
                             del temp_y[:]
                             neighboors = 0
+                    print("Plotting...")
                     ax.cla()
                     ax.grid()
                     #ax1.cla()

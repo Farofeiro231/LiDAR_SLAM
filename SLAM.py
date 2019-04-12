@@ -10,7 +10,6 @@ from functions import *
 
 if __name__ == '__main__':
     processes = []
-    print("keyFlags: {}" .format(keyFlags))
     try:
         my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(my_queue,))
