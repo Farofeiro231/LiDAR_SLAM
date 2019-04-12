@@ -29,6 +29,9 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
+    #global keyFlags
+    #global xPoints, yPoints
+    #global xInliers, yInliers
     temp_x, temp_y = 0., 0.
     try:
         while True:
@@ -38,6 +41,7 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
                # print("Tempo de ransac: {:.6f}" .format(inicio - time.time()))
                 xInliers.append(temp_x)
                 yInliers.append(temp_y)
+                print(xInliers)
                 #del xPoints[:]
                 #del yPoints[:]
                 keyFlags['go'] = False
@@ -80,6 +84,10 @@ def scanning(my_q):
 
 
 def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+    theta, distance = list(), list()
+    xPoints, yPoints = list(), list()
+    xInliers, yInliers = list(), list()
+    x, y = list(), list()
     print("Valor de keyFlags: {}" .format(keyFlags))
     flag = False
     
@@ -118,6 +126,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
         tempo = 0.
 
         
+
         try:
             while flag:
                 tempo = time.time()
