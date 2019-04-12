@@ -105,7 +105,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
-        #theta, distance = list(), list()
+        theta, distance = list(), list()
         #xPoints, yPoints = list(), list()
         #xInliers, yInliers = list(), list()
         #x, y = list(), list()
