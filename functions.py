@@ -28,17 +28,22 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
+def check_ransac(keyFlags, xInliers, yInliers, xList, yList):#, innerFlag):
     temp_x, temp_y = list(), list()
     while True:
         #print("I'm checking for the RANSAC")
         if keyFlags.get(True) and len(xList) > 2:
-            temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
+            #innerFlag[0] = True
+            a = len(xList)
+            #b = len(yList)
+            print('tamanho de xList: {}' .format(a))
+            #print('tamanho de yList: {}' .format(b))
+            temp_x, temp_y = ransac_functions.landmark_extraction(xList)#, yList, innerFlag)
             xInliers.put(temp_x)
             yInliers.put(temp_y)
         else:
             del xList[:]
-            del yList[:]
+            #del yList[:]
 
 
 #  Here we empty the xInliers and yInliers queue to be able to plot their data latter
@@ -53,13 +58,15 @@ def get_inliers(xInliers, yInliers, xPlot, yPlot):
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
     xList, yList = list(), list()
+    #innerFlag = [False]
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, xInliers, yInliers, xList, yList))
+    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, xInliers, yInliers, xList, yList, ))#innerFlag))
     ransac_checking.start()
     try:
         while True:
-            xList.append(xPoints.get(True))
-            yList.append(yPoints.get(True))
+            #if not innerFlag[0]:
+                xList.append(xPoints.get(True))
+                #yList.append(yPoints.get(True))
     except KeyboardInterrupt:
         flags_queue.close()
         pass
@@ -94,8 +101,6 @@ def scanning(my_q):
             range_finder.stop_motor()
             range_finder.reset()
             my_q.put(None)
-
-
 
 
 
@@ -152,7 +157,6 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
 
 
         try:
-
             begin = time.time()
             while flag:
                 start = time.time()
@@ -162,8 +166,8 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        xPoints.put(dist * np.cos(angle))
-                        yPoints.put(dist * np.sin(angle))
+                        xPoints.put([dist * np.cos(angle), dist * np.sin(angle)])
+                        #yPoints.put(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
                         keyFlags.put(True)
