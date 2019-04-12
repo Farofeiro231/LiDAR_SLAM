@@ -27,20 +27,35 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     return ax
 
 
+def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
+    temp_x, temp_y = list(), list()
+    while True:
+        print("I'm checking for the RANSAC")
+        if keyFlags.get(True):
+            temp_x, temp_y = ransac_function.landmark_extraction(xList, yList)
+            xInliers.put(temp_x)
+            yInliers.put(temp_y
+        else:
+            del xList[:]
+            del yList[:]
+
+
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
     xList, yList = list(), list()
     temp_x, temp_y = 0., 0.
+    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, xInliers, yInliers, xList, yList))
+    ransac_checking.start()
     try:
         while True:
             xList.append(xPoints.get(True))
             yList.append(yPoints.get(True))
             print("I'm in the ransac loop")
-            if flags_queue.get(True):
-                print("Entered the ransac core function...")
-                temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
-                xInliers.put(temp_x)
-                yInliers.put(temp_y)
+            #if flags_queue.get(True):
+            #    print("Entered the ransac core function...")
+            #    temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
+            #    xInliers.put(temp_x)
+            #    yInliers.put(temp_y)
     except KeyboardInterrupt:
         flags_queue.close()
         pass
@@ -137,13 +152,13 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                 tempo = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
-                    print("Entering main loop...")
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        xPoints.append(dist * np.cos(angle))
-                        yPoints.append(dist * np.sin(angle))
+                        print("Points added to queue.")
+                        xPoints.put(dist * np.cos(angle))
+                        yPoints.put(dist * np.sin(angle))
                         #temp_x.append(dist * np.cos(angle))
                         #temp_y.append(dist * np.sin(angle))
                         neighboors += 1
