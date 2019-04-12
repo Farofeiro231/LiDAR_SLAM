@@ -32,9 +32,10 @@ def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
     while True:
         print("I'm checking for the RANSAC")
         if keyFlags.get(True):
-            temp_x, temp_y = ransac_function.landmark_extraction(xList, yList)
+            temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
+            print("Value of temp_X: {}" .format(temp_x))
             xInliers.put(temp_x)
-            yInliers.put(temp_y
+            yInliers.put(temp_y)
         else:
             del xList[:]
             del yList[:]
@@ -180,7 +181,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
                     print("Length of xInliers: {}" .format(xInliers.empty()))
-                elif measure == 0 and len(xInliers) > 1:
+                elif measure == 0 and not xInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
                         #xPoints.put(temp_x[:])
                         #yPoints.put(temp_y[:])
