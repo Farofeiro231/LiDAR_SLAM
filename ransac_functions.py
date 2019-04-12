@@ -10,11 +10,14 @@ MIN_SAMPLES = 2
 def landmark_extraction(xPoints, yPoints):
     #print("Tipo de xPoints: {}" .format(type(xPoints[:])))
         #print("Tamanho de yPoints: {}" .format(len(yPoints)))
-    temp_x = xPoints[:].copy()
-    temp_y = yPoints[:].copy()
-    del xPoints[:]
-    del yPoints[:]
-    data =  np.column_stack([temp_x, temp_y])  # Inliers returns an array of True or False with inliers as True.
+    #temp_x = xPoints[:].copy()
+    #temp_y = yPoints[:].copy()
+    #del xPoints[:]
+    #del yPoints[:]
+    print(xPoints)
+    data =  np.column_stack([xPoints[0], yPoint[0]])  # Inliers returns an array of True or False with inliers as True.
+    del xPoints[0, :]
+    del yPoints[0, :]
     #print("Data size of array: {}" .format(data.shape))
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 

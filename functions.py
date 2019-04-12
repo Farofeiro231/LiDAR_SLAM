@@ -135,13 +135,19 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #yInliers.append(temp_y)
                         #del xPoints[:]
                         #del yPoints[:]
+                        xPoints.append(temp_x[:])
+                        yPoints.append(temp_y[:])
                         keyFlags['go'] = True
                         time.sleep(0.001)
+                        del temp_x[:]
+                        del temp_y[:]
                         neighboors = 0
                     else:
                         if not keyFlags['go']:
-                            del xPoints[:]
-                            del yPoints[:]
+                            #del xPoints[:]
+                            #del yPoints[:]
+                            del temp_x[:]
+                            del temp_y[:]
                             neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
@@ -155,13 +161,19 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #yInliers.append(temp_y)
                         #del xPoints[:]
                         #del yPoints[:]
+                        xPoints.append(temp_x[:])
+                        yPoints.append(temp_y[:])
                         keyFlags['go'] = True
                         time.sleep(0.001)
+                        del temp_x[:]
+                        del temp_y[:]
                         neighboors = 0
                     else:
                         if not keyFlags['go']:
-                            del xPoints[:]
-                            del yPoints[:]
+                            #del xPoints[:]
+                            #del yPoints[:]
+                            del temp_x[:]
+                            del temp_y[:]
                             neighboors = 0
                     ax.cla()
                     ax.grid()
