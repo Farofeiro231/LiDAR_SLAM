@@ -29,13 +29,16 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
+    xList, yList = list(), list()
     temp_x, temp_y = 0., 0.
     try:
         while True:
+            xList.append(xPoints.get(True))
+            yList.append(yPoints.get(True))
             print("I'm in the ransac loop")
             if flags_queue.get(True):
                 print("Entered the ransac core function...")
-                temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
+                temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
                 xInliers.put(temp_x)
                 yInliers.put(temp_y)
     except KeyboardInterrupt:
@@ -131,7 +134,6 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
 
         try:
             while flag:
-                print("I'm in the plot loop")
                 tempo = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
@@ -159,7 +161,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
-                    print("Length of xInliers: {}" .format(len(xInliers)))
+                    print("Length of xInliers: {}" .format(xInliers.qsize()))
                 elif measure == 0 and len(xInliers) > 1:
                     if neighboors > MIN_NEIGHBOORS:
                         xPoints.put(temp_x[:])
