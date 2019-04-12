@@ -142,39 +142,43 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        temp_x.append(dist * np.cos(angle))
-                        temp_y.append(dist * np.sin(angle))
+                        xPoints.append(dist * np.cos(angle))
+                        yPoints.append(dist * np.sin(angle))
+                        #temp_x.append(dist * np.cos(angle))
+                        #temp_y.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
-                        xPoints.put(temp_x[:])
-                        yPoints.put(temp_y[:])
+                        #xPoints.put(temp_x[:])
+                        #yPoints.put(temp_y[:])
                         keyFlags.put(True)
                         time.sleep(0.001)
-                        del temp_x[:]
-                        del temp_y[:]
+                        #del temp_x[:]
+                        #del temp_y[:]
                         neighboors = 0
                     else:
-                            del temp_x[:]
-                            del temp_y[:]
+                        #    del temp_x[:]
+                        #    del temp_y[:]
+                            keyFlags.put(False)
                             neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
-                    print("Length of xInliers: {}" .format(xInliers.qsize()))
+                    print("Length of xInliers: {}" .format(xInliers.empty()))
                 elif measure == 0 and len(xInliers) > 1:
                     if neighboors > MIN_NEIGHBOORS:
-                        xPoints.put(temp_x[:])
-                        yPoints.put(temp_y[:])
+                        #xPoints.put(temp_x[:])
+                        #yPoints.put(temp_y[:])
                         keyFlags.put(True)
                         time.sleep(0.001)
-                        del temp_x[:]
-                        del temp_y[:]
+                        #del temp_x[:]
+                        #del temp_y[:]
                         neighboors = 0
                     else:
-                            del temp_x[:]
-                            del temp_y[:]
-                            neighboors = 0
+                        #del temp_x[:]
+                        #del temp_y[:]
+                        keyFlags.put(False)
+                        neighboors = 0
                     print("Plotting...")
                     ax.cla()
                     ax.grid()
