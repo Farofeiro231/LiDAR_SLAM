@@ -14,7 +14,6 @@ def landmark_extraction(xPoints, yPoints):
     #temp_y = yPoints[:].copy()
     #del xPoints[:]
     #del yPoints[:]
-    print(xPoints)
     data =  np.column_stack([xPoints[0], yPoints[0]])  # Inliers returns an array of True or False with inliers as True.
     del xPoints[0]
     del yPoints[0]

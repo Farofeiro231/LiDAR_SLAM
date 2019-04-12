@@ -33,9 +33,9 @@ def ransac_core(my_q, keyFlags, xPoints, yPoints, xInliers, yInliers):
     try:
         while True:
             if keyFlags['go'] == True:
-                inicio = time.time()
+                #inicio = time.time()
                 temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                #print("Tempo de ransac: {:.6f}" .format(inicio - time.time()))
+               # print("Tempo de ransac: {:.6f}" .format(inicio - time.time()))
                 xInliers.append(temp_x)
                 yInliers.append(temp_y)
                 #del xPoints[:]
@@ -93,8 +93,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
 
     fig = Figure()
 
-    ax = config_plot(fig, col=2, pos=2, mode='polar')#, mode="polar")
-    ax1 = config_plot(fig, col=2, pos=1)
+    ax = config_plot(fig, col=1, pos=1, mode='polar')#, mode="polar")
+    #ax1 = config_plot(fig, col=2, pos=1)
 
     graph = FigureCanvasTkAgg(fig, master=root)
     graph.get_tk_widget().pack(side="top", fill='both', expand=True)
@@ -135,10 +135,10 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #yInliers.append(temp_y)
                         #del xPoints[:]
                         #del yPoints[:]
-                        xPoints.append(temp_x[:])
-                        yPoints.append(temp_y[:])
-                        keyFlags['go'] = True
-                        time.sleep(0.001)
+                        #xPoints.append(temp_x[:])
+                        #yPoints.append(temp_y[:])
+                        #keyFlags['go'] = True
+                        #time.sleep(0.001)
                         del temp_x[:]
                         del temp_y[:]
                         neighboors = 0
@@ -151,9 +151,9 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                             neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
-                    x.append(dist * np.cos(angle))
-                    y.append(dist * np.sin(angle))
-                elif measure == 0 and len(xInliers) > 1:
+                    #x.append(dist * np.cos(angle))
+                    #y.append(dist * np.sin(angle))
+                elif measure == 0:# and len(xInliers) > 1:
                     tempo = time.time()
                     if neighboors > MIN_NEIGHBOORS:
                         #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
@@ -163,8 +163,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #del yPoints[:]
                         xPoints.append(temp_x[:])
                         yPoints.append(temp_y[:])
-                        keyFlags['go'] = True
-                        time.sleep(0.001)
+                        #keyFlags['go'] = True
+                        #time.sleep(0.001)
                         del temp_x[:]
                         del temp_y[:]
                         neighboors = 0
@@ -177,18 +177,18 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                             neighboors = 0
                     ax.cla()
                     ax.grid()
-                    ax1.cla()
-                    ax1.grid()
+                    #ax1.cla()
+                    #ax1.grid()
                     theta_array = np.array(theta, dtype="float")
                     distance_array = np.array(distance, dtype="float")
-                    xMask = np.concatenate(xInliers, axis=0)
-                    yMask = np.concatenate(yInliers, axis=0)
+                    #xMask = np.concatenate(xInliers, axis=0)
+                    #yMask = np.concatenate(yInliers, axis=0)
                     ax.scatter(theta_array, distance_array, marker="+", s=3)
                     #ax.scatter(x, y, marker="+", s=3)
-                    ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
+                    #ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
-                    del x[:]
-                    del y[:]
+                    #del x[:]
+                    #del y[:]
                     del theta[:]
                     del distance[:]
                     del xInliers[:]
