@@ -32,12 +32,14 @@ def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
     try:
         while True:
-            if flags_queue.get(True) == True:
+            print("I'm in the ransac loop")
+            if flags_queue.get(True):
                 print("Entered the ransac core function...")
                 temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                xInliers.append(temp_x)
-                yInliers.append(temp_y)
+                xInliers.put(temp_x)
+                yInliers.put(temp_y)
     except KeyboardInterrupt:
+        flags_queue.close()
         pass
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -78,15 +80,19 @@ def scanning(my_q):
 def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
     keyFlags = mp.Queue()
     xPoints, yPoints = mp.Queue(), mp.Queue()
+    xInliers, yInliers = mp.Queue(), mp.Queue()
     theta, distance = list(), list()
-    xInliers, yInliers = list(), list()
     x, y = list(), list()
     print("Valor de keyFlags: {}" .format(keyFlags))
+    print("Valor de keyFlags: {}" .format(my_q))
+    print("Valor de keyFlags: {}" .format(xPoints))
+    print("Valor de keyFlags: {}" .format(yPoints))
     flag = False
     
     ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, yPoints, xInliers, yInliers, ))
+    ransac_process.daemon = True  # exits the process as soon as the main program stops
     ransac_process.start()
-    ransac_process.join()
+    print("I haven't yet quite understood the start and join of processes")
 
 
     root = Tk()
@@ -125,9 +131,11 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
 
         try:
             while flag:
+                print("I'm in the plot loop")
                 tempo = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
+                    print("Entering main loop...")
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
@@ -136,15 +144,14 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                         temp_y.append(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
-                        xPoints.append(temp_x[:])
-                        yPoints.append(temp_y[:])
-                        keyFlags['go'] = True
+                        xPoints.put(temp_x[:])
+                        yPoints.put(temp_y[:])
+                        keyFlags.put(True)
                         time.sleep(0.001)
                         del temp_x[:]
                         del temp_y[:]
                         neighboors = 0
                     else:
-                        if not keyFlags['go']:
                             del temp_x[:]
                             del temp_y[:]
                             neighboors = 0 
@@ -152,17 +159,17 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
+                    print("Length of xInliers: {}" .format(len(xInliers)))
                 elif measure == 0 and len(xInliers) > 1:
                     if neighboors > MIN_NEIGHBOORS:
-                        xPoints.append(temp_x[:])
-                        yPoints.append(temp_y[:])
-                        keyFlags['go'] = True
+                        xPoints.put(temp_x[:])
+                        yPoints.put(temp_y[:])
+                        keyFlags.put(True)
                         time.sleep(0.001)
                         del temp_x[:]
                         del temp_y[:]
                         neighboors = 0
                     else:
-                        if not keyFlags['go']:
                             del temp_x[:]
                             del temp_y[:]
                             neighboors = 0
@@ -190,7 +197,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
             myThread.join()
             pass
     
-    myThread = threading.Thread(target=plot).start()
+    myThread = threading.Thread(target=plot)
 
     def run_gui():
         print('beginning')
