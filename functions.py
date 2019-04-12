@@ -123,11 +123,11 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
-                    if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        temp_x.append(dist * np.cos(angle))
-                        temp_y.append(dist * np.sin(angle))
-                        neighboors += 1
-                    elif neighboors > MIN_NEIGHBOORS:
+                    #if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
+                    #    temp_x.append(dist * np.cos(angle))
+                    #    temp_y.append(dist * np.sin(angle))
+                    #    neighboors += 1
+                    #elif neighboors > MIN_NEIGHBOORS:
                         #'print("Numero de neighboors: {:}" .format(neighboors))
                         #tempo = time.time()
                         #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
@@ -135,46 +135,46 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                         #yInliers.append(temp_y)
                         #del xPoints[:]
                         #del yPoints[:]
-                        #xPoints.append(temp_x[:])
-                        #yPoints.append(temp_y[:])
-                        #keyFlags['go'] = True
-                        #time.sleep(0.001)
-                        del temp_x[:]
-                        del temp_y[:]
-                        neighboors = 0
-                    else:
-                        if not keyFlags['go']:
-                            #del xPoints[:]
-                            #del yPoints[:]
-                            del temp_x[:]
-                            del temp_y[:]
-                            neighboors = 0 
+                    #    xPoints.append(temp_x[:])
+                    #    yPoints.append(temp_y[:])
+                    #    keyFlags['go'] = True
+                    #    time.sleep(0.001)
+                    #    del temp_x[:]
+                    #    del temp_y[:]
+                    #    neighboors = 0
+                    #else:
+                    #    if not keyFlags['go']:
+                    #        #del xPoints[:]
+                    #        #del yPoints[:]
+                    #        del temp_x[:]
+                    #        del temp_y[:]
+                    #        neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
                 elif measure == 0:# and len(xInliers) > 1:
-                    tempo = time.time()
-                    if neighboors > MIN_NEIGHBOORS:
+                    #tempo = time.time()
+                    #if neighboors > MIN_NEIGHBOORS:
                         #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
                         #xInliers.append(temp_x)
                         #yInliers.append(temp_y)
                         #del xPoints[:]
                         #del yPoints[:]
-                        xPoints.append(temp_x[:])
-                        yPoints.append(temp_y[:])
-                        #keyFlags['go'] = True
-                        #time.sleep(0.001)
-                        del temp_x[:]
-                        del temp_y[:]
-                        neighboors = 0
-                    else:
-                        if not keyFlags['go']:
-                            #del xPoints[:]
-                            #del yPoints[:]
-                            del temp_x[:]
-                            del temp_y[:]
-                            neighboors = 0
+                    #    xPoints.append(temp_x[:])
+                    #    yPoints.append(temp_y[:])
+                    #    keyFlags['go'] = True
+                    #    time.sleep(0.001)
+                    #    del temp_x[:]
+                    #    del temp_y[:]
+                    #    neighboors = 0
+                    #else:
+                    #    if not keyFlags['go']:
+                    #        #del xPoints[:]
+                    #        #del yPoints[:]
+                    #        del temp_x[:]
+                    #        del temp_y[:]
+                    #        neighboors = 0
                     ax.cla()
                     ax.grid()
                     #ax1.cla()
@@ -191,8 +191,8 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     #del y[:]
                     del theta[:]
                     del distance[:]
-                    del xInliers[:]
-                    del yInliers[:]
+                    #del xInliers[:]
+                    #del yInliers[:]
                 #print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
             pass
