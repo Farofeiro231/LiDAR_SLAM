@@ -32,7 +32,7 @@ def check_ransac(keyFlags, xInliers, yInliers, xList, yList):
     temp_x, temp_y = list(), list()
     while True:
         #print("I'm checking for the RANSAC")
-        if keyFlags.get(True):
+        if keyFlags.get(True) and len(xList) > 2:
             temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
             xInliers.put(temp_x)
             yInliers.put(temp_y)
@@ -60,12 +60,6 @@ def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
         while True:
             xList.append(xPoints.get(True))
             yList.append(yPoints.get(True))
-            #print("I'm adding points to the xList and yList for them to be ransacked or discarded latter")
-            #if flags_queue.get(True):
-            #    print("Entered the ransac core function...")
-            #    temp_x, temp_y = ransac_functions.landmark_extraction(xList, yList)
-            #    xInliers.put(temp_x)
-            #    yInliers.put(temp_y)
     except KeyboardInterrupt:
         flags_queue.close()
         pass
@@ -86,11 +80,11 @@ def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=250)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=350)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
-            if time.time() - start_time > 2:  # Given the time for the Lidar to "heat up"
+            if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
                 my_q.put(measure)
                 if measure[0][0]:
                     nbr_tours += 1
@@ -151,9 +145,6 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
-        #theta, distance = list(), list()
-        #xPoints, yPoints = list(), list()
-        #xInliers, yInliers = list(), list()
         angle, dist = 0., 0.
         neighboors = 0
         tempo = 0. 
@@ -161,8 +152,10 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
 
 
         try:
+
+            begin = time.time()
             while flag:
-                tempo = time.time()
+                start = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 5000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
@@ -184,7 +177,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
                     #print("Is the xInliers queue empty: {}" .format(xInliers.empty()))
-                elif measure == 0:# and not xInliers.empty():
+                elif measure == 0 and len(xPlot) > 0:# and not xInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
                         keyFlags.put(True)
                         time.sleep(0.0001)
@@ -205,15 +198,16 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     #ax.scatter(x, y, marker="+", s=3)
                     #ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
+                    print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
                     #del x[:]
                     #del y[:]
                     del theta[:]
                     del distance[:]
-                    del xPlot[:]
-                    del yPlot[:]
+                    #del xPlot[:]
+                    #del yPlot[:]
                     #xInliers.queue.clear()
                     #yInliers.queue.clear()
-                print("Time to loop: {:.6f}" .format(time.time() - tempo))
+                #print("Time to loop: {:.6f}" .format(time.time() - start))
         except KeyboardInterrupt:
             myThread.join()
             pass
