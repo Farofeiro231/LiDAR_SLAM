@@ -28,16 +28,15 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(keyFlags, xPoints, yPoints, xInliers, yInliers):
+def ransac_core(flags_queue, xPoints, yPoints, xInliers, yInliers):
     temp_x, temp_y = 0., 0.
     try:
         while True:
-            if keyFlags['go'] == True:
+            if flags_queue.get(True) == True:
+                print("Entered the ransac core function...")
                 temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
                 xInliers.append(temp_x)
                 yInliers.append(temp_y)
-                print(xInliers)
-                keyFlags['go'] = False
     except KeyboardInterrupt:
         pass
 
@@ -77,9 +76,9 @@ def scanning(my_q):
 
 
 def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
-    keyFlags = {'go': False, 'plot': False}
+    keyFlags = mp.Queue()
+    xPoints, yPoints = mp.Queue(), mp.Queue()
     theta, distance = list(), list()
-    xPoints, yPoints = list(), list()
     xInliers, yInliers = list(), list()
     x, y = list(), list()
     print("Valor de keyFlags: {}" .format(keyFlags))
@@ -188,13 +187,16 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     del yInliers[:]
                 #print("Time to loop: {:.6f}" .format(time.time() - tempo))
         except KeyboardInterrupt:
+            myThread.join()
             pass
+    
+    myThread = threading.Thread(target=plot).start()
 
     def run_gui():
         print('beginning')
         nonlocal flag
         flag = not flag
-        threading.Thread(target=plot).start()
+        myThread.start()
         #update['value'] = not update['value']
 
     b = Button(root, text="Start/Stop", command=run_gui(), bg="black", fg="white")
