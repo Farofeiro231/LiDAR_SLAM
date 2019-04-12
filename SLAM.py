@@ -3,17 +3,21 @@ from functions import *
 
 
 if __name__ == '__main__':
-    manager = mp.Manager()
     processes = []
-    #keyFlags = {'go': False, 'plot': False}
-    keyFlags = manager.dict()
-    keyFlags['go'] = False
-    keyFlags['plot'] = False
+    global keyFlags
+    keyFlags = {'go': False, 'plot': False}
+    #global keyFlags = dict()
+    #keyFlags['go'] = False
+    #keyFlags['plot'] = False
     print("keyFlags: {}" .format(keyFlags))
-    x, y = manager.list(), manager.list()
-    theta, distance = manager.list(), manager.list()
-    xPoints, yPoints = manager.list(), manager.list()
-    xInliers, yInliers = manager.list(), manager.list()
+    global x, y
+    global theta, distance
+    global xPoints, yPoints
+    global xInliers, yInliers 
+    x, y = list(), list()
+    theta, distance = list(), list()
+    xPoints, yPoints = list(), list()
+    xInliers, yInliers = list(), list()
     try:
         my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(my_queue,))

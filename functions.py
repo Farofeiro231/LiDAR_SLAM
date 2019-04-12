@@ -105,7 +105,7 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
-        theta, distance = list(), list()
+        #theta, distance = list(), list()
         #xPoints, yPoints = list(), list()
         #xInliers, yInliers = list(), list()
         #x, y = list(), list()
@@ -128,13 +128,6 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     #    temp_y.append(dist * np.sin(angle))
                     #    neighboors += 1
                     #elif neighboors > MIN_NEIGHBOORS:
-                        #'print("Numero de neighboors: {:}" .format(neighboors))
-                        #tempo = time.time()
-                        #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                        #xInliers.append(temp_x)
-                        #yInliers.append(temp_y)
-                        #del xPoints[:]
-                        #del yPoints[:]
                     #    xPoints.append(temp_x[:])
                     #    yPoints.append(temp_y[:])
                     #    keyFlags['go'] = True
@@ -144,8 +137,6 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     #    neighboors = 0
                     #else:
                     #    if not keyFlags['go']:
-                    #        #del xPoints[:]
-                    #        #del yPoints[:]
                     #        del temp_x[:]
                     #        del temp_y[:]
                     #        neighboors = 0 
@@ -156,11 +147,11 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                 elif measure == 0:# and len(xInliers) > 1:
                     #tempo = time.time()
                     #if neighboors > MIN_NEIGHBOORS:
-                        #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
-                        #xInliers.append(temp_x)
-                        #yInliers.append(temp_y)
-                        #del xPoints[:]
-                        #del yPoints[:]
+                    #    #temp_x, temp_y = ransac_functions.landmark_extraction(xPoints, yPoints)
+                    #    #xInliers.append(temp_x)
+                    #    #yInliers.append(temp_y)
+                    #    #del xPoints[:]
+                    #    #del yPoints[:]
                     #    xPoints.append(temp_x[:])
                     #    yPoints.append(temp_y[:])
                     #    keyFlags['go'] = True
@@ -170,8 +161,6 @@ def plotting(my_q, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInlie
                     #    neighboors = 0
                     #else:
                     #    if not keyFlags['go']:
-                    #        #del xPoints[:]
-                    #        #del yPoints[:]
                     #        del temp_x[:]
                     #        del temp_y[:]
                     #        neighboors = 0
