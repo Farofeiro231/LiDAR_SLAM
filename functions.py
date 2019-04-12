@@ -121,8 +121,10 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
     ransac_process.daemon = True  # exits the process as soon as the main program stops
     ransac_process.start()
 
-    inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
-    inliersThread.start()
+    #inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    inliersProcess = mp.Process(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    #inliersThread.start()
+    inliersProcess.start()
 
     root = Tk()
     root.config(background='white')     # configure the root window to contain the plot
@@ -175,8 +177,8 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                         time.sleep(0.0001)
                         neighboors = 0
                     else:
-                            keyFlags.put(False)
-                            neighboors = 0 
+                        keyFlags.put(False)
+                        neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
