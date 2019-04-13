@@ -94,10 +94,10 @@ def scanning(my_q):
 
 
 
-def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
-    keyFlags = mp.Queue()
-    xPoints = mp.Queue()
-    xInliers, yInliers = mp.Queue(), mp.Queue()
+def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+    #keyFlags = mp.Queue()
+    #xPoints = mp.Queue()
+    #xInliers, yInliers = mp.Queue(), mp.Queue()
     theta, distance = list(), list()
     xPlot, yPlot = list(), list()
     print("Valor de keyFlags: {}" .format(keyFlags))
@@ -105,9 +105,9 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
     print("Valor de keyFlags: {}" .format(xPoints))
     flag = False
     
-    ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, xInliers, yInliers, ))
-    ransac_process.daemon = True  # exits the process as soon as the main program stops
-    ransac_process.start()
+    #ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, xInliers, yInliers, ))
+    #ransac_process.daemon = True  # exits the process as soon as the main program stops
+    #ransac_process.start()
 
     inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
     #inliersProcess = mp.Process(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
@@ -123,7 +123,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
 
     fig = Figure()
 
-    ax = config_plot(fig, col=1, pos=1, mode='polar')#, mode="polar")
+    ax = config_plot(fig, col=1, pos=1)#, mode='polar')#, mode="polar")
     #ax1 = config_plot(fig, col=2, pos=2)
 
     graph = FigureCanvasTkAgg(fig, master=root)
@@ -142,7 +142,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
         angle, dist = 0., 0.
         neighboors = 0
         tempo = 0. 
-
+        x, y = list(), list()
 
         try:
             begin = time.time()
@@ -164,10 +164,10 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     else:
                         keyFlags.put(False)
                         neighboors = 0 
-                    theta.append(angle)
+                    #theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
-                    #x.append(dist * np.cos(angle))
-                    #y.append(dist * np.sin(angle))
+                    x.append(dist * np.cos(angle))
+                    y.append(dist * np.sin(angle))
                     #print("Is the xPlot queue empty: {}" .format(len(xPlot)))
                 elif measure == 0 and len(xPlot) > 0:# and not xInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
@@ -182,18 +182,18 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     ax.grid()
                     #ax1.cla()
                     #ax1.grid()
-                    theta_array = np.array(theta, dtype="float")
-                    distance_array = np.array(distance, dtype="float")
-                    #xMask = np.concatenate(xPlot, axis=0)
-                    #yMask = np.concatenate(yPlot, axis=0)
-                    ax.scatter(theta_array, distance_array, marker="+", s=3)
-                    #ax.scatter(x, y, marker="+", s=3)
-                    #ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
+                    #theta_array = np.array(theta, dtype="float")
+                    #distance_array = np.array(distance, dtype="float")
+                    xMask = np.concatenate(xPlot, axis=0)
+                    yMask = np.concatenate(yPlot, axis=0)
+                    #ax.scatter(theta_array, distance_array, marker="+", s=3)
+                    ax.scatter(x, y, marker="+", s=3)
+                    ax.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
                     #print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
-                    #del x[:]
-                    #del y[:]
-                    del theta[:]
+                    del x[:]
+                    del y[:]
+                    #del theta[:]
                     del distance[:]
                     del xPlot[:]
                     del yPlot[:]
