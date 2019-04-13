@@ -34,9 +34,9 @@ def check_ransac(keyFlags, xInliers, yInliers, xList, yList):#, innerFlag):
         #print("I'm checking for the RANSAC")
         if keyFlags.get(True) and len(xList) > 2:
             #innerFlag[0] = True
-            a = len(xList)
+            #a = len(xList)
             #b = len(yList)
-            print('tamanho de xList: {}' .format(a))
+            #print('tamanho de xList: {}' .format(a))
             #print('tamanho de yList: {}' .format(b))
             temp_x, temp_y = ransac_functions.landmark_extraction(xList)#, yList, innerFlag)
             xInliers.put(temp_x)
@@ -120,10 +120,10 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
     ransac_process.daemon = True  # exits the process as soon as the main program stops
     ransac_process.start()
 
-    #inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
-    inliersProcess = mp.Process(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
-    #inliersThread.start()
-    inliersProcess.start()
+    inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    #inliersProcess = mp.Process(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    inliersThread.start()
+    #inliersProcess.start()
 
     root = Tk()
     root.config(background='white')     # configure the root window to contain the plot
@@ -155,7 +155,6 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
         tempo = 0. 
 
 
-
         try:
             begin = time.time()
             while flag:
@@ -180,7 +179,7 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     #x.append(dist * np.cos(angle))
                     #y.append(dist * np.sin(angle))
-                    #print("Is the xInliers queue empty: {}" .format(xInliers.empty()))
+                    #print("Is the xPlot queue empty: {}" .format(len(xPlot)))
                 elif measure == 0 and len(xPlot) > 0:# and not xInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
                         keyFlags.put(True)
@@ -202,13 +201,13 @@ def plotting(my_q):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yIn
                     #ax.scatter(x, y, marker="+", s=3)
                     #ax1.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
-                    print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
+                    #print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
                     #del x[:]
                     #del y[:]
                     del theta[:]
                     del distance[:]
-                    #del xPlot[:]
-                    #del yPlot[:]
+                    del xPlot[:]
+                    del yPlot[:]
                     #xInliers.queue.clear()
                     #yInliers.queue.clear()
                 #print("Time to loop: {:.6f}" .format(time.time() - start))
