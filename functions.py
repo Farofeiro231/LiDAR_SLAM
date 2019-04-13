@@ -27,19 +27,6 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     return ax
 
 
-#  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, xInliers, yInliers, xList):#, innerFlag):
-    temp_x, temp_y = list(), list()
-    while True:
-        #print("I'm checking for the RANSAC")
-        if keyFlags.get(True) and len(xList) > 2:
-            temp_x, temp_y = ransac_functions.landmark_extraction(xList)#, yList, innerFlag)
-            xInliers.put(temp_x)
-            yInliers.put(temp_y)
-        else:
-            del xList[:]
-
-
 #  Here we empty the xInliers and yInliers queue to be able to plot their data latter
 def get_inliers(xInliers, yInliers, xPlot, yPlot):
     while True:
@@ -47,20 +34,6 @@ def get_inliers(xInliers, yInliers, xPlot, yPlot):
         xPlot.append(xInliers.get(True))
         yPlot.append(yInliers.get(True))
 
-
-
-#   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(flags_queue, xPoints, xInliers, yInliers):
-    xList = list()
-    temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, xInliers, yInliers, xList, ))#innerFlag))
-    ransac_checking.start()
-    try:
-        while True:
-                xList.append(xPoints.get(True))
-    except KeyboardInterrupt:
-        flags_queue.close()
-        pass
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
 #   just return a unacceptable distance so the program runs the RANSAC calculation.
