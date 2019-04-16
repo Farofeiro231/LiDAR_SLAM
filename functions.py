@@ -19,10 +19,12 @@ MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
-def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
+def config_plot(figure, lin=1, col=1, pos=1, xLim = 2000, yLim = 2000, mode="rectilinear"):
     ax = figure.add_subplot(lin, col, pos, projection=mode)
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
+    ax.set_xlim(-xLim, xLim)
+    ax.set_ylim(-yLim, yLim)
     ax.grid()
     return ax
 
@@ -122,7 +124,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
             while flag:
                 start = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
-                if measure != 0 and measure[0][3] < 5000:
+                if measure != 0 and measure[0][3] < 2000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
