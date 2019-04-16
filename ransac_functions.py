@@ -3,7 +3,7 @@ import threading
 import numpy as np
 
 
-THRESHOLD = 30  # maximum distance between a point and the line from the model for inlier classification
+THRESHOLD = 50  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 10
 MIN_SAMPLES = 2
 

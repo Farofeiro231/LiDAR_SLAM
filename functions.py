@@ -15,7 +15,7 @@ import multiprocessing as mp
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 30  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -41,7 +41,7 @@ def get_inliers(xInliers, yInliers, xPlot, yPlot):
 def distance_between_measures(new_measure, old_measure):
     if new_measure != 0:
         #print("Nova medida x velha medida: {0:.2f} x {1:.2f}".format(new_measure[0][3], old_measure))
-        distance = abs(new_measure[0][3] - old_measure)
+        distance = abs(new_measure[0][3] * 0.5 - old_measure)
     else:
         distance = DISTANCE_LIMIT + 10
     return distance
@@ -123,9 +123,9 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
             while flag:
                 start = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
-                if measure != 0 and measure[0][3] < 2000:
+                if measure != 0 and measure[0][3] < 4000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
-                    dist = measure[0][3]
+                    dist = measure[0][3] * 0.5
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
                         xPoints.put([dist * np.cos(angle), dist * np.sin(angle)])
