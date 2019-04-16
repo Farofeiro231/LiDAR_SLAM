@@ -19,12 +19,11 @@ MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
-def config_plot(figure, lin=1, col=1, pos=1, xLim = 2000, yLim = 2000, mode="rectilinear"):
+def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     ax = figure.add_subplot(lin, col, pos, projection=mode)
+    ax.autoscale(False)
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
-    ax.set_xlim(-xLim, xLim)
-    ax.set_ylim(-yLim, yLim)
     ax.grid()
     return ax
 
@@ -155,6 +154,9 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
                     #print("Plotting...")
                     ax.cla()
                     ax.grid()
+                    ax.set_xlim(-2000, 2000)
+                    ax.set_ylim(-2000, 2000)
+                    ax.autoscale(False) 
                     #ax1.cla()
                     #ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
