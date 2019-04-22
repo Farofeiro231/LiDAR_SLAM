@@ -16,6 +16,7 @@ def landmark_extraction(xList):#, yList, innerFlag):
     #del yList[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
+    print(model_robust.params)
     xBase = np.array(data[inliers, 0])
     yBase = np.array(data[inliers, 1])
     #print("--------------------- Finished running RANSAC -----------------")

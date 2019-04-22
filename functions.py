@@ -133,7 +133,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
                         keyFlags.put(True)
-                        time.sleep(0.0001)
+                        #time.sleep(0.0001)
                         neighboors = 0
                     else:
                         keyFlags.put(False)
@@ -146,7 +146,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
                 elif measure == 0 and len(xPlot) > 0:# and not xInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
                         keyFlags.put(True)
-                        time.sleep(0.0001)
+                        #time.sleep(0.0001)
                         neighboors = 0
                     else:
                         keyFlags.put(False)
