@@ -41,7 +41,7 @@ def get_inliers(xInliers, yInliers, xPlot, yPlot):
 def distance_between_measures(new_measure, old_measure):
     if new_measure != 0:
         #print("Nova medida x velha medida: {0:.2f} x {1:.2f}".format(new_measure[0][3], old_measure))
-        distance = abs(new_measure[0][3] * 0.5 - old_measure)
+        distance = abs(new_measure[0][3] - old_measure)
     else:
         distance = DISTANCE_LIMIT + 10
     return distance
@@ -125,7 +125,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 4000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
-                    dist = measure[0][3] * 0.5
+                    dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
                         xPoints.put([dist * np.cos(angle), dist * np.sin(angle)])

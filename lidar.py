@@ -83,11 +83,11 @@ class ExpressPacket(namedtuple('express_packet', 'distance angle new_scan start_
 
         d = a = () #création des tuples contenant les distances et les angles
         for i in range(0, 80, 5): #on explore le paquet et on décode les mesures d'angles et de distances
-            d += ((packet[i + 4] >> 1) + (packet[i + 5] << 7),) #Pourquoi on "shift" à droite par 2 places si la partie $d\theta_{1}$ a juste 1 bit?
-            a += (twos_comp((packet[i + 8] & 0b1111) + ((packet[i + 4] & 0b1) << 4), 5)/8.0,)  #fixed-point-q3 format.
+            d += ((packet[i + 4] >> 2) + (packet[i + 5] << 6),) #Pourquoi on "shift" à droite par 2 places si la partie $d\theta_{1}$ a juste 1 bit?
+            a += (twos_comp((packet[i + 8] & 0b1111) + ((packet[i + 4] & 0b11) << 4), 5)/8.0,)  #fixed-point-q3 format.
             #print("Valor de ângulo:", twos_comp((packet[i + 8] & 0b1111) + ((packet[i + 4] & 0b1) << 4), 5)/8.0)
-            d += ((packet[i + 6] >> 1) + (packet[i + 7] << 7),)
-            a += (twos_comp((packet[i + 8] >> 4 & 0b1111) + ((packet[i + 6] & 0b1) << 4), 5)/8.0,)
+            d += ((packet[i + 6] >> 2) + (packet[i + 7] << 6),)
+            a += (twos_comp((packet[i + 8] >> 4 & 0b1111) + ((packet[i + 6] & 0b11) << 4), 5)/8.0,)
         return cls(d, a, new_scan, start_angle)
 
 
