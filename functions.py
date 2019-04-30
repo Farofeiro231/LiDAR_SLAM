@@ -29,11 +29,11 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 
 #  Here we empty the xInliers and yInliers queue to be able to plot their data latter
-def get_inliers(xInliers, yInliers, xPlot, yPlot):
+def get_inliers(xInliers, xPlot):
     while True:
         #print("I'm extracting the data from the xInliers inside the dedicated thread")
+        #temp = xInliers.get(True)
         xPlot.append(xInliers.get(True))
-        yPlot.append(yInliers.get(True))
 
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -68,12 +68,12 @@ def scanning(my_q):
 
 
 
-def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
     #keyFlags = mp.Queue()
     #xPoints = mp.Queue()
     #xInliers, yInliers = mp.Queue(), mp.Queue()
     theta, distance = list(), list()
-    xPlot, yPlot = list(), list()
+    xPlot = list()
     print("Valor de keyFlags: {}" .format(keyFlags))
     print("Valor de keyFlags: {}" .format(my_q))
     print("Valor de keyFlags: {}" .format(xPoints))
@@ -83,7 +83,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
     #ransac_process.daemon = True  # exits the process as soon as the main program stops
     #ransac_process.start()
 
-    inliersThread = threading.Thread(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    inliersThread = threading.Thread(target=get_inliers, args=(xInliers, xPlot, ))
     #inliersProcess = mp.Process(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
     inliersThread.start()
     #inliersProcess.start()
@@ -108,8 +108,8 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
         nonlocal flag
         nonlocal theta, distance
         nonlocal xPoints
-        nonlocal xInliers, yInliers
-        nonlocal xPlot, yPlot
+        nonlocal xInliers
+        nonlocal xPlot
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
@@ -123,7 +123,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
             while flag:
                 start = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
-                if measure != 0 and measure[0][3] < 4000:
+                if measure != 0 and measure[0][3] < 6000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
@@ -161,8 +161,8 @@ def plotting(my_q, keyFlags, xPoints, xInliers, yInliers):#, keyFlags, theta, di
                     #ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
-                    xMask = np.concatenate(xPlot, axis=0)
-                    yMask = np.concatenate(yPlot, axis=0)
+                    xMask = np.concatenate([i[0] for i in xPlot], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
+                    yMask = np.concatenate([i[1] for i in xPlot], axis=0)  # Same as above, but for y
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax.scatter(x, y, marker="+", s=3)
                     ax.scatter(xMask, yMask, marker=".", color='r', s=5)
