@@ -13,9 +13,9 @@ import multiprocessing as mp
 
 
 PI = np.pi
-DISTANCE_LIMIT = 10  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
+DISTANCE_LIMIT = 5  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 20  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -123,7 +123,7 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
             while flag:
                 start = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
-                if measure != 0 and measure[0][3] < 6000:
+                if measure != 0 and measure[0][3] < 6000 and measure[0][3] > 100:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     dX = dist * np.cos(angle)
@@ -165,11 +165,11 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     #ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
-                    xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
-                    yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
+                    #xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
+                    #yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax.scatter(x, y, marker="+", s=3)
-                    ax.scatter(xMask, yMask, marker=".", color='r', s=5)
+                    #ax.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
                     #print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
                     del x[:]
