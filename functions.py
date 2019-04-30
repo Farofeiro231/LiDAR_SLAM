@@ -28,12 +28,12 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     return ax
 
 
-#  Here we empty the xInliers and yInliers queue to be able to plot their data latter
-def get_inliers(xInliers, xPlot):
+#  Here we empty the pairInliers and yInliers queue to be able to plot their data latter
+def get_inliers(pairInliers, pointsToBePlotted):
     while True:
-        #print("I'm extracting the data from the xInliers inside the dedicated thread")
-        #temp = xInliers.get(True)
-        xPlot.append(xInliers.get(True))
+        #print("I'm extracting the data from the pairInliers inside the dedicated thread")
+        #temp = pairInliers.get(True)
+        pointsToBePlotted.append(pairInliers.get(True))
 
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -68,23 +68,23 @@ def scanning(my_q):
 
 
 
-def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y):
+def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distance, rawPoints, yPoints, pairInliers, yInliers, x, y):
     #keyFlags = mp.Queue()
-    #xPoints = mp.Queue()
-    #xInliers, yInliers = mp.Queue(), mp.Queue()
+    #rawPoints = mp.Queue()
+    #pairInliers, yInliers = mp.Queue(), mp.Queue()
     theta, distance = list(), list()
-    xPlot = list()
+    pointsToBePlotted = list()
     print("Valor de keyFlags: {}" .format(keyFlags))
     print("Valor de keyFlags: {}" .format(my_q))
-    print("Valor de keyFlags: {}" .format(xPoints))
+    print("Valor de keyFlags: {}" .format(rawPoints))
     flag = False
     
-    #ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, xInliers, yInliers, ))
+    #ransac_process = mp.Process(target=ransac_core, args=(keyFlags, rawPoints, pairInliers, yInliers, ))
     #ransac_process.daemon = True  # exits the process as soon as the main program stops
     #ransac_process.start()
 
-    inliersThread = threading.Thread(target=get_inliers, args=(xInliers, xPlot, ))
-    #inliersProcess = mp.Process(target=get_inliers, args=(xInliers, yInliers, xPlot, yPlot, ))
+    inliersThread = threading.Thread(target=get_inliers, args=(pairInliers, pointsToBePlotted, ))
+    #inliersProcess = mp.Process(target=get_inliers, args=(pairInliers, yInliers, pointsToBePlotted, yPlot, ))
     inliersThread.start()
     #inliersProcess.start()
 
@@ -107,9 +107,9 @@ def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xP
         nonlocal keyFlags
         nonlocal flag
         nonlocal theta, distance
-        nonlocal xPoints
-        nonlocal xInliers
-        nonlocal xPlot
+        nonlocal rawPoints
+        nonlocal pairInliers
+        nonlocal pointsToBePlotted
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
@@ -128,7 +128,7 @@ def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xP
                     dist = measure[0][3]
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        xPoints.put([dist * np.cos(angle), dist * np.sin(angle)])
+                        rawPoints.put([dist * np.cos(angle), dist * np.sin(angle)])
                         #yPoints.put(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
@@ -142,8 +142,8 @@ def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xP
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     x.append(dist * np.cos(angle))
                     y.append(dist * np.sin(angle))
-                    #print("Is the xPlot queue empty: {}" .format(len(xPlot)))
-                elif measure == 0 and len(xPlot) > 0:# and not xInliers.empty():
+                    #print("Is the pointsToBePlotted queue empty: {}" .format(len(pointsToBePlotted)))
+                elif measure == 0 and len(pointsToBePlotted) > 0:# and not pairInliers.empty():
                     if neighboors > MIN_NEIGHBOORS:
                         keyFlags.put(True)
                         #time.sleep(0.0001)
@@ -161,8 +161,8 @@ def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xP
                     #ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
-                    xMask = np.concatenate([i[0] for i in xPlot], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
-                    yMask = np.concatenate([i[1] for i in xPlot], axis=0)  # Same as above, but for y
+                    xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
+                    yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax.scatter(x, y, marker="+", s=3)
                     ax.scatter(xMask, yMask, marker=".", color='r', s=5)
@@ -172,8 +172,8 @@ def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xP
                     del y[:]
                     #del theta[:]
                     del distance[:]
-                    del xPlot[:]
-                    #xInliers.queue.clear()
+                    del pointsToBePlotted[:]
+                    #pairInliers.queue.clear()
                     #yInliers.queue.clear()
                 #print("Time to loop: {:.6f}" .format(time.time() - start))
         except KeyboardInterrupt:

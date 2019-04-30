@@ -8,11 +8,11 @@ MAX_TRIALS = 100
 MIN_SAMPLES = 2
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
-def landmark_extraction(xList):#, yList, innerFlag):
-    #data =  np.column_stack([xList[:], yList[:]])  # Inliers returns an array of True or False with inliers as True.
+def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
+    #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True.
     #innerFlag[0] = False
-    data = np.array(xList)
-    del xList[:]
+    data = np.array(pointsToBeFitted)
+    del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
     params = model_robust.params
@@ -25,26 +25,26 @@ def landmark_extraction(xList):#, yList, innerFlag):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, pairInliers, xList):#, innerFlag):
+def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
     temp_x, temp_y = list(), list()
     while True:
         #print("I'm checking for the RANSAC")
-        if keyFlags.get(True) and len(xList) > 2:
-            temp_x, temp_y = landmark_extraction(xList)#, yList, innerFlag)
+        if keyFlags.get(True) and len(pointsToBeFitted) > 2:
+            temp_x, temp_y = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
         else:
-            del xList[:]
+            del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flags_queue, rawPoints, pairInliers):
-    xList = list()
+    pointsToBeFitted = list()
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, xList, ))#innerFlag))
+    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, pointsToBeFitted, ))#innerFlag))
     ransac_checking.start()
     try:
         while True:
-                xList.append(rawPoints.get(True))
+                pointsToBeFitted.append(rawPoints.get(True))
     except KeyboardInterrupt:
         ransac_checking.join()
         flags_queue.close()
