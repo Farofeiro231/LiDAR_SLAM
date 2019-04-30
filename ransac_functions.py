@@ -25,26 +25,26 @@ def landmark_extraction(xList):#, yList, innerFlag):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, xInliers, xList):#, innerFlag):
+def check_ransac(keyFlags, pairInliers, xList):#, innerFlag):
     temp_x, temp_y = list(), list()
     while True:
         #print("I'm checking for the RANSAC")
         if keyFlags.get(True) and len(xList) > 2:
             temp_x, temp_y = landmark_extraction(xList)#, yList, innerFlag)
-            xInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
+            pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
         else:
             del xList[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(flags_queue, xPoints, xInliers):
+def ransac_core(flags_queue, rawPoints, pairInliers):
     xList = list()
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, xInliers, xList, ))#innerFlag))
+    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, xList, ))#innerFlag))
     ransac_checking.start()
     try:
         while True:
-                xList.append(xPoints.get(True))
+                xList.append(rawPoints.get(True))
     except KeyboardInterrupt:
         ransac_checking.join()
         flags_queue.close()
