@@ -16,9 +16,15 @@ def landmark_extraction(xList):#, yList, innerFlag):
     #del yList[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
-    print(model_robust.params)
+    params = model_robust.params
+    print(params)
+    #with params[0][1] as coefs:
+    a = params[1][1]/params[1][0]
+    #with params[0][0] as origin:
+    b = params[0][1] - a * params[0][0]
+    print("Valores de a e b: {:.2f} {:.2f}" .format(a, b))
     xBase = np.array(data[inliers, 0])
-    yBase = np.array(data[inliers, 1])
+    yBase = a * xBase + b#np.array(data[inliers, 1])
     #print("--------------------- Finished running RANSAC -----------------")
     return xBase, yBase  #yPredicted
 
