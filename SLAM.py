@@ -12,12 +12,12 @@ if __name__ == '__main__':
     processes = []
     keyFlags = mp.Queue()
     xPoints = mp.Queue()
-    xInliers = mp.Queue()
+    pairInliers = mp.Queue()
     try:
         my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(my_queue,))
-        data_plotting = mp.Process(target=plotting, args=(my_queue, keyFlags, xPoints, xInliers, ))#keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y, ))
-        ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, xInliers, ))
+        data_plotting = mp.Process(target=plotting, args=(my_queue, keyFlags, xPoints, pairInliers, ))#keyFlags, theta, distance, xPoints, yPoints, xInliers, yInliers, x, y, ))
+        ransac_process = mp.Process(target=ransac_core, args=(keyFlags, xPoints, pairInliers, ))
         data_acquisition.start()
         data_plotting.start()
         ransac_process.start()
