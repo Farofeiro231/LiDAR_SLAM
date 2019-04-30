@@ -13,9 +13,9 @@ import multiprocessing as mp
 
 
 PI = np.pi
-DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
+DISTANCE_LIMIT = 10  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 30  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 10  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -51,7 +51,7 @@ def scanning(my_q):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=250)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=300)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
@@ -126,19 +126,23 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                 if measure != 0 and measure[0][3] < 6000:
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
+                    dX = dist * np.cos(angle)
+                    dY = dist * np.sin(angle)
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
+                        print("valor passado e valor atual: {}, {}".format(distance[-1], measure[0][3]))
                         rawPoints.put([dist * np.cos(angle), dist * np.sin(angle)])
                         #yPoints.put(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
+                        print("Numero de vizinhos: {}".format(neighboors))
                         keyFlags.put(True)
                         #time.sleep(0.0001)
                         neighboors = 0
                     else:
                         keyFlags.put(False)
                         neighboors = 0 
-                    #theta.append(angle)
+                    theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
                     x.append(dist * np.cos(angle))
                     y.append(dist * np.sin(angle))
@@ -170,7 +174,7 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     #print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
                     del x[:]
                     del y[:]
-                    #del theta[:]
+                    del theta[:]
                     del distance[:]
                     del pointsToBePlotted[:]
                     #pairInliers.queue.clear()
