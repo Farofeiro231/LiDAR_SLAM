@@ -173,12 +173,12 @@ def plotting(my_q, keyFlags, xPoints, xInliers):#, keyFlags, theta, distance, xP
                     #del theta[:]
                     del distance[:]
                     del xPlot[:]
-                    del yPlot[:]
                     #xInliers.queue.clear()
                     #yInliers.queue.clear()
                 #print("Time to loop: {:.6f}" .format(time.time() - start))
         except KeyboardInterrupt:
             myThread.join()
+            inliersThread.join()
             pass
     
     myThread = threading.Thread(target=plot)

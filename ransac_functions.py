@@ -4,7 +4,7 @@ import numpy as np
 
 
 THRESHOLD = 30  # maximum distance between a point and the line from the model for inlier classification
-MAX_TRIALS = 10
+MAX_TRIALS = 100
 MIN_SAMPLES = 2
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
@@ -46,5 +46,6 @@ def ransac_core(flags_queue, xPoints, xInliers):
         while True:
                 xList.append(xPoints.get(True))
     except KeyboardInterrupt:
+        ransac_checking.join()
         flags_queue.close()
         pass
