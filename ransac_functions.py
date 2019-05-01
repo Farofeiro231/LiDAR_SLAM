@@ -20,9 +20,9 @@ def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
     b = params[0][1] - a * params[0][0]
     xBase = np.array(data[inliers, 0])
     yBase = a * xBase + b#np.array(data[inliers, 1])
-    fittedLine = Landmark(a, b,)
+    fittedLine = Landmark(a, b, 0, params[0][0], params[0][1])
     #print("--------------------- Finished running RANSAC -----------------")
-    return xBase, yBase  #yPredicted
+    return xBase, yBase, fittedLine  #yPredicted
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
@@ -31,8 +31,9 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
     landmarks = list()
     while True:
         if keyFlags.get(True) and len(pointsToBeFitted) > 2:
-            temp_x, temp_y = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
+            temp_x, temp_y, extractedLandmark = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
+            lanmarks.append(extractedLandmark)
 
 
 #   Here I run the landmark_extraction code inside an indepent process
