@@ -13,9 +13,9 @@ import multiprocessing as mp
 
 
 PI = np.pi
-DISTANCE_LIMIT = 5  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
+DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 20  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 50  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -131,7 +131,7 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     # Verify if the points are close enough to each other to be ransacked
                     if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
                         print("valor passado e valor atual: {}, {}".format(distance[-1], measure[0][3]))
-                        rawPoints.put([dist * np.cos(angle), dist * np.sin(angle)])
+                        rawPoints.put([dX, dY])
                         #yPoints.put(dist * np.sin(angle))
                         neighboors += 1
                     elif neighboors > MIN_NEIGHBOORS:
@@ -165,11 +165,11 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     #ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
-                    #xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
-                    #yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
+                    xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
+                    yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax.scatter(x, y, marker="+", s=3)
-                    #ax.scatter(xMask, yMask, marker=".", color='r', s=5)
+                    ax.scatter(xMask, yMask, marker=".", color='r', s=5)
                     graph.draw()
                     #print("Time to plot without ransac: {:.6f}" .format(time.time() - begin))
                     del x[:]
