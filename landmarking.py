@@ -1,6 +1,6 @@
 import numpy as np
 
-LIFE = 40
+LIFE = 5
 TOLERANCE_A = 0.1
 TOLERANCE_B = 10
 TORELANCE_ORIGINS = 250
@@ -35,10 +35,13 @@ class Landmark():
     def get_pos(self):
         return self.pos
 
+    def get_life(self):
+        return self.life
+    
     def observed(self):
         self.timesObserved += 1
 
-    def decrese_life(self):
+    def decrease_life(self):
         if self.life > 0:
             self.life -= 1
 
@@ -55,5 +58,9 @@ class Landmark():
                 return True
         else:
             return False
-
-
+    
+    def landmarks_track(landmarks):
+        while True:
+            for landmark in landmarks:
+                if landmark.get_life == 0:
+                    landmarks.remove(landmark)

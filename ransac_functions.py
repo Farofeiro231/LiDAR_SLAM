@@ -26,6 +26,8 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
             equal = landmarks[i].is_equal(fittedLine)
+            if not equal:
+                landmarks[i].decrease_life()
             i += 1
         if equal:
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
