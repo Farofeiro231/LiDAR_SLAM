@@ -10,7 +10,6 @@ MIN_SAMPLES = 2
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True.
-    #innerFlag[0] = False
     data = np.array(pointsToBeFitted)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
@@ -28,13 +27,9 @@ def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
 def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
     temp_x, temp_y = list(), list()
     while True:
-        #print("I'm checking for the RANSAC")
         if keyFlags.get(True) and len(pointsToBeFitted) > 2:
             temp_x, temp_y = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
-        #else:
-        #    print("lol")
-        #    del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
