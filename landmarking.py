@@ -17,6 +17,12 @@ class Landmark():
         self.pos = np.array([x, y])
         self.timesObserved = 0
 
+    def __str__(self):
+        text = "Landmark ID: {}\n".format(self.id)
+        text += "(x, y): ({}, {})\n".format(self.pos[0], self.pos[1]) \
+                + "equation: {} * x + {}\n".format(self.a, self.b)
+        return text
+
     def get_id(self):
         return self.id
 
