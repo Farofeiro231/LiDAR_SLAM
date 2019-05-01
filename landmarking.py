@@ -17,30 +17,30 @@ class Landmark():
         self.pos = np.array([x, y])
         self.timesObserved = 0
 
-    def get_id():
+    def get_id(self):
         return self.id
 
-    def get_a():
+    def get_a(self):
         return self.a
     
-    def get_b():
+    def get_b(self):
         return self.b
     
-    def get_pos():
+    def get_pos(self):
         return self.pos
 
-    def observed():
+    def observed(self):
         self.timesObserved += 1
 
-    def decrese_life():
+    def decrese_life(self):
         if self.life > 0:
             self.life -= 1
 
-    def distance_between_origins(landmark):
+    def distance_between_origins(self, landmark):
         distance = np.linalg.norm(self.pos - landmark.get_pos())
         return distance
 
-    def is_equal(landmark):
+    def is_equal(self, landmark):
         distA = abs(self.a - landmark.get_b())
         distB = abs(self.b - landmark.get_b())
         distanceOrigins = self.distance_between_origins(landmarks)

@@ -35,7 +35,7 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
             temp_x, temp_y, extractedLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber)#, yList, innerFlag)
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
             landmarks.append(extractedLandmark)
-            print("Landmark ID: {}; valor de a: {}; valor de b: {}" .format(extractedLandmark.get_id, extractedLandmark.get_a, extractedLandmark.get_b))
+            print("Landmark ID: {}; valor de a: {}; valor de b: {}" .format(extractedLandmark.get_id(), extractedLandmark.get_a(), extractedLandmark.get_b()))
             landmarkNumber += 1
 
 
