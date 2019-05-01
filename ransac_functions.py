@@ -1,6 +1,7 @@
 from skimage.measure import ransac, LineModelND
 import threading
 import numpy as np
+import landmarking
 
 
 THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
@@ -19,6 +20,7 @@ def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
     b = params[0][1] - a * params[0][0]
     xBase = np.array(data[inliers, 0])
     yBase = a * xBase + b#np.array(data[inliers, 1])
+    fittedLine = Landmark(a, b,)
     #print("--------------------- Finished running RANSAC -----------------")
     return xBase, yBase  #yPredicted
 
@@ -26,6 +28,7 @@ def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
 def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
     temp_x, temp_y = list(), list()
+    landmarks = list()
     while True:
         if keyFlags.get(True) and len(pointsToBeFitted) > 2:
             temp_x, temp_y = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
