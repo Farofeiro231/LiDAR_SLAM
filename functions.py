@@ -15,7 +15,7 @@ import multiprocessing as mp
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 50  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 80  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -29,11 +29,12 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
 
 
 #  Here we empty the pairInliers and yInliers queue to be able to plot their data latter
-def get_inliers(pairInliers, pointsToBePlotted):
+def get_inliers(pairInliers, pointsToBePlotted, getPoints):
     while True:
         #print("I'm extracting the data from the pairInliers inside the dedicated thread")
         #temp = pairInliers.get(True)
-        pointsToBePlotted.append(pairInliers.get(True))
+        if getPoints:
+            pointsToBePlotted.append(pairInliers.get(True))
 
 
 #   Calculates the distance between two measures. If the received measure is the stop signal (0),
@@ -78,12 +79,13 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
     print("Valor de keyFlags: {}" .format(my_q))
     print("Valor de keyFlags: {}" .format(rawPoints))
     flag = False
+    getPoints = True
     
     #ransac_process = mp.Process(target=ransac_core, args=(keyFlags, rawPoints, pairInliers, yInliers, ))
     #ransac_process.daemon = True  # exits the process as soon as the main program stops
     #ransac_process.start()
 
-    inliersThread = threading.Thread(target=get_inliers, args=(pairInliers, pointsToBePlotted, ))
+    inliersThread = threading.Thread(target=get_inliers, args=(pairInliers, pointsToBePlotted, getPoints))
     #inliersProcess = mp.Process(target=get_inliers, args=(pairInliers, yInliers, pointsToBePlotted, yPlot, ))
     inliersThread.start()
     #inliersProcess.start()
@@ -110,6 +112,7 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
         nonlocal rawPoints
         nonlocal pairInliers
         nonlocal pointsToBePlotted
+        nonlocal getPoints
         print("Estou na função tal... Valor de flag: {}" .format(flag))
         measure = 0
         xMask, yMask = 0., 0.
@@ -124,37 +127,39 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                 start = time.time()
                 measure = my_q.get(True) # reads from the Queue without blocking
                 if measure != 0 and measure[0][3] < 6000 and measure[0][3] > 100:
+                    getPoints = True
                     angle = -measure[0][2] * ANGLE_TO_RAD + PI/2.
                     dist = measure[0][3]
                     dX = dist * np.cos(angle)
                     dY = dist * np.sin(angle)
                     # Verify if the points are close enough to each other to be ransacked
-                    if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
-                        print("valor passado e valor atual: {}, {}".format(distance[-1], measure[0][3]))
-                        rawPoints.put([dX, dY])
+                    #if len(distance) > 0 and distance_between_measures(measure, distance[-1]) <= DISTANCE_LIMIT:
+                    #    print("valor passado e valor atual: {}, {}".format(distance[-1], measure[0][3]))
+                    rawPoints.put([dX, dY])
                         #yPoints.put(dist * np.sin(angle))
-                        neighboors += 1
-                    elif neighboors > MIN_NEIGHBOORS:
+                    neighboors += 1
+                    if neighboors > MIN_NEIGHBOORS:
                         print("Numero de vizinhos: {}".format(neighboors))
                         keyFlags.put(True)
                         #time.sleep(0.0001)
                         neighboors = 0
-                    else:
-                        keyFlags.put(False)
-                        neighboors = 0 
+                    #else:
+                    #    keyFlags.put(False)
+                    #    neighboors = 0 
                     theta.append(angle)
                     distance.append(dist)  # comentar dps daqui pra voltar ao inicial
-                    x.append(dist * np.cos(angle))
-                    y.append(dist * np.sin(angle))
+                    x.append(dX)
+                    y.append(dY)
                     #print("Is the pointsToBePlotted queue empty: {}" .format(len(pointsToBePlotted)))
                 elif measure == 0 and len(pointsToBePlotted) > 0:# and not pairInliers.empty():
-                    if neighboors > MIN_NEIGHBOORS:
-                        keyFlags.put(True)
+                    getPoints = False
+                    #if neighboors > MIN_NEIGHBOORS:
+                    #    keyFlags.put(True)
                         #time.sleep(0.0001)
-                        neighboors = 0
-                    else:
-                        keyFlags.put(False)
-                        neighboors = 0
+                    #    neighboors = 0
+                    #else:
+                    #    keyFlags.put(False)
+                    #    neighboors = 0
                     #print("Plotting...")
                     ax.cla()
                     ax.grid()
@@ -165,8 +170,10 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     #ax1.grid()
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
+                    #mask = np.array( np.concatenate([i[0] for i in pointsToBePlotted], axis=0), np.concatenate([i[1] for i in pointsToBePlotted], axis=0) )
                     xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
                     yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
+                    print("Tamanho de xMask, yMask: {}, {}".format(xMask.shape, yMask.shape))
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax.scatter(x, y, marker="+", s=3)
                     ax.scatter(xMask, yMask, marker=".", color='r', s=5)

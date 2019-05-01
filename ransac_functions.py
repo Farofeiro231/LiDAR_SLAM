@@ -33,6 +33,7 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
             temp_x, temp_y = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
         else:
+            print("lol")
             del pointsToBeFitted[:]
 
 
