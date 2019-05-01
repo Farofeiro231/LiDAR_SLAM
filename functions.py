@@ -15,7 +15,7 @@ import multiprocessing as mp
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 80  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 100  # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -139,7 +139,7 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                         #yPoints.put(dist * np.sin(angle))
                     neighboors += 1
                     if neighboors > MIN_NEIGHBOORS:
-                        print("Numero de vizinhos: {}".format(neighboors))
+                        #print("Numero de vizinhos: {}".format(neighboors))
                         keyFlags.put(True)
                         #time.sleep(0.0001)
                         neighboors = 0
@@ -173,7 +173,7 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     #mask = np.array( np.concatenate([i[0] for i in pointsToBePlotted], axis=0), np.concatenate([i[1] for i in pointsToBePlotted], axis=0) )
                     xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers
                     yMask = np.concatenate([i[1] for i in pointsToBePlotted], axis=0)  # Same as above, but for y
-                    print("Tamanho de xMask, yMask: {}, {}".format(xMask.shape, yMask.shape))
+                    #print("Tamanho de xMask, yMask: {}, {}".format(xMask.shape, yMask.shape))
                     #ax.scatter(theta_array, distance_array, marker="+", s=3)
                     ax.scatter(x, y, marker="+", s=3)
                     ax.scatter(xMask, yMask, marker=".", color='r', s=5)

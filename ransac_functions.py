@@ -4,8 +4,8 @@ import numpy as np
 
 
 THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
-MAX_TRIALS = 100
-MIN_SAMPLES = 10
+MAX_TRIALS = 30
+MIN_SAMPLES = 2
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted):#, yList, innerFlag):
@@ -32,9 +32,9 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
         if keyFlags.get(True) and len(pointsToBeFitted) > 2:
             temp_x, temp_y = landmark_extraction(pointsToBeFitted)#, yList, innerFlag)
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
-        else:
-            print("lol")
-            del pointsToBeFitted[:]
+        #else:
+        #    print("lol")
+        #    del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
