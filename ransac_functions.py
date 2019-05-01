@@ -10,19 +10,29 @@ MIN_SAMPLES = 2
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
+    i = 0
+    equal = False
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
     data = np.array(pointsToBeFitted)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
     params = model_robust.params
-    a = params[1][1]/params[1][0]
+    a = params[1][1]/params[1][0]  # Calculating the coefficients of the line ax + b
     b = params[0][1] - a * params[0][0]
-    fittedLine = Landmark(a, b, landmarkNumber, params[0][0], params[0][1])
+    fittedLine = Landmark(a, b, landmarkNumber, params[0][0], params[0][1])  # Creation of a landmark from the previously calculated coefs.
     xBase = np.array(data[inliers, 0])
-    if len(landmarks) > 0 and landmarks[-1].is_equal(fittedLine):
-        yBase = landmarks[-1].get_a() * xBase + landmarks[-1].get_b()#np.array(data[inliers, 1])
-        newLandmark = False
+    #  If the landmark is the same as one previously seen, we use the latter to calculate y points.
+    if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
+        while i < len(landmarks) and not equal:
+            equal = landmarks[i].is_equal(fittedLine)
+            i += 1
+        if equal:
+            yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
+            newLandmark = False
+        else:
+            yBase = a * xBase + b#np.array(data[inliers, 1])
+            newLandmark = True 
     else:
         yBase = a * xBase + b#np.array(data[inliers, 1])
         newLandmark = True
@@ -42,7 +52,7 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
             if newLandmark:
                 landmarks.append(extractedLandmark)
-            print(extractedLandmark)
+                print(extractedLandmark)
             landmarkNumber += 1
 
 
