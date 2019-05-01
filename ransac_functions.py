@@ -12,6 +12,7 @@ MIN_SAMPLES = 2
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     i = 0
     equal = False
+    deleteLandmark = False
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
     data = np.array(pointsToBeFitted)
     del pointsToBeFitted[:]
@@ -26,10 +27,14 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
             equal = landmarks[i].is_equal(fittedLine)
+            #  If the landmark tested is not equal to the new one it means that it has not been seen again; decrease, then, its life. If its life reaches zero, the flag deleteLandmark becomes True and it is removed from the list
             if not equal:
-                landmarks[i].decrease_life()
+                deleteLandmark = landmarks[i].decrease_life()
+                if deleteLandmark:
+                    landmarks.remove(landmarks[i])
             i += 1
-        if equal:
+        if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
+            landmarks[i - 1].reset_life()
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
         else:
@@ -43,9 +48,9 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
+def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
     temp_x, temp_y = list(), list()
-    landmarks = list()
+    #landmarks = list()
     landmarkNumber = 0
     newLandmark = True
     while True:
@@ -54,20 +59,24 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted):#, innerFlag):
             pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
             if newLandmark:
                 landmarks.append(extractedLandmark)
-                print(extractedLandmark)
+                print("Landmarks extraidas: {}".format(len(landmarks)))
             landmarkNumber += 1
 
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flags_queue, rawPoints, pairInliers):
     pointsToBeFitted = list()
+    landmarks = list()
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, pointsToBeFitted, ))#innerFlag))
+    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
+    #landmark_management = threading.Thread(target=landmarks_track, args=(landmarks, ))
     ransac_checking.start()
+    #landmark_management.start()
     try:
         while True:
                 pointsToBeFitted.append(rawPoints.get(True))
     except KeyboardInterrupt:
         ransac_checking.join()
+        #landmark_management.join()
         flags_queue.close()
         pass

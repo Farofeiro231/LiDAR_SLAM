@@ -44,6 +44,11 @@ class Landmark():
     def decrease_life(self):
         if self.life > 0:
             self.life -= 1
+        if self.life == 0:
+            return True
+
+    def reset_life(self):
+        self.life = LIFE
 
     def distance_between_origins(self, landmark):
         distance = np.linalg.norm(self.pos - landmark.get_pos())
@@ -59,8 +64,7 @@ class Landmark():
         else:
             return False
     
-    def landmarks_track(landmarks):
-        while True:
-            for landmark in landmarks:
-                if landmark.get_life == 0:
-                    landmarks.remove(landmark)
+def landmarks_track(landmarks):
+        for landmark in landmarks:
+            if landmark.get_life == 0:
+                landmarks.remove(landmark)
