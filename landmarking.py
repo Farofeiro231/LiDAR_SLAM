@@ -14,7 +14,7 @@ class Landmark():
         self.b = b
         self.id = ID
         self.life = LIFE
-        self.pos = np.array[x, y]
+        self.pos = np.array([x, y])
         self.timesObserved = 0
 
     def get_id():
@@ -46,7 +46,7 @@ class Landmark():
         distanceOrigins = self.distance_between_origins(landmarks)
         if distA <= TOLERANCE_A and distB <= TOLERANCE_B and distanceOrigins <= TORELANCE_ORIGINS:
             return True
-        else
+        else:
             return False
 
 
