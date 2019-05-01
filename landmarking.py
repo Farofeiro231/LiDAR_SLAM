@@ -1,9 +1,9 @@
 import numpy as np
 
 LIFE = 40
-TOLERANCE_A = 0.5
+TOLERANCE_A = 0.1
 TOLERANCE_B = 10
-TORELANCE_ORIGINS = 200
+TORELANCE_ORIGINS = 250
 
 
 class Landmark():
@@ -47,11 +47,12 @@ class Landmark():
         return distance
 
     def is_equal(self, landmark):
-        distA = abs(self.a - landmark.get_b())
+        distA = abs(self.a - landmark.get_a())
         distB = abs(self.b - landmark.get_b())
-        distanceOrigins = self.distance_between_origins(landmarks)
-        if distA <= TOLERANCE_A and distB <= TOLERANCE_B and distanceOrigins <= TORELANCE_ORIGINS:
-            return True
+        distanceOrigins = self.distance_between_origins(landmark)
+        if distA <= TOLERANCE_A and distB <= TOLERANCE_B:
+            if distanceOrigins <= TORELANCE_ORIGINS:
+                return True
         else:
             return False
 

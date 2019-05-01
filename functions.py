@@ -47,7 +47,7 @@ def distance_between_measures(new_measure, old_measure):
 
 
 def scanning(my_q):
-    range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
+    range_finder = Lidar('/dev/ttyUSB1')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=300)  # returns a yield containing each measure
