@@ -4,12 +4,12 @@ from math import cos, sin, tan, sqrt, atan2
 R = 50  #  Wheel radius in mm
 L = 200   # Robot's base length in mm
 
+
 def normalize_angle(angle):
     angle = angle % (2 * np.pi)
     if angle > np.pi:
         angle -= 2 * np.pi
     return angle
-
 
 
 def transition_function(x, dt, u):  # The shape of u: u = [vl vr].T
@@ -27,9 +27,45 @@ def transfer_function(x, landmarks):
     for lndmrk in landmarks:
         (px, py) = lndmrk.get_pos()[0], lndmrk.get_pos()[1]
         dist = sqrt((px - x[0])**2 + (py - x[1])**2)  # Calculates distance from the robot to the landmark
-        angle = atan2(py - x[1]) # Calculates the angle between the robot and the landmark
-        hx.extend([dist, ])
-    H = np.array([1., 0, 0],
-                 [0, 1., 0])
-    return np.dot(H, x)
+        angle = atan2(py - x[1], px - x[0]) # Calculates the angle between the robot and the landmark
+        hx.extend([dist, normalize_angle(angle - x[2])])
+    return np.array(hx)
+
+
+def state_mean(sigmas, Wm):  # Sigmas is of the form M(2n+1)xn
+    x = np.zeros(3)
+
+    sum_sim = np.sum(np.dot(sin(sigmas[:, 2], Wm)
+    sum_cos = np.sum(np.dot(cos(sigmas[:, 2], Wm)
+    x[0] = np.sum(np.dot(sigmas[:, 0], Wm))
+    x[1] = np.sum(no.dot(sigmas[:, 1], Wm))
+    x[2] = atan2(sum_sin, sum_cos)
+    return x
+
+def z_mean(sigmas, Wm);
+    nbrLmkrs = = sigmas.shape[1]  # number of landmarks
+    x = np.zeros(nbrLmkrs)
+
+    for z in range(0, nbrLmkrs, 2):
+        sum_sin = np.sum(np.dot(np.sin(sigmas[:, z+1], Wm)))  # Wm is a column vector
+        sum_cos = np.sum(np.dot(np.cos(sigmas[:, z+1], Wm)))
+
+        x[z] = np.sum(np.dot(sigmas[:, z], Wm))
+        x[z+1] = atan2(sum_sin, sum_cos)
+    return x        #  this x is actually u_z, in the format [dist0, angle0, dist1, angle1, ..., distk, anglek], avec k = nbrLmkrs
+
+
+def residual_x(a, b):
+    x = a - b
+    x[2] = normalize_angle(x[2])
+    return x
+
+
+def residual_h(a, b):
+    y = a - b
+    #  data in format [dist_0, angle_0, dist_2, angle_2]
+    for i in range(0, len(y), 2):
+        y[i+1] = normalize_angle(y[i+1])
+    return y
+
 
