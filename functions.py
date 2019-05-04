@@ -24,6 +24,8 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     ax.autoscale(False)
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
+    ax.set_xlim(-2000, 2000)
+    ax.set_ylim(-2000, 2000)
     ax.grid()
     return ax
 
@@ -133,9 +135,9 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     getPoints = False
                     ax.cla()
                     ax.grid()
+                    ax.autoscale(False) 
                     ax.set_xlim(-2000, 2000)
                     ax.set_ylim(-2000, 2000)
-                    ax.autoscale(False) 
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
                     xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers

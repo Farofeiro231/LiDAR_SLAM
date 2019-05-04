@@ -69,14 +69,11 @@ def ransac_core(flags_queue, rawPoints, pairInliers):
     landmarks = list()
     temp_x, temp_y = 0., 0.
     ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
-    #landmark_management = threading.Thread(target=landmarks_track, args=(landmarks, ))
     ransac_checking.start()
-    #landmark_management.start()
     try:
         while True:
                 pointsToBeFitted.append(rawPoints.get(True))
     except KeyboardInterrupt:
         ransac_checking.join()
-        #landmark_management.join()
         flags_queue.close()
         pass
