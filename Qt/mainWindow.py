@@ -1,5 +1,6 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
+import sys, time
+from numpy.random import randn
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
 from PyQt5.QtCore import QTimer, QPointF, Qt 
@@ -14,6 +15,13 @@ class Window(QMainWindow):
         self.height = 480
         self.width = 640
         self.count = 0
+        self.time = 0
+        self.label = QLabel(self)
+        
+        dock = QDockWidget("!!", self)
+        dock.setWidget(self.label)
+        self.addDockWidget(Qt.LeftDockWidgetArea, dock)
+
         self.chart = QChart()
         self.config_axis()
         self.series = QScatterSeries()
@@ -27,6 +35,7 @@ class Window(QMainWindow):
 
     def config_series(self):
         self.series.setMarkerSize(10)
+        self.label.move(15, 15)
 
     def config_axis(self):
         self.xAxis = QValueAxis()
@@ -41,17 +50,17 @@ class Window(QMainWindow):
     
 
     def update(self):
+        self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
+        self.time = time.time()
         a = []
-        for i in range(10 * self.count, 10 * (self.count + 1)):
-            a.append(QPointF(i, i))
+        a.append([QPointF(50 + 10 * randn(), 50 + 10 * randn()) for i in range(10)])
         if self.count == 0:
-            self.series.append(a)
+            self.series.append(a[0][:])
         else:
-            self.series.replace(a)
+            self.series.replace(a[0][:])
             #self.chart.createDefaultAxes()
         self.count += 1
-        for x in self.series.pointsVector():
-            print(x)
+        end = time.time()
 
 
     
@@ -63,7 +72,7 @@ class Window(QMainWindow):
         self.series.attachAxis(self.yAxis)
         #self.chart.createDefaultAxes()
         self.timer.timeout.connect(self.update)
-        self.timer.start(1000)
+        self.timer.start(0)
         self.show()
 
 
