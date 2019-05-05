@@ -63,7 +63,7 @@ def scanning(rawPoints):
                 rawPoints.put([dX, dY])
                 if measure[0][0]:
                     nbr_tours += 1
-                    my_q.put(0)
+                    rawPoints.put(0)
     except KeyboardInterrupt:
             #print("Saindo...")
             range_finder.stop_motor()

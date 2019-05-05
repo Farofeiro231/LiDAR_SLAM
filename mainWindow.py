@@ -29,7 +29,7 @@ class Window(QMainWindow):
         self.config_axis()
         self.series = QScatterSeries()
         self.config_series()
-        self.update()
+        #self.update()
         self.timer = QTimer(self)
         self.view = QChartView(self.chart)
         self.setCentralWidget(self.view)  # It is needed to create to view because the CentralWidget needs to be a QWidget, and a QChart is not so.
@@ -86,6 +86,7 @@ def ploting(points2Plot):
     myApp = QApplication(sys.argv)
 
     myWindow = Window(points2Plot)
+    myApp.exec_()
 
     sys.exit(myApp.exec_())
 
