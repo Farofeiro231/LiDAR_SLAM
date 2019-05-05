@@ -56,7 +56,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(pairInliers, pointsToBeFitted, landmarks, threadEvent):#n, innerFlag):
+def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
@@ -76,11 +76,13 @@ def check_ransac(pairInliers, pointsToBeFitted, landmarks, threadEvent):#n, inne
                 #print(inliersList.copy())
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
                 #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
-                pairInliers.append(np.concatenate(inliersList.copy(), axis=0)) 
+                pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
+                allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                 print("Passando a bola para plot\n\n\n")
                 threadEvent.set()
                 del inliersList[:]
                 del pointsToBeFitted[:]
+                del tempPoints[:]
             else:
                 del pointsToBeFitted[:]
 
@@ -89,10 +91,12 @@ def check_ransac(pairInliers, pointsToBeFitted, landmarks, threadEvent):#n, inne
 def ransac_core(rawPoints):#, pairInliers):
     pairInliers = []
     pointsToBeFitted = []
+    allPoints = []
+    tempPoints = []
     landmarks = list()
     threadEvent = threading.Event()
-    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, pointsToBeFitted, landmarks, threadEvent))#innerFlag))
-    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, threadEvent))
+    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent))#innerFlag))
+    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent))
     ransac_checking.start()
     qt_plotting.start()
     try:
@@ -100,7 +104,11 @@ def ransac_core(rawPoints):#, pairInliers):
             time.sleep(0.00001)
             temp = rawPoints.get(True)
             pointsToBeFitted.append(temp)
+            if temp != 0:
+                tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
         del pointsToBeFitted
         del pairInliers
+        del tempPoints
+        del allPoints
         pass

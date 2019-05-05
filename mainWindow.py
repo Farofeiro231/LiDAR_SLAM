@@ -5,21 +5,23 @@ from numpy.random import randn
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
-from PyQt5.QtCore import QTimer, QPointF, Qt 
+from PyQt5.QtCore import QTimer, QPointF, Qt
 import numpy as np
 from functools import partial
 
 
 class Window(QMainWindow):
     
-    def __init__(self, pointsList, threadEvent):
+    def __init__(self, landmarkPoints, allPoints, threadEvent):
         super().__init__()
         self.title = "Lidar data points"
         #self.queue = queue
-        self.points2Plot = pointsList
+        self.color = Qt.darkRed
+        self.lmrkPoints = landmarkPoints
+        self.allPoints = allPoints
         self.event = threadEvent
-        self.left = 10
-        self.top = 10
+        self.left = 500
+        self.top = 500
         self.height = 480
         self.width = 640
         self.count = 0
@@ -33,6 +35,7 @@ class Window(QMainWindow):
         self.chart = QChart()
         self.config_axis()
         self.series = QScatterSeries()
+        self.allSeries = QScatterSeries()
         self.config_series()
         #self.update()
         self.timer = QTimer(self)
@@ -42,30 +45,42 @@ class Window(QMainWindow):
 
 
     def config_series(self):
-        myPen = self.series.pen()
-        myPen.setWidthF(.6)
-        self.series.setPen(myPen)
-        self.series.setMarkerSize(5)
+        self.series.setName("Landmark Points")
+        self.allSeries.setName("Data Points")
+        
+        lmrkPen = self.series.pen()
+        pen = self.allSeries.pen() 
+        lmrkPen.setWidthF(.2)
+        pen.setWidthF(.2)
+        self.series.setPen(lmrkPen)
+        self.allSeries.setPen(pen)
+
+        self.series.setColor(Qt.red)
+        self.allSeries.setColor(Qt.blue)
+        
+        self.series.setMarkerShape(1)  # 1 - rectangle; 0 - circle
+        
+        # for good visualization, the landmark points should be bigger than normal points
+        
+        self.series.setMarkerSize(8)
+        self.allSeries.setMarkerSize(5)
         self.label.move(15, 15)
 
     def config_axis(self):
         self.xAxis = QValueAxis()
         self.yAxis = QValueAxis()
-        self.xAxis.setRange(-2000, 2000)
+        self.xAxis.setRange(-4000, 1000)
         self.xAxis.setTitleText("Eixo x")
-        self.yAxis.setRange(-2000, 2000)
+        self.yAxis.setRange(-4000, 1000)
         self.yAxis.setTitleText("Eixo y")
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
-    def add_points(points):
-        self.points2Plot = points
-
-    def update(self):#, points2Plot): 
+    def update(self):#, lmrkPoints): 
         print("Passando a bola para ransac\n\n\n")
         self.event.wait()
         start = time.time()
-        #self.points2Plot = self.queue.get(True)
+        #self.lmrkPoints = self.queue.get(True)
         #fetch_time = time.time() - start
         #print("inside update...")
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
@@ -73,15 +88,18 @@ class Window(QMainWindow):
         #tempSeries = self.queue.get(True)
         #a = []
         #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
-        if self.count == 0 and self.points2Plot != []:
-            self.series.append(self.points2Plot[0][:])
-            del self.points2Plot[:]
+        if self.count == 0 and self.lmrkPoints != []:
+            self.series.append(self.lmrkPoints[0][:])
+            self.allSeries.append(self.allPoints[0][:])
+            del self.lmrkPoints[:]
+            del self.allPoints[:]
             self.count = 1
             #self.series.append(np.array(a[0][:]))
-        elif self.points2Plot != []:
-            #print(self.points2Plot)
-            self.series.replace(self.points2Plot[0][:])
-            del self.points2Plot[:]
+        elif self.lmrkPoints != []:
+            self.series.replace(self.lmrkPoints[0][:])
+            self.allSeries.replace(self.allPoints[0][:])
+            del self.lmrkPoints[:]
+            del self.allPoints[:]
             #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
         end = time.time()
@@ -92,22 +110,25 @@ class Window(QMainWindow):
 
     
     def initWindow(self):
-        print("queue inside myWindow: {}".format(self.points2Plot))
+        print("queue inside myWindow: {}".format(self.lmrkPoints))
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setWindowTitle(self.title)
         self.chart.addSeries(self.series)
+        self.chart.addSeries(self.allSeries)
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
+        self.allSeries.attachAxis(self.xAxis)
+        self.allSeries.attachAxis(self.yAxis)
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
         self.show()
 
 
-def ploting(pairInliers, threadEvent):
+def ploting(pairInliers, allPoints, threadEvent):
     
     myApp = QApplication(sys.argv)
     print("My queue received by ploting: {}".format(pairInliers))
-    myWindow = Window(pairInliers, threadEvent)
+    myWindow = Window(pairInliers, allPoints, threadEvent)
 
     sys.exit(myApp.exec_())
 
