@@ -4,12 +4,14 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWid
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
 from PyQt5.QtCore import QTimer, QPointF, Qt 
+import numpy as np
+
 
 class Window(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        self.title = "My visualization app"
+        self.title = "Lidar data points"
         self.left = 10
         self.top = 10
         self.height = 480
@@ -49,15 +51,15 @@ class Window(QMainWindow):
 
     
 
-    def update(self):
+    def update(self):#, points2Plot):
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
         a = []
         a.append([QPointF(50 + 10 * randn(), 50 + 10 * randn()) for i in range(10)])
         if self.count == 0:
-            self.series.append(a[0][:])
+            self.series.append(np.array(a[0][:]))
         else:
-            self.series.replace(a[0][:])
+            self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
         self.count += 1
         end = time.time()
@@ -70,10 +72,18 @@ class Window(QMainWindow):
         self.chart.addSeries(self.series)
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
-        #self.chart.createDefaultAxes()
         self.timer.timeout.connect(self.update)
         self.timer.start(0)
         self.show()
+
+
+#def plotting(points2Plot):
+
+#    myApp = QApplication(sys.argv)
+
+#    myWindow = Window()
+
+#    sys.exit(myApp.exec_())
 
 
 if __name__ == "__main__":
