@@ -56,7 +56,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
+def check_ransac(pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
@@ -74,7 +74,8 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFl
                 landmarkNumber += 1
             elif inliersList != []:
                 #print(inliersList.copy())
-                pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
+                #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
+                pairInliers.append(np.concatenate(inliersList.copy(), axis=0)) 
                 del inliersList[:]
                 del pointsToBeFitted[:]
             else:
@@ -82,13 +83,16 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFl
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(flags_queue, rawPoints, pairInliers):
+def ransac_core(rawPoints):#, pairInliers):
+    pairInliers = []
     pointsToBeFitted = []
     landmarks = list()
     myFlag = [False]
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(myFlag, pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
+    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
+    qt_plotting = threading.Thread(target=ploting, args=(pairInliers,))
     ransac_checking.start()
+    qt_plotting.start()
     try:
         while True:
             temp = rawPoints.get(True)
