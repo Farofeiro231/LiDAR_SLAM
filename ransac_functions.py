@@ -15,6 +15,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     deleteLandmark = False
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
     data = np.array(pointsToBeFitted)
+    print(data)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
