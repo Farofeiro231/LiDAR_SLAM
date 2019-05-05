@@ -9,9 +9,10 @@ import numpy as np
 
 class Window(QMainWindow):
     
-    def __init__(self):
+    def __init__(self, my_queue):
         super().__init__()
         self.title = "Lidar data points"
+        self.queue = my_queue
         self.left = 10
         self.top = 10
         self.height = 480
@@ -42,9 +43,9 @@ class Window(QMainWindow):
     def config_axis(self):
         self.xAxis = QValueAxis()
         self.yAxis = QValueAxis()
-        self.xAxis.setRange(0, 100)
+        self.xAxis.setRange(-2000, 2000)
         self.xAxis.setTitleText("Eixo x")
-        self.yAxis.setRange(0, 100)
+        self.yAxis.setRange(-2000, 2000)
         self.yAxis.setTitleText("Eixo y")
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
@@ -54,12 +55,15 @@ class Window(QMainWindow):
     def update(self):#, points2Plot):
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
-        a = []
-        a.append([QPointF(50 + 10 * randn(), 50 + 10 * randn()) for i in range(10)])
+        tempSeries = self.queue.get(True)
+        #a = []
+        #a.append([QPointF(50 + 10 * randn(), 50 + 10 * randn()) for i in range(10)])
         if self.count == 0:
-            self.series.append(np.array(a[0][:]))
+            self.series.append(tempSeries)
+            #self.series.append(np.array(a[0][:]))
         else:
-            self.series.replace(np.array(a[0][:]))
+            self.series.replace(tempSeries)
+            #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
         self.count += 1
         end = time.time()
@@ -77,19 +81,19 @@ class Window(QMainWindow):
         self.show()
 
 
-#def plotting(points2Plot):
+def ploting(points2Plot):
 
-#    myApp = QApplication(sys.argv)
+    myApp = QApplication(sys.argv)
+
+    myWindow = Window(points2Plot)
+
+    sys.exit(myApp.exec_())
+
+
+#if __name__ == "__main__":
+
+#   myApp = QApplication(sys.argv)
 
 #    myWindow = Window()
 
 #    sys.exit(myApp.exec_())
-
-
-if __name__ == "__main__":
-
-    myApp = QApplication(sys.argv)
-
-    myWindow = Window()
-
-    sys.exit(myApp.exec_())

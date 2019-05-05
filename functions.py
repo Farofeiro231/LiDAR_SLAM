@@ -9,6 +9,7 @@ import numpy as np
 import time
 import ransac_functions
 import threading
+import mainWindow
 import multiprocessing as mp
 
 
@@ -48,7 +49,7 @@ def distance_between_measures(new_measure, old_measure):
     return distance
 
 
-def scanning(my_q):
+def scanning(rawPoints):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     start_time = time.time()
@@ -57,7 +58,9 @@ def scanning(my_q):
         for measure in iterator:
             #print("medindo...")
             if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
-                my_q.put(measure)
+                dX = measure[0][3] + np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2)
+                dY = measure[0][3] + np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
+                rawPoints.put([dX, dY])
                 if measure[0][0]:
                     nbr_tours += 1
                     my_q.put(0)
@@ -65,7 +68,7 @@ def scanning(my_q):
             #print("Saindo...")
             range_finder.stop_motor()
             range_finder.reset()
-            my_q.put(None)
+            rawPoints.put(None)
 
 
 

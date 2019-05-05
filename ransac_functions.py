@@ -7,9 +7,11 @@ from landmarking import *
 THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 30
 MIN_SAMPLES = 2
+MIN_POINTS = 100
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
+    qPointsList = []
     i = 0
     equal = False
     deleteLandmark = False
@@ -38,29 +40,36 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
         else:
-            yBase = a * xBase + b#np.array(data[inliers, 1])
+            yBase = a * xBase + b  # np.array(data[inliers, 1])
             newLandmark = True 
     else:
-        yBase = a * xBase + b#np.array(data[inliers, 1])
+        yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
+        tempList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
+        qPointsList.append(a[0][:]) # Passo apenas os pontos em array para a lista final, ao invés de uma lista com um array de pointos
+
     #print("--------------------- Finished running RANSAC -----------------")
-    return xBase, yBase, fittedLine, newLandmark  #yPredicted
+    return qPointsList, fittedLine, newLandmark  #yPredicted
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
 def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
-    temp_x, temp_y = list(), list()
+    inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
     newLandmark = True
     while True:
-        if keyFlags.get(True) and len(pointsToBeFitted) > 2:
-            temp_x, temp_y, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
-            pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
-            if newLandmark:
-                landmarks.append(extractedLandmark)
-                print("Landmarks extraidas: {}".format(len(landmarks)))
-            landmarkNumber += 1
+        if pointsToBeFitted[-1] != 0:
+            if len(pointsToBeFitted) > 2 and len(pointsToBeFitted) % 100 == 0:
+                if pointstobefitted[-1] != 0:
+                    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
+                    inliersList.append(tempList)
+        elif pointsToBeFitted[-1] == 0:
+            pairInliers.put(np.concatenate(inliersList, axis=0))  # Added the coordinates corresponding to the x and y points of the fitted line
+        if newLandmark:
+            landmarks.append(extractedLandmark)
+            print("Landmarks extraidas: {}".format(len(landmarks)))
+        landmarkNumber += 1
 
 
 #   Here I run the landmark_extraction code inside an indepent process
