@@ -1,5 +1,6 @@
 from tkinter import *
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QPointF 
 import pyqtgraph as pg
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -9,6 +10,7 @@ import numpy as np
 import time
 import ransac_functions
 import threading
+import mainWindow
 import multiprocessing as mp
 
 
@@ -24,6 +26,8 @@ def config_plot(figure, lin=1, col=1, pos=1, mode="rectilinear"):
     ax.autoscale(False)
     ax.set_xlabel("X axis")
     ax.set_ylabel("Y axis")
+    ax.set_xlim(-2000, 2000)
+    ax.set_ylim(-2000, 2000)
     ax.grid()
     return ax
 
@@ -46,24 +50,37 @@ def distance_between_measures(new_measure, old_measure):
     return distance
 
 
-def scanning(my_q):
+def scanning(rawPoints):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
+    nbr_pairs = 0
+    distancesList = []
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=300)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
             if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
-                my_q.put(measure)
+                dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2)
+                dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
+                distancesList.append([dX, dY])
+                nbr_pairs += 1
+                if nbr_pairs == MIN_NEIGHBOORS:
+                    rawPoints.put(distancesList[:])
+                    del distancesList[:]
+                    nbr_pairs = 0
                 if measure[0][0]:
                     nbr_tours += 1
-                    my_q.put(0)
+                    if len(distancesList) > 2:
+                        rawPoints.put(distancesList[:])
+                    rawPoints.put(0)
+                    del distancesList[:]
+                    nbr_pairs = 0
     except KeyboardInterrupt:
             #print("Saindo...")
             range_finder.stop_motor()
             range_finder.reset()
-            my_q.put(None)
+            rawPoints.put(None)
 
 
 
@@ -133,9 +150,9 @@ def plotting(my_q, keyFlags, rawPoints, pairInliers):#, keyFlags, theta, distanc
                     getPoints = False
                     ax.cla()
                     ax.grid()
+                    ax.autoscale(False) 
                     ax.set_xlim(-2000, 2000)
                     ax.set_ylim(-2000, 2000)
-                    ax.autoscale(False) 
                     #theta_array = np.array(theta, dtype="float")
                     #distance_array = np.array(distance, dtype="float")
                     xMask = np.concatenate([i[0] for i in pointsToBePlotted], axis=0)  # Gets only the first array of each sub array - only x values for each set of inliers

@@ -2,20 +2,23 @@ from skimage.measure import ransac, LineModelND
 import threading
 import numpy as np
 from landmarking import *
+from mainWindow import *
+from PyQt5.QtCore import Qt, QPointF
 
 
-THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
-MAX_TRIALS = 30
+THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
+MAX_TRIALS = 100
 MIN_SAMPLES = 2
+MIN_POINTS = 100
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     i = 0
     equal = False
     deleteLandmark = False
-    #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
-    data = np.array(pointsToBeFitted)
-    print(data)
+    
+    data = np.array(pointsToBeFitted[0][:])
+    #print(data)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
@@ -39,45 +42,72 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
         else:
-            yBase = a * xBase + b#np.array(data[inliers, 1])
+            yBase = a * xBase + b  # np.array(data[inliers, 1])
             newLandmark = True 
     else:
-        yBase = a * xBase + b#np.array(data[inliers, 1])
+        yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
+    qPointsList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
+        #qPointsList.append(tempList) # Passo apenas os pontos em array para a lista final, ao invés de uma lista com um array de pointos
+
     #print("--------------------- Finished running RANSAC -----------------")
-    return xBase, yBase, fittedLine, newLandmark  #yPredicted
+    return qPointsList, fittedLine, newLandmark  #yPredicted
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
-    temp_x, temp_y = list(), list()
+def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent):#n, innerFlag):
+    inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
     newLandmark = True
     while True:
-        if keyFlags.get(True) and len(pointsToBeFitted) > 2:
-            temp_x, temp_y, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
-            pairInliers.put([temp_x, temp_y])  # Added the coordinates corresponding to the x and y points of the fitted line
-            if newLandmark:
-                landmarks.append(extractedLandmark)
-                print("Landmarks extraidas: {}".format(len(landmarks)))
-            landmarkNumber += 1
+        if pointsToBeFitted != []:
+            if pointsToBeFitted[0] != 0:
+     #           print("Entrei")
+     #           print(pointsToBeFitted)
+                tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
+                inliersList.append(tempList)
+                if newLandmark:
+                    landmarks.append(extractedLandmark)
+                    #print("Landmarks extraidas: {}".format(len(landmarks)))
+                landmarkNumber += 1
+            elif inliersList != []:
+                #print(inliersList.copy())
+                #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
+                #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
+                pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
+                allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
+                print("Passando a bola para plot\n\n\n")
+                threadEvent.set()
+                del inliersList[:]
+                del pointsToBeFitted[:]
+                del tempPoints[:]
+            else:
+                del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(flags_queue, rawPoints, pairInliers):
-    pointsToBeFitted = list()
+def ransac_core(rawPoints):#, pairInliers):
+    pairInliers = []
+    pointsToBeFitted = []
+    allPoints = []
+    tempPoints = []
     landmarks = list()
-    temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
-    #landmark_management = threading.Thread(target=landmarks_track, args=(landmarks, ))
+    threadEvent = threading.Event()
+    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent))#innerFlag))
+    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent))
     ransac_checking.start()
-    #landmark_management.start()
+    qt_plotting.start()
     try:
         while True:
-                pointsToBeFitted.append(rawPoints.get(True))
+            time.sleep(0.00001)
+            temp = rawPoints.get(True)
+            pointsToBeFitted.append(temp)
+            if temp != 0:
+                tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
-        ransac_checking.join()
-        #landmark_management.join()
-        flags_queue.close()
+        del pointsToBeFitted
+        del pairInliers
+        del tempPoints
+        del allPoints
         pass
