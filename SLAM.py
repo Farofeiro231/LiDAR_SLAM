@@ -10,7 +10,6 @@ from mainWindow import *
 
 if __name__ == '__main__':
     processes = []
-    keyFlags = mp.Queue()
     rawPoints = mp.Queue()
     #pairInliers = mp.Queue()
     #print("My queue pairInliers: {}".format(pairInliers))

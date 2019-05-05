@@ -73,7 +73,7 @@ class Window(QMainWindow):
         #a = []
         #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
         if self.count == 0 and self.points2Plot != []:
-            self.series.append(self.points2Plot)
+            self.series.append(self.points2Plot[0][:])
             del self.points2Plot[:]
             #self.series.append(np.array(a[0][:]))
         elif self.points2Plot != []:
@@ -84,8 +84,9 @@ class Window(QMainWindow):
             #self.chart.createDefaultAxes()
         self.count = 1
         end = time.time()
+        self.event.clear()
         #print("Fetch time: {:.7f}".format(fetch_time))
-        print("Elapsed time:{:.7f}".format(end-start))
+        #print("Elapsed time:{:.7f}".format(end-start))
 
 
     
@@ -97,7 +98,7 @@ class Window(QMainWindow):
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
         self.timer.timeout.connect(self.update)
-        self.timer.start(10)
+        self.timer.start(0)
         self.show()
 
 

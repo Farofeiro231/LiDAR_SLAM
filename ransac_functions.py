@@ -19,7 +19,6 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
     #data = np.array(pointsToBeFitted)
     data = np.array(pointsToBeFitted[0][:])
-    #print("DATA")
     #print(data)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
@@ -76,7 +75,7 @@ def check_ransac(pairInliers, pointsToBeFitted, landmarks, threadEvent):#n, inne
             elif inliersList != []:
                 #print(inliersList.copy())
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
-                print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
+                #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
                 pairInliers.append(np.concatenate(inliersList.copy(), axis=0)) 
                 threadEvent.set()
                 del inliersList[:]
@@ -90,8 +89,6 @@ def ransac_core(rawPoints):#, pairInliers):
     pairInliers = []
     pointsToBeFitted = []
     landmarks = list()
-    myFlag = [False]
-    temp_x, temp_y = 0., 0.
     threadEvent = threading.Event()
     ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, pointsToBeFitted, landmarks, threadEvent))#innerFlag))
     qt_plotting = threading.Thread(target=ploting, args=(pairInliers, threadEvent))
@@ -99,7 +96,10 @@ def ransac_core(rawPoints):#, pairInliers):
     qt_plotting.start()
     try:
         while True:
+            time.sleep(0.001)
             temp = rawPoints.get(True)
             pointsToBeFitted.append(temp)
     except KeyboardInterrupt:
+        del pointsToBeFitted
+        del pairInliers
         pass

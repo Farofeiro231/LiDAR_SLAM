@@ -70,7 +70,8 @@ def scanning(rawPoints):
                     nbr_pairs = 0
                 if measure[0][0]:
                     nbr_tours += 1
-                    rawPoints.put(distancesList[:])
+                    if len(distancesList) > 2:
+                        rawPoints.put(distancesList[:])
                     rawPoints.put(0)
                     del distancesList[:]
                     nbr_pairs = 0
