@@ -1,5 +1,6 @@
 from tkinter import *
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import QPointF 
 import pyqtgraph as pg
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
