@@ -1,3 +1,4 @@
+import multiprocessing as mp
 import sys, time
 from numpy.random import randn
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget
@@ -5,6 +6,14 @@ from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
 from PyQt5.QtCore import QTimer, QPointF, Qt 
 import numpy as np
+from functools import partial
+
+def pre_update(myWindow, queue):
+    myWindow.points2Plot = queue.get(True)
+    print(myWindow.points2Plot)
+    myWindow.update()
+
+
 
 
 class Window(QMainWindow):
@@ -12,6 +21,7 @@ class Window(QMainWindow):
     def __init__(self, my_queue):
         super().__init__()
         self.title = "Lidar data points"
+        self.points2Plot = []
         self.queue = my_queue
         self.left = 10
         self.top = 10
@@ -50,23 +60,20 @@ class Window(QMainWindow):
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
-    
-
     def update(self):#, points2Plot):
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
-        tempSeries = self.queue.get(True)
+        #tempSeries = self.queue.get(True)
         #a = []
         #a.append([QPointF(50 + 10 * randn(), 50 + 10 * randn()) for i in range(10)])
         if self.count == 0:
-            self.series.append(tempSeries)
+            self.series.append(self.points2Plot)
             #self.series.append(np.array(a[0][:]))
         else:
-            self.series.replace(tempSeries)
+            self.series.replace(self.points2Plot)
             #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
         self.count += 1
-        end = time.time()
 
 
     
@@ -76,7 +83,7 @@ class Window(QMainWindow):
         self.chart.addSeries(self.series)
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
-        self.timer.timeout.connect(self.update)
+        self.timer.timeout.connect(partial(pre_update, myWindow=self, queue=self.queue))
         self.timer.start(0)
         self.show()
 
@@ -86,7 +93,6 @@ def ploting(points2Plot):
     myApp = QApplication(sys.argv)
 
     myWindow = Window(points2Plot)
-    myApp.exec_()
 
     sys.exit(myApp.exec_())
 

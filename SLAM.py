@@ -8,12 +8,12 @@ from mainWindow import *
 #rawPoints, yPoints = list(), list()
 #xInliers, yInliers = list(), list()
 
-
 if __name__ == '__main__':
     processes = []
     keyFlags = mp.Queue()
     rawPoints = mp.Queue()
     pairInliers = mp.Queue()
+
     try:
         #my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(rawPoints,))

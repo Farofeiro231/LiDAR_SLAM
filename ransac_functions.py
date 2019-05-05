@@ -18,7 +18,9 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     equal = False
     deleteLandmark = False
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
-    data = np.array(pointsToBeFitted)
+    #data = np.array(pointsToBeFitted)
+    data = np.array(pointsToBeFitted[0][:])
+    print("DATA")
     print(data)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
@@ -62,29 +64,38 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFl
     landmarkNumber = 0
     newLandmark = True
     while True:
-        if len(pointsToBeFitted) > MIN_POINTS:# and len(pointsToBeFitted) % MIN_POINTS == 0:
-            print("Entrei")
-            print(pointsToBeFitted)
-            if pointsToBeFitted[-1] != 0:
+        if pointsToBeFitted != []:
+            if pointsToBeFitted[0] != 0:
+                print("Entrei")
+                print(pointsToBeFitted)
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
                 inliersList.append(tempList)
-            elif pointsToBeFitted[-1] == 0:
-                pairInliers.put(np.concatenate(inliersList, axis=0))  # Added the coordinates corresponding to the x and y points of the fitted line
-            if newLandmark:
-                landmarks.append(extractedLandmark)
-                print("Landmarks extraidas: {}".format(len(landmarks)))
-            landmarkNumber += 1
+                if newLandmark:
+                    landmarks.append(extractedLandmark)
+                    print("Landmarks extraidas: {}".format(len(landmarks)))
+                landmarkNumber += 1
+            elif inliersList != []:
+                pairInliers.put(inliersList)
+                del inliersList[:]
+                del pointsToBeFitted[:]
+            else:
+                del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flags_queue, rawPoints, pairInliers):
-    pointsToBeFitted = list()
+    pointsToBeFitted = []
     landmarks = list()
+    myFlag = [False]
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(flags_queue, pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
+    ransac_checking = threading.Thread(target=check_ransac, args=(myFlag, pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
     ransac_checking.start()
     try:
         while True:
+            temp = rawPoints.get(True)
+            if temp == 0:
+                myFlag[0] = True
+            else:
                 pointsToBeFitted.append(rawPoints.get(True))
     except KeyboardInterrupt:
         ransac_checking.join()
