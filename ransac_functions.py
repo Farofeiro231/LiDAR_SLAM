@@ -2,6 +2,7 @@ from skimage.measure import ransac, LineModelND
 import threading
 import numpy as np
 from landmarking import *
+from mainWindow import *
 from PyQt5.QtCore import Qt, QPointF
 
 
@@ -56,7 +57,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
+def check_ransac(pairInliers, pointsToBeFitted, landmarks, threadEvent):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
@@ -75,7 +76,9 @@ def check_ransac(pairInliers, pointsToBeFitted, landmarks):#n, innerFlag):
             elif inliersList != []:
                 #print(inliersList.copy())
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
+                print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
                 pairInliers.append(np.concatenate(inliersList.copy(), axis=0)) 
+                threadEvent.set()
                 del inliersList[:]
                 del pointsToBeFitted[:]
             else:
@@ -89,15 +92,14 @@ def ransac_core(rawPoints):#, pairInliers):
     landmarks = list()
     myFlag = [False]
     temp_x, temp_y = 0., 0.
-    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, pointsToBeFitted, landmarks, ))#innerFlag))
-    qt_plotting = threading.Thread(target=ploting, args=(pairInliers,))
+    threadEvent = threading.Event()
+    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, pointsToBeFitted, landmarks, threadEvent))#innerFlag))
+    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, threadEvent))
     ransac_checking.start()
     qt_plotting.start()
     try:
         while True:
             temp = rawPoints.get(True)
-            pointsToBeFitted.append(rawPoints.get(True))
+            pointsToBeFitted.append(temp)
     except KeyboardInterrupt:
-        #ransac_checking.join()
-        flags_queue.close()
         pass

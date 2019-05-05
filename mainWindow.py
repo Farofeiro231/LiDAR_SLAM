@@ -12,11 +12,12 @@ from functools import partial
 
 class Window(QMainWindow):
     
-    def __init__(self, queue):
+    def __init__(self, pointsList, threadEvent):
         super().__init__()
         self.title = "Lidar data points"
-        self.queue = queue
-        self.points2Plot = []
+        #self.queue = queue
+        self.points2Plot = pointsList
+        self.event = threadEvent
         self.left = 10
         self.top = 10
         self.height = 480
@@ -61,46 +62,50 @@ class Window(QMainWindow):
         self.points2Plot = points
 
     def update(self):#, points2Plot):
+        self.event.wait()
         start = time.time()
-        self.points2Plot = self.queue.get(True)
-        fetch_time = time.time() - start
+        #self.points2Plot = self.queue.get(True)
+        #fetch_time = time.time() - start
         #print("inside update...")
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
         #tempSeries = self.queue.get(True)
         #a = []
         #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
-        if self.count == 0:
+        if self.count == 0 and self.points2Plot != []:
             self.series.append(self.points2Plot)
+            del self.points2Plot[:]
             #self.series.append(np.array(a[0][:]))
-        else:
-            self.series.replace(self.points2Plot)
+        elif self.points2Plot != []:
+            #print(self.points2Plot)
+            self.series.replace(self.points2Plot[0][:])
+            del self.points2Plot[:]
             #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
         self.count = 1
         end = time.time()
-        print("Fetch time: {:.7f}".format(fetch_time))
+        #print("Fetch time: {:.7f}".format(fetch_time))
         print("Elapsed time:{:.7f}".format(end-start))
 
 
     
     def initWindow(self):
-        print("queue inside myWindow: {}".format(self.queue))
+        print("queue inside myWindow: {}".format(self.points2Plot))
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setWindowTitle(self.title)
         self.chart.addSeries(self.series)
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
         self.timer.timeout.connect(self.update)
-        self.timer.start(0)
+        self.timer.start(10)
         self.show()
 
 
-def ploting(pairInliers):
+def ploting(pairInliers, threadEvent):
     
     myApp = QApplication(sys.argv)
     print("My queue received by ploting: {}".format(pairInliers))
-    myWindow = Window(pairInliers)
+    myWindow = Window(pairInliers, threadEvent)
 
     sys.exit(myApp.exec_())
 

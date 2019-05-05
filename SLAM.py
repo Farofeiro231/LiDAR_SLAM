@@ -13,7 +13,7 @@ if __name__ == '__main__':
     keyFlags = mp.Queue()
     rawPoints = mp.Queue()
     #pairInliers = mp.Queue()
-    print("My queue pairInliers: {}".format(pairInliers))
+    #print("My queue pairInliers: {}".format(pairInliers))
     try:
         #my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(rawPoints,))
