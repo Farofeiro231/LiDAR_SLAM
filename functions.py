@@ -55,7 +55,7 @@ def scanning(rawPoints):
     nbr_pairs = 0
     distancesList = []
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=300)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")

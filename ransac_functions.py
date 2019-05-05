@@ -77,6 +77,7 @@ def check_ransac(pairInliers, pointsToBeFitted, landmarks, threadEvent):#n, inne
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
                 #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
                 pairInliers.append(np.concatenate(inliersList.copy(), axis=0)) 
+                print("Passando a bola para plot\n\n\n")
                 threadEvent.set()
                 del inliersList[:]
                 del pointsToBeFitted[:]
@@ -96,7 +97,7 @@ def ransac_core(rawPoints):#, pairInliers):
     qt_plotting.start()
     try:
         while True:
-            time.sleep(0.001)
+            time.sleep(0.00001)
             temp = rawPoints.get(True)
             pointsToBeFitted.append(temp)
     except KeyboardInterrupt:

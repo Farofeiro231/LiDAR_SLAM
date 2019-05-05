@@ -51,9 +51,9 @@ class Window(QMainWindow):
     def config_axis(self):
         self.xAxis = QValueAxis()
         self.yAxis = QValueAxis()
-        self.xAxis.setRange(-1000, 1000)
+        self.xAxis.setRange(-2000, 2000)
         self.xAxis.setTitleText("Eixo x")
-        self.yAxis.setRange(-1000, 1000)
+        self.yAxis.setRange(-2000, 2000)
         self.yAxis.setTitleText("Eixo y")
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
@@ -61,7 +61,8 @@ class Window(QMainWindow):
     def add_points(points):
         self.points2Plot = points
 
-    def update(self):#, points2Plot):
+    def update(self):#, points2Plot): 
+        print("Passando a bola para ransac\n\n\n")
         self.event.wait()
         start = time.time()
         #self.points2Plot = self.queue.get(True)
@@ -75,6 +76,7 @@ class Window(QMainWindow):
         if self.count == 0 and self.points2Plot != []:
             self.series.append(self.points2Plot[0][:])
             del self.points2Plot[:]
+            self.count = 1
             #self.series.append(np.array(a[0][:]))
         elif self.points2Plot != []:
             #print(self.points2Plot)
@@ -82,7 +84,6 @@ class Window(QMainWindow):
             del self.points2Plot[:]
             #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
-        self.count = 1
         end = time.time()
         self.event.clear()
         #print("Fetch time: {:.7f}".format(fetch_time))
