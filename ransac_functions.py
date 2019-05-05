@@ -5,7 +5,7 @@ from landmarking import *
 from PyQt5.QtCore import Qt, QPointF
 
 
-THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
+THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 100
 MIN_SAMPLES = 2
 MIN_POINTS = 100

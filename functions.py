@@ -71,6 +71,7 @@ def scanning(rawPoints):
                 if measure[0][0]:
                     nbr_tours += 1
                     rawPoints.put(0)
+                    print("distancesList len: {}".format(len(distancesList)))
                     del distancesList[:]
                     nbr_pairs = 0
     except KeyboardInterrupt:

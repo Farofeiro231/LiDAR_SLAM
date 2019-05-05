@@ -9,16 +9,6 @@ import numpy as np
 from functools import partial
 
 
-crote = 13
-
-def pre_update(myWindow):
-    global pairInliers
-    temp = pairInliers.get(True)
-    print(temp)
-    myWindow.points2Plot = temp
-    myWindow.update()
-
-
 class Window(QMainWindow):
     
     def __init__(self, queue):
@@ -59,9 +49,9 @@ class Window(QMainWindow):
     def config_axis(self):
         self.xAxis = QValueAxis()
         self.yAxis = QValueAxis()
-        self.xAxis.setRange(-2000, 2000)
+        self.xAxis.setRange(-1000, 1000)
         self.xAxis.setTitleText("Eixo x")
-        self.yAxis.setRange(-2000, 2000)
+        self.yAxis.setRange(-1000, 1000)
         self.yAxis.setTitleText("Eixo y")
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
