@@ -50,11 +50,11 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     else:
         yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
-        tempList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
-        qPointsList.append(tempList) # Passo apenas os pontos em array para a lista final, ao invés de uma lista com um array de pointos
+    tempList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
+        #qPointsList.append(tempList) # Passo apenas os pontos em array para a lista final, ao invés de uma lista com um array de pointos
 
     #print("--------------------- Finished running RANSAC -----------------")
-    return qPointsList, fittedLine, newLandmark  #yPredicted
+    return tempList, fittedLine, newLandmark  #yPredicted
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
@@ -75,7 +75,8 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFl
                     print("Landmarks extraidas: {}".format(len(landmarks)))
                 landmarkNumber += 1
             elif inliersList != []:
-                pairInliers.put(inliersList)
+                #print(inliersList.copy())
+                pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
                 del inliersList[:]
                 del pointsToBeFitted[:]
             else:
@@ -98,6 +99,6 @@ def ransac_core(flags_queue, rawPoints, pairInliers):
             else:
                 pointsToBeFitted.append(rawPoints.get(True))
     except KeyboardInterrupt:
-        ransac_checking.join()
+        #ransac_checking.join()
         flags_queue.close()
         pass

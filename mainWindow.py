@@ -9,8 +9,7 @@ import numpy as np
 from functools import partial
 
 
-pairInliers = mp.Queue()
-
+crote = 13
 
 def pre_update(myWindow):
     global pairInliers
@@ -22,9 +21,10 @@ def pre_update(myWindow):
 
 class Window(QMainWindow):
     
-    def __init__(self):
+    def __init__(self, queue):
         super().__init__()
         self.title = "Lidar data points"
+        self.queue = queue
         self.points2Plot = []
         self.left = 10
         self.top = 10
@@ -50,7 +50,10 @@ class Window(QMainWindow):
 
 
     def config_series(self):
-        self.series.setMarkerSize(10)
+        myPen = self.series.pen()
+        myPen.setWidthF(.6)
+        self.series.setPen(myPen)
+        self.series.setMarkerSize(5)
         self.label.move(15, 15)
 
     def config_axis(self):
@@ -64,6 +67,7 @@ class Window(QMainWindow):
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
     def update(self):#, points2Plot):
+        self.points2Plot = self.queue.get(True)
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
         #tempSeries = self.queue.get(True)
@@ -76,17 +80,18 @@ class Window(QMainWindow):
             self.series.replace(self.points2Plot)
             #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
-        self.count += 1
+        self.count = 1
 
 
     
     def initWindow(self):
+        print("queue inside myWindow: {}".format(self.queue))
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setWindowTitle(self.title)
         self.chart.addSeries(self.series)
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
-        self.timer.timeout.connect(partial(pre_update, myWindow=self))
+        self.timer.timeout.connect(self.update)
         self.timer.start(0)
         self.show()
 
@@ -94,8 +99,8 @@ class Window(QMainWindow):
 def ploting(pairInliers):
     
     myApp = QApplication(sys.argv)
-
-    myWindow = Window()
+    print("My queue received by ploting: {}".format(pairInliers))
+    myWindow = Window(pairInliers)
 
     sys.exit(myApp.exec_())
 

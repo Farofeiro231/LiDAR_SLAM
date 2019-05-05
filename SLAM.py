@@ -9,12 +9,11 @@ from mainWindow import *
 #xInliers, yInliers = list(), list()
 
 if __name__ == '__main__':
-    global pairInliers
     processes = []
     keyFlags = mp.Queue()
     rawPoints = mp.Queue()
-    #pairInliers = mp.Queue()
-
+    pairInliers = mp.Queue()
+    print("My queue pairInliers: {}".format(pairInliers))
     try:
         #my_queue = mp.Queue()
         data_acquisition = mp.Process(target=scanning, args=(rawPoints,))
