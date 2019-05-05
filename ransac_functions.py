@@ -12,8 +12,6 @@ MIN_POINTS = 100
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
-    qPointsList = []
-    #tempList = []
     i = 0
     equal = False
     deleteLandmark = False
@@ -50,11 +48,11 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     else:
         yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
-    tempList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
+    qPointsList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
         #qPointsList.append(tempList) # Passo apenas os pontos em array para a lista final, ao invés de uma lista com um array de pointos
 
     #print("--------------------- Finished running RANSAC -----------------")
-    return tempList, fittedLine, newLandmark  #yPredicted
+    return qPointsList, fittedLine, newLandmark  #yPredicted
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
@@ -72,7 +70,7 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFl
                 inliersList.append(tempList)
                 if newLandmark:
                     landmarks.append(extractedLandmark)
-                    print("Landmarks extraidas: {}".format(len(landmarks)))
+                    #print("Landmarks extraidas: {}".format(len(landmarks)))
                 landmarkNumber += 1
             elif inliersList != []:
                 #print(inliersList.copy())
@@ -94,10 +92,7 @@ def ransac_core(flags_queue, rawPoints, pairInliers):
     try:
         while True:
             temp = rawPoints.get(True)
-            if temp == 0:
-                myFlag[0] = True
-            else:
-                pointsToBeFitted.append(rawPoints.get(True))
+            pointsToBeFitted.append(rawPoints.get(True))
     except KeyboardInterrupt:
         #ransac_checking.join()
         flags_queue.close()

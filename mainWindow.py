@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import concurrent.futures
 import sys, time
 from numpy.random import randn
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget
@@ -56,8 +57,14 @@ class Window(QMainWindow):
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
+    def add_points(points):
+        self.points2Plot = points
+
     def update(self):#, points2Plot):
+        start = time.time()
         self.points2Plot = self.queue.get(True)
+        fetch_time = time.time() - start
+        #print("inside update...")
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
         #tempSeries = self.queue.get(True)
@@ -71,6 +78,9 @@ class Window(QMainWindow):
             #self.series.replace(np.array(a[0][:]))
             #self.chart.createDefaultAxes()
         self.count = 1
+        end = time.time()
+        print("Fetch time: {:.7f}".format(fetch_time))
+        print("Elapsed time:{:.7f}".format(end-start))
 
 
     
