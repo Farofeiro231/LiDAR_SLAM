@@ -8,21 +8,24 @@ from PyQt5.QtCore import QTimer, QPointF, Qt
 import numpy as np
 from functools import partial
 
-def pre_update(myWindow, queue):
-    myWindow.points2Plot = queue.get(True)
-    print(myWindow.points2Plot)
+
+pairInliers = mp.Queue()
+
+
+def pre_update(myWindow):
+    global pairInliers
+    temp = pairInliers.get(True)
+    print(temp)
+    myWindow.points2Plot = temp
     myWindow.update()
-
-
 
 
 class Window(QMainWindow):
     
-    def __init__(self, my_queue):
+    def __init__(self):
         super().__init__()
         self.title = "Lidar data points"
         self.points2Plot = []
-        self.queue = my_queue
         self.left = 10
         self.top = 10
         self.height = 480
@@ -65,7 +68,7 @@ class Window(QMainWindow):
         self.time = time.time()
         #tempSeries = self.queue.get(True)
         #a = []
-        #a.append([QPointF(50 + 10 * randn(), 50 + 10 * randn()) for i in range(10)])
+        #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
         if self.count == 0:
             self.series.append(self.points2Plot)
             #self.series.append(np.array(a[0][:]))
@@ -83,16 +86,16 @@ class Window(QMainWindow):
         self.chart.addSeries(self.series)
         self.series.attachAxis(self.xAxis)
         self.series.attachAxis(self.yAxis)
-        self.timer.timeout.connect(partial(pre_update, myWindow=self, queue=self.queue))
+        self.timer.timeout.connect(partial(pre_update, myWindow=self))
         self.timer.start(0)
         self.show()
 
 
-def ploting(points2Plot):
-
+def ploting(pairInliers):
+    
     myApp = QApplication(sys.argv)
 
-    myWindow = Window(points2Plot)
+    myWindow = Window()
 
     sys.exit(myApp.exec_())
 

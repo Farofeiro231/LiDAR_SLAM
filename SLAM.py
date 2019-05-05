@@ -9,10 +9,11 @@ from mainWindow import *
 #xInliers, yInliers = list(), list()
 
 if __name__ == '__main__':
+    global pairInliers
     processes = []
     keyFlags = mp.Queue()
     rawPoints = mp.Queue()
-    pairInliers = mp.Queue()
+    #pairInliers = mp.Queue()
 
     try:
         #my_queue = mp.Queue()

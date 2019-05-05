@@ -20,8 +20,8 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     #data =  np.column_stack([pointsToBeFitted[:], yList[:]])  # Inliers returns an array of True or False with inliers as True. 
     #data = np.array(pointsToBeFitted)
     data = np.array(pointsToBeFitted[0][:])
-    print("DATA")
-    print(data)
+    #print("DATA")
+    #print(data)
     del pointsToBeFitted[:]
     model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
                                    residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
@@ -66,8 +66,8 @@ def check_ransac(keyFlags, pairInliers, pointsToBeFitted, landmarks):#n, innerFl
     while True:
         if pointsToBeFitted != []:
             if pointsToBeFitted[0] != 0:
-                print("Entrei")
-                print(pointsToBeFitted)
+     #           print("Entrei")
+     #           print(pointsToBeFitted)
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
                 inliersList.append(tempList)
                 if newLandmark:
