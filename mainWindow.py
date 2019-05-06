@@ -2,13 +2,17 @@ import multiprocessing as mp
 import concurrent.futures
 import sys, time
 from numpy.random import randn
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
-from PyQt5.QtCore import QTimer, QPointF, Qt
+from PyQt5.QtCore import QTimer, QPointF, Qt, QObject
+from PyQt5.QtGui import QGridLayout
 import numpy as np
 from functools import partial
 
+
+XRANGE = 4000
+YRANGE = 4000
 
 class Window(QMainWindow):
     
@@ -26,16 +30,29 @@ class Window(QMainWindow):
         self.width = 640
         self.count = 0
         self.time = 0
+
         self.label = QLabel(self)
-        
-        dock = QDockWidget("!!", self)
+        self.lmrkBox = QCheckBox("Landmark points", self)
+        self.ptsBox = QCheckBox("Data points", self)
+
+        self.boxArea = QWidget()
+        self.mainLayout = QGridLayout()
+        self.mainLayout.addWidget(self.lmrkBox, 0, 0)
+        self.mainLayout.addWidget(self.ptsBox, 1, 0)
+        self.mainLayout.setVerticalSpacing(5)
+        self.boxArea.setLayout(self.mainLayout)
+        crote = QDockWidget("Hide", self)
+        crote.setWidget(self.boxArea)
+        self.addDockWidget(Qt.LeftDockWidgetArea, crote)
+
+        dock = QDockWidget("", self)
         dock.setWidget(self.label)
         self.addDockWidget(Qt.LeftDockWidgetArea, dock)
 
         self.chart = QChart()
         self.config_axis()
-        self.series = QScatterSeries()
-        self.allSeries = QScatterSeries()
+        self.series = QScatterSeries(self.chart)
+        self.allSeries = QScatterSeries(self.chart)
         self.config_series()
         #self.update()
         self.timer = QTimer(self)
@@ -69,15 +86,17 @@ class Window(QMainWindow):
     def config_axis(self):
         self.xAxis = QValueAxis()
         self.yAxis = QValueAxis()
-        self.xAxis.setRange(-4000, 1000)
+        self.xAxis.setRange(-XRANGE, XRANGE)
         self.xAxis.setTitleText("Eixo x")
-        self.yAxis.setRange(-4000, 1000)
+        self.yAxis.setRange(-YRANGE, YRANGE)
         self.yAxis.setTitleText("Eixo y")
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
     def update(self):#, lmrkPoints): 
-        print("Passando a bola para ransac\n\n\n")
+        #a = time.time()
+        #print("Passando a bola para ransac\n\n\n")
+        #print("Tempo:{:.8f}".format(time.time()-a))
         self.event.wait()
         start = time.time()
         #self.lmrkPoints = self.queue.get(True)
@@ -107,7 +126,11 @@ class Window(QMainWindow):
         #print("Fetch time: {:.7f}".format(fetch_time))
         #print("Elapsed time:{:.7f}".format(end-start))
 
-
+    def hide_show_points(self):
+        self.series.setVisible(not self.series.isVisible())
+    
+    def hide_show_all_points(self):
+        self.allSeries.setVisible(not self.allSeries.isVisible())
     
     def initWindow(self):
         print("queue inside myWindow: {}".format(self.lmrkPoints))
@@ -119,7 +142,11 @@ class Window(QMainWindow):
         self.series.attachAxis(self.yAxis)
         self.allSeries.attachAxis(self.xAxis)
         self.allSeries.attachAxis(self.yAxis)
+        
         self.timer.timeout.connect(self.update)
+        self.lmrkBox.stateChanged.connect(self.hide_show_points)
+        self.ptsBox.stateChanged.connect(self.hide_show_all_points)
+
         self.timer.start(0)
         self.show()
 
