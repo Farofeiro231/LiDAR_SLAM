@@ -45,7 +45,7 @@ def state_mean(sigmas, Wm):  # Sigmas is of the form M(2n+1)xn
     return x
 
 def z_mean(sigmas, Wm);
-    nbrLmkrs = = sigmas.shape[1]  # number of landmarks
+    nbrLmkrs = sigmas.shape[1]  # number of landmarks
     x = np.zeros(nbrLmkrs)
 
     for z in range(0, nbrLmkrs, 2):
@@ -69,5 +69,21 @@ def residual_h(a, b):
     for i in range(0, len(y), 2):
         y[i+1] = normalize_angle(y[i+1])
     return y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
