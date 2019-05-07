@@ -2,11 +2,10 @@ import multiprocessing as mp
 import concurrent.futures
 import sys, time
 from numpy.random import randn
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox, QGridLayout
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
 from PyQt5.QtCore import QTimer, QPointF, Qt, QObject
-from PyQt5.QtGui import QGridLayout
 import numpy as np
 from functools import partial
 
@@ -93,38 +92,24 @@ class Window(QMainWindow):
         self.chart.addAxis(self.xAxis, Qt.AlignBottom)
         self.chart.addAxis(self.yAxis, Qt.AlignLeft)
 
-    def update(self):#, lmrkPoints): 
-        #a = time.time()
-        #print("Passando a bola para ransac\n\n\n")
-        #print("Tempo:{:.8f}".format(time.time()-a))
+    def update(self): 
         self.event.wait()
         start = time.time()
-        #self.lmrkPoints = self.queue.get(True)
-        #fetch_time = time.time() - start
-        #print("inside update...")
         self.label.setText("FPS: {:.2f}".format(1/(time.time()-self.time)))
         self.time = time.time()
-        #tempSeries = self.queue.get(True)
-        #a = []
-        #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
         if self.count == 0 and self.lmrkPoints != []:
             self.series.append(self.lmrkPoints[0][:])
             self.allSeries.append(self.allPoints[0][:])
             del self.lmrkPoints[:]
             del self.allPoints[:]
             self.count = 1
-            #self.series.append(np.array(a[0][:]))
         elif self.lmrkPoints != []:
             self.series.replace(self.lmrkPoints[0][:])
             self.allSeries.replace(self.allPoints[0][:])
             del self.lmrkPoints[:]
             del self.allPoints[:]
-            #self.series.replace(np.array(a[0][:]))
-            #self.chart.createDefaultAxes()
         end = time.time()
         self.event.clear()
-        #print("Fetch time: {:.7f}".format(fetch_time))
-        #print("Elapsed time:{:.7f}".format(end-start))
 
     def hide_show_points(self):
         self.series.setVisible(not self.series.isVisible())

@@ -102,7 +102,7 @@ def ransac_core(rawPoints):#, pairInliers):
     qt_plotting.start()
     try:
         while True:
-            time.sleep(0.000001)  # 0.00001 or 0.000001 are optimal values
+            time.sleep(0.000005)  # 0.00001 or 0.000001 are optimal values
             temp = rawPoints.get(True)
             pointsToBeFitted.append(temp)
             if temp != 0:
