@@ -1,6 +1,7 @@
 from lidar import Lidar
 import numpy as np
 import time
+from PyQt5.QtCore import QPointF
 
 
 PI = np.pi
@@ -44,6 +45,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent):
     nbr_tours = 0
     nbr_pairs = 0
     distancesList = []
+    QdistancesList = []
     start_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
     try:
@@ -53,26 +55,27 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent):
                 dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2)
                 dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
                 distancesList.append([dX, dY])
+                QdistancesList.append(QPointF(dX, dY))
                 nbr_pairs += 1
                 if nbr_pairs == MIN_NEIGHBOORS and not threadEvent.is_set():
                     print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
                     rawPoints.append(distancesList[:])
-                    tempPoints.append(distancesList[:])
+                    tempPoints.append(QdistancesList[:])
                     checkEvent.set()
                     del distancesList[:]
+                    del QdistancesList[:]
                     nbr_pairs = 0
                 if measure[0][0] and not threadEvent.is_set():
                     nbr_tours += 1
                     if len(distancesList) > 2:
                         rawPoints.append(distancesList[:])
-                        tempPoints.append(distancesList[:])
+                        tempPoints.append(QdistancesList[:])
                         checkEvent.set()
-                    time.sleep(0.1)
                     rawPoints.append(0)
-                    time.sleep(0.1)
                     del distancesList[:]
+                    del QdistancesList[:]
                     nbr_pairs = 0
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
             print("Saindo...")
             range_finder.stop_motor()
             range_finder.reset()

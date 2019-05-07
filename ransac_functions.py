@@ -86,7 +86,6 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                 #a = time.time()
                 print("Passando a bola para plot\n\n\n")
-                print(allPoints)
                 #print("Tempo:{:.8f}".format(time.time()-a))
                 threadEvent.set()
                 del inliersList[:]
