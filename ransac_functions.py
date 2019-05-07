@@ -1,11 +1,6 @@
 print("EFODA")
 from skimage.measure import ransac, LineModelND
 import threading
-#import numpy as np
-#from PyQt5.QtCore import Qt, QPointF
-#from landmarking import *
-#from mainWindow import *
-#from functions import *
 from landmarking import *
 from functions import *
 from mainWindow import *
