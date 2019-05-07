@@ -66,33 +66,54 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
     newLandmark = True
     while True:
         checkEvent.wait()
-        checkEvent.clear()
         print("Estou na ransac check tread....")
         if pointsToBeFitted != []:
-            if pointsToBeFitted[0] != 0:
-     #           print("Entrei")
-     #           print(pointsToBeFitted)
+            if pointsToBeFitted[-1] == 0:
+                if inliersList != []:
+         #          print("Entrei")
+         #          print(pointsToBeFitted)
+                    del pointsToBeFitted[-1] 
+                    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
+                    inliersList.append(tempList)
+                    if newLandmark:
+                        landmarks.append(extractedLandmark)
+                        #print("Landmarks extraidas: {}".format(len(landmarks)))
+                    landmarkNumber += 1
+                    pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
+                    allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
+                    #a = time.time()
+                    print("Passando a bola para plot\n\n\n")
+                    #print("Tempo:{:.8f}".format(time.time()-a))
+                    threadEvent.set()
+                    checkEvent.clear()
+                    del inliersList[:]
+                    del pointsToBeFitted[:]
+                    del tempPoints[:]
+                else:
+                    del pointsToBeFitted[:]
+                    checkEvent.clear()
+            else:#if inliersList != []:
+                checkEvent.clear()
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
                 inliersList.append(tempList)
                 if newLandmark:
                     landmarks.append(extractedLandmark)
-                    #print("Landmarks extraidas: {}".format(len(landmarks)))
-                landmarkNumber += 1
-            elif inliersList != []:
+                        #print("Landmarks extraidas: {}".format(len(landmarks)))
+                    landmarkNumber += 1                
                 #print(inliersList.copy())
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
                 #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
-                pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
-                allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
+                #pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
+                #allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                 #a = time.time()
-                print("Passando a bola para plot\n\n\n")
+                #print("Passando a bola para plot\n\n\n")
                 #print("Tempo:{:.8f}".format(time.time()-a))
-                threadEvent.set()
-                del inliersList[:]
-                del pointsToBeFitted[:]
-                del tempPoints[:]
-            else:
-                del pointsToBeFitted[:]
+                #threadEvent.set()
+                #del inliersList[:]
+                #del pointsToBeFitted[:]
+                #del tempPoints[:]
+            #else:
+            #    del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process

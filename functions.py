@@ -7,7 +7,7 @@ from PyQt5.QtCore import QPointF
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 100  # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 100 # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -57,21 +57,23 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent):
                 distancesList.append([dX, dY])
                 QdistancesList.append(QPointF(dX, dY))
                 nbr_pairs += 1
-                if nbr_pairs == MIN_NEIGHBOORS and not threadEvent.is_set():
+                if nbr_pairs == MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
                     rawPoints.append(distancesList[:])
                     tempPoints.append(QdistancesList[:])
                     checkEvent.set()
+                    time.sleep(0.00001)
                     del distancesList[:]
                     del QdistancesList[:]
                     nbr_pairs = 0
-                if measure[0][0] and not threadEvent.is_set():
+                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
                     nbr_tours += 1
                     if len(distancesList) > 2:
                         rawPoints.append(distancesList[:])
                         tempPoints.append(QdistancesList[:])
                         checkEvent.set()
                     rawPoints.append(0)
+                    time.sleep(0.000001)
                     del distancesList[:]
                     del QdistancesList[:]
                     nbr_pairs = 0
