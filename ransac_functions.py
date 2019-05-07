@@ -93,13 +93,13 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     del pointsToBeFitted[:]
                     checkEvent.clear()
             else:#if inliersList != []:
-                checkEvent.clear()
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
                 inliersList.append(tempList)
                 if newLandmark:
                     landmarks.append(extractedLandmark)
                         #print("Landmarks extraidas: {}".format(len(landmarks)))
                     landmarkNumber += 1                
+                checkEvent.clear()
                 #print(inliersList.copy())
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
                 #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
