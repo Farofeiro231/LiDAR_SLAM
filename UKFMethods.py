@@ -5,7 +5,7 @@ from filterpy.kalman import MerweScaledSigmaPoints
 
 R = 50  #  Wheel radius in mm
 L = 200   # Robot's base length in mm
-dt = 0.01  # 10 ms
+dt = 0.005  # 5 ms
 
 def normalize_angle(angle):
     angle = angle % (2 * np.pi)
@@ -27,7 +27,8 @@ def transfer_function(x, landmarks):
     hx = []  #  Array to keep the pairs: distance, angle, to all given landmarks
     # the extend command is useful to append items to a list individually instead of in array form
     for lndmrk in landmarks:
-        (px, py) = lndmrk.get_pos()[0], lndmrk.get_pos()[1]
+        pos = lndmrk.get_pos()
+        px, py = pos[0], pos[1]
         dist = sqrt((px - x[0])**2 + (py - x[1])**2)  # Calculates distance from the robot to the landmark
         angle = atan2(py - x[1], px - x[0]) # Calculates the angle between the robot and the landmark
         hx.extend([dist, normalize_angle(angle - x[2])])

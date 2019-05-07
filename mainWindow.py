@@ -1,13 +1,11 @@
-import multiprocessing as mp
-import concurrent.futures
+#import concurrent.futures
 import sys, time
+import numpy as np
 from numpy.random import randn
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox, QGridLayout
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
 from PyQt5.QtCore import QTimer, QPointF, Qt, QObject
-from PyQt5.QtGui import QGridLayout
-import numpy as np
 from functools import partial
 
 
@@ -98,6 +96,7 @@ class Window(QMainWindow):
         #print("Passando a bola para ransac\n\n\n")
         #print("Tempo:{:.8f}".format(time.time()-a))
         self.event.wait()
+        print("estou na plotting thread")
         start = time.time()
         #self.lmrkPoints = self.queue.get(True)
         #fetch_time = time.time() - start

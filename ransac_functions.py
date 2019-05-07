@@ -1,15 +1,19 @@
+print("EFODA")
 from skimage.measure import ransac, LineModelND
 import threading
-import numpy as np
+#import numpy as np
+#from PyQt5.QtCore import Qt, QPointF
+#from landmarking import *
+#from mainWindow import *
+#from functions import *
 from landmarking import *
+from functions import *
 from mainWindow import *
-from PyQt5.QtCore import Qt, QPointF
-
 
 THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 100
 MIN_SAMPLES = 2
-MIN_POINTS = 100
+#MIN_POINTS = 100  # NOT USED
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
@@ -55,12 +59,15 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent):#n, innerFlag):
+def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
     newLandmark = True
     while True:
+        checkEvent.wait()
+        checkEvent.clear()
+        print("Estou na ransac check tread....")
         if pointsToBeFitted != []:
             if pointsToBeFitted[0] != 0:
      #           print("Entrei")
@@ -78,7 +85,8 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
                 allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                 #a = time.time()
-                #print("Passando a bola para plot\n\n\n")
+                print("Passando a bola para plot\n\n\n")
+                print(allPoints)
                 #print("Tempo:{:.8f}".format(time.time()-a))
                 threadEvent.set()
                 del inliersList[:]
@@ -96,20 +104,29 @@ def ransac_core(rawPoints):#, pairInliers):
     tempPoints = []
     landmarks = list()
     threadEvent = threading.Event()
-    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent))#innerFlag))
-    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent))
+    checkEvent = threading.Event()
+    scanEvent = threading.Event()
+    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent,))#innerFlag))
+    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
+    scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent))
     ransac_checking.start()
     qt_plotting.start()
+    scan.start()
+    scan.join()
+    qt_plotting.join()
     try:
-        while True:
-            time.sleep(0.000001)  # 0.00001 or 0.000001 are optimal values
-            temp = rawPoints.get(True)
-            pointsToBeFitted.append(temp)
-            if temp != 0:
-                tempPoints.append([QPointF(point[0], point[1]) for point in temp])
+        a = 0
+    #try:
+        #while True:
+            #time.sleep(0.000001)  # 0.00001 or 0.000001 are optimal values
+            #temp = rawPoints.get(True)
+            #pointsToBeFitted.append(temp)
+            #if temp != 0:
+            #    tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
         del pointsToBeFitted
         del pairInliers
         del tempPoints
         del allPoints
+        print("Saindo do ransac")
         pass
