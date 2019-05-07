@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import concurrent.futures
 import sys, time
+sys.dont_write_bytecode = True
 from numpy.random import randn
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox, QGridLayout
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
