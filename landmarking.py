@@ -1,6 +1,6 @@
 import numpy as np
 
-LIFE = 5
+LIFE = 20
 TOLERANCE_A = 0.1
 TOLERANCE_B = 10
 TORELANCE_ORIGINS = 250
@@ -9,12 +9,13 @@ TORELANCE_ORIGINS = 250
 class Landmark():
     spec = "line"
 
-    def __init__(self, a, b, ID, x, y):
+    def __init__(self, a, b, ID, x, y, tipX, tipY):
         self.a = a
         self.b = b
         self.id = ID
         self.life = LIFE
         self.pos = np.array([x, y])
+        self.end = np.array([tipX, tipY])
         self.timesObserved = 0
 
     def __str__(self):
