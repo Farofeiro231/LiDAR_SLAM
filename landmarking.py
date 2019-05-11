@@ -1,8 +1,9 @@
 import numpy as np
 
+SEEN = 10
 LIFE = 40
 TOLERANCE_A = 0.1
-TOLERANCE_B = 10
+TOLERANCE_B = 50
 TOLERANCE = 150
 
 
@@ -44,7 +45,7 @@ class Landmark():
     
     def observed(self):
         self.timesObserved += 1
-        if self.timesObserved >= LIFE:
+        if self.timesObserved >= SEEN:
             return True
         else:
             return False
@@ -60,10 +61,30 @@ class Landmark():
     def reset_life(self):
         self.life = LIFE
 
+    def distance_test(self, landmark):
+        theSame = False
+        if self.distance_origin_end(landmark) < TOLERANCE:
+            theSame = True
+        elif self.distance_end_origin(landmark) < TOLERANCE:
+            theSame = True
+        elif self.distance_origin_origin(landmark) < TOLERANCE:
+            theSame = True
+        elif self.distance_end_end(landmark) < TOLERANCE:
+            theSame = True
+        return theSame
+
     def distance_origin_end(self, landmark):
         distance = np.linalg.norm(self.pos - landmark.get_end())
         return distance
 
+    def distance_origin_origin(self, landmark):
+        distance = np.linalg.norm(self.pos - landmark.get_pos())
+        return distance
+    
+    def distance_end_end(self, landmark):
+        distance = np.linalg.norm(self.end - landmark.get_end())
+        return distance
+    
     def distance_end_origin(self, landmark):
         distance = np.linalg.norm(self.end - landmark.get_pos())
         return distance
@@ -74,7 +95,8 @@ class Landmark():
         distanceOriginEnd = self.distance_origin_end(landmark)
         distanceEndOrigin = self.distance_end_origin(landmark)
         if distA <= TOLERANCE_A and distB <= TOLERANCE_B:
-            if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
+            if self.distance_test(landmark):
+            #if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
                 return True
             else:
                 return False

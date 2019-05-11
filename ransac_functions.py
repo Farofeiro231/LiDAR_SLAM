@@ -6,7 +6,7 @@ from functions import *
 from mainWindow import *
 
 THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
-MAX_TRIALS = 100
+MAX_TRIALS = 10
 MIN_SAMPLES = 2
 #MIN_POINTS = 100  # NOT USED
 
@@ -16,7 +16,6 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    print(pointsToBeFitted)
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -37,13 +36,16 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             if not equal:
                 deleteLandmark = landmarks[i].decrease_life()
                 if deleteLandmark:
+                    if landmarks[i] in landmarkDB:
+                        landmarkDB.remove(landmarks[i])
                     print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
             landmarks[i - 1].reset_life()
             addToDB = landmarks[i - 1].observed()
-            if addToDB:
+            if addToDB and landmarks[i-1] not in landmarkDB:
+                print("Adicionada à DB\n\n\n\n\n\n\n\n\n")
                 landmarkDB.append(landmarks[i - 1])
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
@@ -70,7 +72,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
     newLandmark = True
     while True:
         checkEvent.wait()
-        print("Estou na ransac check tread....")
+        print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
         if pointsToBeFitted != []:
             if pointsToBeFitted[-1] == 0:
                 if inliersList != []:

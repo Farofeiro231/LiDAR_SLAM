@@ -7,7 +7,7 @@ from PyQt5.QtCore import QPointF
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 100 # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 50 # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -52,7 +52,6 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     try:
         for measure in iterator:
             #print("medindo...")
-
             if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
                 dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2)
                 dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
@@ -64,6 +63,9 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
                     rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
                     tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
+                    if measure[0][0]:
+                        print("Total points number: {}".format(nbr_points))
+                        rawPoints.append(0)
                     checkEvent.set()
                     time.sleep(0.00001)
                     del distancesList[0:MIN_NEIGHBOORS]
@@ -71,6 +73,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     nbr_pairs = 0
                 if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Total points number: {}".format(nbr_points))
+                    print("Length of actual list: {}\n".format(len(distancesList)))
                     nbr_tours += 1
                     if len(distancesList) > 2:
                         rawPoints.append(distancesList[:])
