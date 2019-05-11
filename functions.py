@@ -44,6 +44,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     #range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     nbr_pairs = 0
+    nbr_points = 0
     distancesList = []
     QdistancesList = []
     start_time = time.time()
@@ -57,6 +58,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                 distancesList.append([dX, dY])
                 QdistancesList.append(QPointF(dX, dY))
                 nbr_pairs += 1
+                nbr_points += 1
                 if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
                     rawPoints.append(distancesList[:])
@@ -67,6 +69,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     del QdistancesList[:]
                     nbr_pairs = 0
                 if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
+                    print("Total points number: {}".format(nbr_points))
                     nbr_tours += 1
                     if len(distancesList) > 2:
                         rawPoints.append(distancesList[:])
@@ -77,6 +80,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     del distancesList[:]
                     del QdistancesList[:]
                     nbr_pairs = 0
+                    nbr_points = 0
     except (KeyboardInterrupt, SystemExit):
             print("Saindo...")
             range_finder.stop_motor()

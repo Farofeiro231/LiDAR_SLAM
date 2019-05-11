@@ -24,8 +24,10 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     params = model_robust.params
     a = params[1][1]/params[1][0]  # Calculating the coefficients of the line ax + b
     b = params[0][1] - a * params[0][0]
-    fittedLine = Landmark(a, b, landmarkNumber, params[0][0], params[0][1])  # Creation of a landmark from the previously calculated coefs.
     xBase = np.array(data[inliers, 0])
+    tipX = xBase[-1]
+    tipY = tipX * a + b
+    fittedLine = Landmark(a, b, landmarkNumber, params[0][0], params[0][1], tipX, tipY)  # Creation of a landmark from the previously calculated coefs.
     #  If the landmark is the same as one previously seen, we use the latter to calculate y points.
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
