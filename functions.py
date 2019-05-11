@@ -52,6 +52,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     try:
         for measure in iterator:
             #print("medindo...")
+
             if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
                 dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2)
                 dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
@@ -61,12 +62,12 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                 nbr_points += 1
                 if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
-                    rawPoints.append(distancesList[:])
-                    tempPoints.append(QdistancesList[:])
+                    rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
+                    tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
                     checkEvent.set()
                     time.sleep(0.00001)
-                    del distancesList[:]
-                    del QdistancesList[:]
+                    del distancesList[0:MIN_NEIGHBOORS]
+                    del QdistancesList[0:MIN_NEIGHBOORS]
                     nbr_pairs = 0
                 if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Total points number: {}".format(nbr_points))
@@ -74,8 +75,8 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     if len(distancesList) > 2:
                         rawPoints.append(distancesList[:])
                         tempPoints.append(QdistancesList[:])
+                        rawPoints.append(0)
                         checkEvent.set()
-                    rawPoints.append(0)
                     time.sleep(0.000001)
                     del distancesList[:]
                     del QdistancesList[:]

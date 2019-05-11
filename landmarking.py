@@ -44,6 +44,10 @@ class Landmark():
     
     def observed(self):
         self.timesObserved += 1
+        if self.timesObserved >= LIFE:
+            return True
+        else:
+            return False
 
     def decrease_life(self):
         if self.life > 0:
@@ -61,7 +65,7 @@ class Landmark():
         return distance
 
     def distance_end_origin(self, landmark):
-        distance = np.linalg.norm(self.end - landmarm.get_pos())
+        distance = np.linalg.norm(self.end - landmark.get_pos())
         return distance
 
     def is_equal(self, landmark):

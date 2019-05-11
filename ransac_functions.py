@@ -11,11 +11,12 @@ MIN_SAMPLES = 2
 #MIN_POINTS = 100  # NOT USED
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
-def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
+def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB):
     i = 0
     equal = False
     deleteLandmark = False
-    
+    addToDB = False
+    print(pointsToBeFitted)
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -41,6 +42,9 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
             landmarks[i - 1].reset_life()
+            addToDB = landmarks[i - 1].observed()
+            if addToDB:
+                landmarkDB.append(landmarks[i - 1])
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
         else:
@@ -59,6 +63,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
 def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent):#n, innerFlag):
+    landmarkDB = []
     inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
@@ -72,7 +77,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
          #          print("Entrei")
          #          print(pointsToBeFitted)
                     del pointsToBeFitted[-1] 
-                    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
+                    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                     inliersList.append(tempList)
                     if newLandmark:
                         landmarks.append(extractedLandmark)
@@ -92,7 +97,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     del pointsToBeFitted[:]
                     checkEvent.clear()
             else:#if inliersList != []:
-                tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks)
+                tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 inliersList.append(tempList)
                 if newLandmark:
                     landmarks.append(extractedLandmark)
