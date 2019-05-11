@@ -1,9 +1,9 @@
 import numpy as np
 
-LIFE = 20
+LIFE = 40
 TOLERANCE_A = 0.1
 TOLERANCE_B = 10
-TORELANCE_ORIGINS = 100
+TOLERANCE = 100
 
 
 class Landmark():
@@ -69,8 +69,10 @@ class Landmark():
         distanceEndOrigin = self.distance_end_origin(landmark)
         distanceOriginEnd = self.distance_origin_end(landmark)
         if distA <= TOLERANCE_A and distB <= TOLERANCE_B:
-            if distanceEndOrigin <= TORELANCE and distanceOriginEnd <= TOLERANCE:
+            if distanceEndOrigin <= TOLERANCE or distanceOriginEnd <= TOLERANCE:
                 return True
+            else:
+                return False
         else:
             return False
     

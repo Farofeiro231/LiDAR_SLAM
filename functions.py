@@ -48,6 +48,7 @@ def scanning(rawPoints):
     range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     nbr_pairs = 0
+    nbr_points = 0
     distancesList = []
     start_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
@@ -59,17 +60,20 @@ def scanning(rawPoints):
                 dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
                 distancesList.append([dX, dY])
                 nbr_pairs += 1
+                nbr_points += 1
                 if nbr_pairs == MIN_NEIGHBOORS:
                     rawPoints.put(distancesList[:])
                     del distancesList[:]
                     nbr_pairs = 0
                 if measure[0][0]:
+                    print("Nombre de points: {}".format(nbr_points))
                     nbr_tours += 1
                     if len(distancesList) > 2:
                         rawPoints.put(distancesList[:])
                     rawPoints.put(0)
                     del distancesList[:]
                     nbr_pairs = 0
+                    nbr_points = 0
     except KeyboardInterrupt:
             #print("Saindo...")
             range_finder.stop_motor()

@@ -30,6 +30,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
     tipY = tipX * a + b
     fittedLine = Landmark(a, b, landmarkNumber, params[0][0], params[0][1], tipX, tipY)  # Creation of a landmark from the previously calculated coefs.
     #  If the landmark is the same as one previously seen, we use the latter to calculate y points.
+    print("ransacking...")
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
             equal = landmarks[i].is_equal(fittedLine)
@@ -78,7 +79,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
             elif inliersList != []:
                 #print(inliersList.copy())
                 #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
-                #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
+                print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
                 pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
                 allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                 #a = time.time()
