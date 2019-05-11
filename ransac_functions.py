@@ -34,6 +34,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
             if not equal:
                 deleteLandmark = landmarks[i].decrease_life()
                 if deleteLandmark:
+                    print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
@@ -42,7 +43,8 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks):
             newLandmark = False
         else:
             yBase = a * xBase + b  # np.array(data[inliers, 1])
-            newLandmark = True 
+            newLandmark = True
+            print("Added Landmark! Landmarks: {}".format(len(landmarks)))
     else:
         yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
@@ -112,7 +114,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(rawPoints):#, pairInliers):
+def ransac_core(rawPoints, range_finder):#, pairInliers):
     pairInliers = []
     pointsToBeFitted = []
     allPoints = []
@@ -123,7 +125,7 @@ def ransac_core(rawPoints):#, pairInliers):
     scanEvent = threading.Event()
     ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent,))#innerFlag))
     qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
-    scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent))
+    scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
     ransac_checking.start()
     qt_plotting.start()
     scan.start()

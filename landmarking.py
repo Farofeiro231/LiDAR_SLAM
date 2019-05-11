@@ -1,6 +1,6 @@
 import numpy as np
 
-LIFE = 5
+LIFE = 40
 TOLERANCE_A = 0.1
 TOLERANCE_B = 10
 TORELANCE_ORIGINS = 250

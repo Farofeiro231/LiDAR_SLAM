@@ -9,6 +9,7 @@ from mainWindow import *
 #xInliers, yInliers = list(), list()
 
 if __name__ == '__main__':
+    range_finder = Lidar('/dev/ttyUSB0')
     processes = []
     rawPoints = mp.Queue()
     #pairInliers = mp.Queue()
@@ -17,7 +18,7 @@ if __name__ == '__main__':
         #my_queue = mp.Queue()
         #data_acquisition = mp.Process(target=scanning, args=(rawPoints,))
         #data_plotting = mp.Process(target=ploting, args=(pairInliers, ))#keyFlags, theta, distance, rawPoints, yPoints, xInliers, yInliers, x, y, ))
-        ransac_process = mp.Process(target=ransac_core, args=(rawPoints, ))
+        ransac_process = mp.Process(target=ransac_core, args=(rawPoints, range_finder))
         #data_acquisition.start()
         #data_plotting.start()
         ransac_process.start()
@@ -29,5 +30,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         #for proc in processes:
         #    proc.terminate()
+        range_finder.stop_motor()
+        range_finder.reset()
         print("Saindo de tudo")
         exit()

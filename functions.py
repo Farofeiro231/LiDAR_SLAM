@@ -40,8 +40,8 @@ def distance_between_measures(new_measure, old_measure):
     return distance
 
 
-def scanning(rawPoints, tempPoints, checkEvent, threadEvent):
-    range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
+def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
+    #range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
     nbr_tours = 0
     nbr_pairs = 0
     distancesList = []
@@ -57,7 +57,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent):
                 distancesList.append([dX, dY])
                 QdistancesList.append(QPointF(dX, dY))
                 nbr_pairs += 1
-                if nbr_pairs == MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
+                if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
                     rawPoints.append(distancesList[:])
                     tempPoints.append(QdistancesList[:])
