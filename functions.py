@@ -7,7 +7,7 @@ from PyQt5.QtCore import QPointF
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 50 # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 30 # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar

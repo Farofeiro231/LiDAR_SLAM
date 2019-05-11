@@ -1,10 +1,10 @@
 import numpy as np
 
-SEEN = 10
+SEEN = 40
 LIFE = 40
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
-TOLERANCE = 150
+TOLERANCE = 100
 
 
 class Landmark():
