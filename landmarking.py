@@ -1,7 +1,7 @@
 import numpy as np
 
 SEEN = 15
-LIFE = 20
+LIFE = 25
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
 TOLERANCE = 200

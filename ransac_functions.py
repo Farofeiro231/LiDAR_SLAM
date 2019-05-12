@@ -37,8 +37,9 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             if not equal:
                 deleteLandmark = landmarks[i].decrease_life()
                 if deleteLandmark:
-                    if landmarks[i] in landmarkDB:
-                        landmarkDB.remove(landmarks[i])
+                    if discovering:  # only needs to remove the landmark from database if it's in the discovery mode
+                        if landmarks[i] in landmarkDB:
+                            landmarkDB.remove(landmarks[i])
                     #print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
@@ -75,7 +76,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
         checkEvent.wait()
         #print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
         if pointsToBeFitted != []:
-            if pointsToBeFitted[-1] == 0:
+            if pointsToBeFitted[-1] == 0:  # Verifies if the last byte wasn't the plot flag -> 0
                 if inliersList != []:
          #          print("Entrei")
          #          print(pointsToBeFitted)

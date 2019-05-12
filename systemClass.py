@@ -1,10 +1,13 @@
 import numpy as np
 import UKFMethods
 import robot
+import landmarking
 import filterpy.kalman import UnscentedKalmanFilter as UKF
 import filterpy.kalman import MerweScaledSigmaPoints
 import serial
 import time
+import re
+
 
 LANDMARK_NUMBER = 8 # got replaced by the size of self.landmarks
 VAR_DIST = 0.5**2
@@ -34,13 +37,32 @@ class System():
         self.ukf.predict(u)
 
 
+def create_lmks_database(lmFD):
+    lmParams = re.findall(r"\w+:([\+\-]?\d+.\d*)[\n,]", lmFD.read())
+    lmksNbr = len(lmParams)/6.0
+    params = [float(x) for x in lmParams]  # The original list contains strings
+    lmksDB = []
+    for i in range(lmksNbr):  # the i is going to number the landmark
+        extractedLandmark = Landmark(params[i * 6], params[(i * 6) + 1]
+                            , i, params[(i * 6) + 2], params[(i * 6) + 3]
+                            , params[(i * 6) + 4], params[(i * 6) + 5])
+        lmksDB.append(extractedLandmark)
+    return lmksDB
+
+
 
 def simulation():
     ser = serial.Serial('dev/ttyUSB1', 9600)
+    lmFD = open('landmarks.txt','r')
+    lmksDB = create_lmks_database(lmFD) 
+    sistema = System(lmksDB)
     dataBytes = 0
+    nbr_predict = 0
     while True:
         while dataBytes == 0:
             dataBytes = ser.inWaiting()
             time.sleep(0.0001)
-        ser.read(dataBytes)
+        u = ser.read(dataBytes)
+        
+
 
