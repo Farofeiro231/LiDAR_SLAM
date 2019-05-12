@@ -16,6 +16,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
+    discovering = True
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -43,10 +44,11 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
             landmarks[i - 1].reset_life()
-            addToDB = landmarks[i - 1].observed()
-            if addToDB and landmarks[i-1] not in landmarkDB:
-                print("Adicionada à DB\n\n\n\n\n\n\n\n\n")
-                landmarkDB.append(landmarks[i - 1])
+            if discovering:  #  if it's the first turn in the field, this flag allows the storage of reference landmarks for further usage
+                addToDB = landmarks[i - 1].observed()
+                if addToDB and landmarks[i-1] not in landmarkDB:
+                    print("Adicionada à DB\n\n\n\n\n\n\n\n\n")
+                    landmarkDB.append(landmarks[i - 1])
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
         else:
