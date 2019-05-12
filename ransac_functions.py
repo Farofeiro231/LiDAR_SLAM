@@ -38,7 +38,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 if deleteLandmark:
                     if landmarks[i] in landmarkDB:
                         landmarkDB.remove(landmarks[i])
-                    print("Excluded landmark: {}".format(landmarks[i]))
+                    #print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
@@ -64,15 +64,14 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
-def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent):#n, innerFlag):
-    landmarkDB = []
+def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
     landmarkNumber = 0
     newLandmark = True
     while True:
         checkEvent.wait()
-        print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
+        #print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
         if pointsToBeFitted != []:
             if pointsToBeFitted[-1] == 0:
                 if inliersList != []:
@@ -124,24 +123,25 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(rawPoints, range_finder):#, pairInliers):
+    landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
     pointsToBeFitted = []
     allPoints = []
     tempPoints = []
-    landmarks = list()
+    landmarkDB = []
+    landmarks = []
     threadEvent = threading.Event()
     checkEvent = threading.Event()
     scanEvent = threading.Event()
-    ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent,))#innerFlag))
-    qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
-    scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
-    ransac_checking.start()
-    qt_plotting.start()
-    scan.start()
-    scan.join()
-    qt_plotting.join()
     try:
-        a = 0
+        ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB))#innerFlag))
+        qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
+        scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
+        ransac_checking.start()
+        qt_plotting.start()
+        scan.start()
+        scan.join()
+        qt_plotting.join()
     #try:
         #while True:
             #time.sleep(0.000001)  # 0.00001 or 0.000001 are optimal values
@@ -150,9 +150,15 @@ def ransac_core(rawPoints, range_finder):#, pairInliers):
             #if temp != 0:
             #    tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
+        for lm in landmarkDB:
+            landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
+        print(landmarkDB)
+        landmarkFile.close()
         del pointsToBeFitted
         del pairInliers
         del tempPoints
         del allPoints
+        del landmarks
+        del landmarkDB
         print("Saindo do ransac")
         pass
