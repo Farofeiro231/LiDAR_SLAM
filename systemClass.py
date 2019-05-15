@@ -7,7 +7,7 @@ import filterpy.kalman import MerweScaledSigmaPoints
 import serial
 import time
 import re
-
+import sys
 
 LANDMARK_NUMBER = 8 # got replaced by the size of self.landmarks
 VAR_DIST = 0.5**2
@@ -52,17 +52,38 @@ def create_lmks_database(lmFD):
 
 
 def simulation():  # This function is going to be used as the core of the UKF process
-    ser = serial.Serial('dev/ttyUSB1', 9600)
+    try:
+        ser = serial.Serial('dev/ttyACM0', 115200)
+    except:
+        print("Couldn't stabilish connection with arduino! Exiting...")
+        sys_exit(0)
+
     lmFD = open('landmarks.txt','r')
     lmksDB = create_lmks_database(lmFD) 
     sistema = System(lmksDB)
-    dataBytes = 0
     nbr_predict = 0
-    while True:
-        while dataBytes == 0:
-            dataBytes = ser.inWaiting()
-            time.sleep(0.0001)
-        u = ser.read(dataBytes)  # Reception of the commands given to the motor (left_speed, right_speed)
+    buff = b''
+    index = 0
+    vLeft = 0
+    vRight = 0
+    u = np.zeros(2)
+    
+    start = time.time()
+    while time.time() - start < 10:
+        while b'\x0c' not in buff:
+            buff += ser.read(ser.inWaiting())
+        
+        if buf[0] = 0x40:  # verification for good flag in the beginning of the message
+            index = buff.index(b'\xa8')
+            vLeft = int(buf[1:index], 10)
+            vRight = int(buf[index + 1:len(buf) - 1], 10)
+            buff = b''
+        else:
+            print("Wrong format received: {}".format(buff))
+            buff = b''
+
+        u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
+        u[1] = vRight
         sistema.ukf.predict(u)
         
 
