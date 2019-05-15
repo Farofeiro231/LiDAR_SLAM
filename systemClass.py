@@ -23,7 +23,7 @@ class System():
         self.varAngle = VAR_ANGLE
         self.landmarks = landmarks
         self.sigmas = MerweScaledSigmaPoints(n=self.robot.get_dim_x(), alpha=0.0001, beta=2, kappa=0)
-        self.ukf = UKF(dim_x=self.robot.get_dim_x(), dim_z=2*len(landmarks), fx=transition_function, hx=transfer_function, dt=dt, points=self.sigmas, x_mean_fn=state_mean, z_mean_fn=z_mean, residual_x=residual_x, residual_z=residual_h)
+        self.ukf = UKF(dim_x=self.robot.get_dim_x(), dim_z=2*len(landmarks), fx=transition_function, hx=transfer_function, dt=self.dt, points=self.sigmas, x_mean_fn=state_mean, z_mean_fn=z_mean, residual_x=residual_x, residual_z=residual_h)
         self.config_ukf()
 
 
@@ -73,10 +73,10 @@ def simulation():  # This function is going to be used as the core of the UKF pr
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
         
-        if buf[0] == 0x40:  # verification for good flag in the beginning of the message
+        if buff[0] == 0x40:  # verification for good flag in the beginning of the message
             index = buff.index(b'\xa8')
-            vLeft = int(buf[1:index], 10)
-            vRight = int(buf[index + 1:len(buf) - 1], 10)
+            vLeft = int(buff[1:index], 10)
+            vRight = int(buff[index + 1:len(buff) - 1], 10)
             buff = b''
         else:
             print("Wrong format received: {}".format(buff))
@@ -84,7 +84,9 @@ def simulation():  # This function is going to be used as the core of the UKF pr
 
         u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
         u[1] = vRight
-        sistema.ukf.predict(u)
-    print(sistema.ukf.x)    
+        print("Velocities: {}".format(u))
+        sistema.ukf.predict(u=u)
+    print(sistema.ukf.x)
+    print(sistema.ukf.P)
 
 simulation()
