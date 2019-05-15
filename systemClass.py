@@ -1,9 +1,9 @@
 import numpy as np
-import UKFMethods
-import robot
-import landmarking
-import filterpy.kalman import UnscentedKalmanFilter as UKF
-import filterpy.kalman import MerweScaledSigmaPoints
+from UKFMethods import *
+from robot import Robot
+from landmarking import Landmark
+from filterpy.kalman import UnscentedKalmanFilter as UKF
+from filterpy.kalman import MerweScaledSigmaPoints
 import serial
 import time
 import re
@@ -39,7 +39,7 @@ class System():
 
 def create_lmks_database(lmFD):
     lmParams = re.findall(r"\w+:([\+\-]?\d+.\d*)[\n,]", lmFD.read())
-    lmksNbr = len(lmParams)/6.0
+    lmksNbr = int(len(lmParams)/6) # Needs to be int for usage in the range method
     params = [float(x) for x in lmParams]  # The original list contains strings
     lmksDB = []
     for i in range(lmksNbr):  # the i is going to number the landmark
@@ -53,10 +53,10 @@ def create_lmks_database(lmFD):
 
 def simulation():  # This function is going to be used as the core of the UKF process
     try:
-        ser = serial.Serial('dev/ttyACM0', 115200)
+        ser = serial.Serial('/dev/ttyACM0', 115200)
     except:
         print("Couldn't stabilish connection with arduino! Exiting...")
-        sys_exit(0)
+        sys.exit(0)
 
     lmFD = open('landmarks.txt','r')
     lmksDB = create_lmks_database(lmFD) 
@@ -73,7 +73,7 @@ def simulation():  # This function is going to be used as the core of the UKF pr
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
         
-        if buf[0] = 0x40:  # verification for good flag in the beginning of the message
+        if buf[0] == 0x40:  # verification for good flag in the beginning of the message
             index = buff.index(b'\xa8')
             vLeft = int(buf[1:index], 10)
             vRight = int(buf[index + 1:len(buf) - 1], 10)
@@ -85,6 +85,6 @@ def simulation():  # This function is going to be used as the core of the UKF pr
         u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
         u[1] = vRight
         sistema.ukf.predict(u)
-        
+    print(sistema.ukf.x)    
 
-
+simulation()

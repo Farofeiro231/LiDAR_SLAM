@@ -17,7 +17,6 @@ if __name__ == '__main__':
     
     #com.read(10) 
     while True:
-        
         while b'\x0c' not in buf:
             buf += com.read(com.inWaiting())
         

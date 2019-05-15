@@ -38,14 +38,16 @@ def transfer_function(x, landmarks):
 def state_mean(sigmas, Wm):  # Sigmas is of the form M(2n+1)xn
     x = np.zeros(3)
 
-    sum_sim = np.sum(np.dot(sin(sigmas[:, 2], Wm)
-    sum_cos = np.sum(np.dot(cos(sigmas[:, 2], Wm)
+    sum_sin = np.sum(np.dot(sin(sigmas[:, 2], Wm)))
+    
+        
+    sum_cos = np.sum(np.dot(cos(sigmas[:, 2], Wm)))
     x[0] = np.sum(np.dot(sigmas[:, 0], Wm))
     x[1] = np.sum(no.dot(sigmas[:, 1], Wm))
     x[2] = atan2(sum_sin, sum_cos)
     return x
 
-def z_mean(sigmas, Wm);
+def z_mean(sigmas, Wm):
     nbrLmkrs = sigmas.shape[1]  # number of landmarks
     x = np.zeros(nbrLmkrs)
 
