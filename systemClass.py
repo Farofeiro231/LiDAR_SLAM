@@ -51,7 +51,7 @@ def create_lmks_database(lmFD):
 
 
 
-def simulation():
+def simulation():  # This function is going to be used as the core of the UKF process
     ser = serial.Serial('dev/ttyUSB1', 9600)
     lmFD = open('landmarks.txt','r')
     lmksDB = create_lmks_database(lmFD) 
@@ -62,7 +62,8 @@ def simulation():
         while dataBytes == 0:
             dataBytes = ser.inWaiting()
             time.sleep(0.0001)
-        u = ser.read(dataBytes)
+        u = ser.read(dataBytes)  # Reception of the commands given to the motor (left_speed, right_speed)
+        sistema.ukf.predict(u)
         
 
 
