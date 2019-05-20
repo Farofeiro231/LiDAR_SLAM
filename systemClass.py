@@ -52,7 +52,7 @@ def create_lmks_database(lmFD):
 
 
 
-def update_thread(queue, sistema, updateEvent):
+def lmk_check(queue, sistema, updateEvent):
     lmkList = []
     tempPos = np.empty([1, 3])
     while True:
@@ -61,8 +61,6 @@ def update_thread(queue, sistema, updateEvent):
         for lmk in lmkList:
             tempPos = lmk.get_pos()
             print(tempPos)
-
-
 
 def simulation(queue):  # This function is going to be used as the core of the UKF process
     try:
@@ -83,7 +81,8 @@ def simulation(queue):  # This function is going to be used as the core of the U
     u = np.zeros(2)   
     start = time.time()
 
-    updateThread = threading.Thread(target=updateUKF, args=(queue, sistema,))
+    updateThread = threading.Thread(target=lmk_check, args=(queue, sistema,))
+    updateThread.start()
 
     while time.time() - start < 10:
         while b'\x0c' not in buff:

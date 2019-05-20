@@ -109,6 +109,14 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 checkEvent.clear()
 
 
+def send_lmks(queue, lmks):
+    flag = 10
+    while True:
+        flag = queue.get(True)
+        if flag == 0:
+            queue.put(lmks)
+
+
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(rawPoints, range_finder):#, pairInliers):
     landmarkFile = open('landmarks.txt', 'w+')
@@ -126,12 +134,14 @@ def ransac_core(rawPoints, range_finder):#, pairInliers):
         ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB))#innerFlag))
         qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
         scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
-        updateUKF = threading.Thread(target=update_thread, args=(queue, )) 
+        comm2proc = threading.Thread(target=send_lmks, args=(queue, landmarks)) 
         ransac_checking.start()
         qt_plotting.start()
         scan.start()
+        comm2proc.start()
         scan.join()
         qt_plotting.join()
+        comm2proc.join()
     #try:
         #while True:
             #time.sleep(0.000001)  # 0.00001 or 0.000001 are optimal values
