@@ -53,8 +53,8 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
         for measure in iterator:
             #print("medindo...")
             if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
-                dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2)
-                dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2)
+                dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD)
+                dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD)
                 distancesList.append([dX, dY])
                 QdistancesList.append(QPointF(dX, dY))
                 nbr_pairs += 1

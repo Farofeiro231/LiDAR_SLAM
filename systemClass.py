@@ -61,7 +61,8 @@ def simulation():  # This function is going to be used as the core of the UKF pr
     lmFD = open('landmarks.txt','r')
     lmksDB = create_lmks_database(lmFD) 
     sistema = System(lmksDB)
-    nbr_predict = 0
+
+    predictCount = 0
     buff = b''
     index = 0
     vLeft = 0
@@ -86,6 +87,9 @@ def simulation():  # This function is going to be used as the core of the UKF pr
         u[1] = vRight
         print("Velocities: {}".format(u))
         sistema.ukf.predict(u=u)
+        predictCount += 1
+        if predictCount == 100:
+
     print(sistema.ukf.x)
     print(sistema.ukf.P)
 
