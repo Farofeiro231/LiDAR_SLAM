@@ -86,8 +86,11 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 if equal:
                     tempDB.append(each)
                     tempZ.extend([d0, theta0])
-        sistema.ukf.diz_z = 2*len(landmarks)
-        sistema.ukf.update(z=tempZ, landmarks=tempDB)
+        if tempZ != []:
+            sistema.ukf.diz_z = 2*len(tempDB)
+            sistema.ukf.update(z=tempZ, landmarks=tempDB)
+        else:
+            print("No ladnmarks corresponding to the db ones!")
         predictEvent.set()
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
