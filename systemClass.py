@@ -4,6 +4,7 @@ from robot import Robot
 from landmarking import Landmark
 from filterpy.kalman import UnscentedKalmanFilter as UKF
 from filterpy.kalman import MerweScaledSigmaPoints
+import threading
 import serial
 import time
 import re
@@ -51,6 +52,12 @@ def create_lmks_database(lmFD):
 
 
 
+def update_thread(lnmrkQueue, lnmrkDB):
+
+
+
+
+
 def simulation():  # This function is going to be used as the core of the UKF process
     try:
         ser = serial.Serial('/dev/ttyACM0', 115200)
@@ -61,7 +68,7 @@ def simulation():  # This function is going to be used as the core of the UKF pr
     lmFD = open('landmarks.txt','r')
     lmksDB = create_lmks_database(lmFD) 
     sistema = System(lmksDB)
-
+    updateEvent = threading.Event()
     predictCount = 0
     buff = b''
     index = 0
@@ -89,7 +96,7 @@ def simulation():  # This function is going to be used as the core of the UKF pr
         sistema.ukf.predict(u=u)
         predictCount += 1
         if predictCount == 100:
-
+           updateEvent.set() 
     print(sistema.ukf.x)
     print(sistema.ukf.P)
 

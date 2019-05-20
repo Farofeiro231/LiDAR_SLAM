@@ -1,4 +1,3 @@
-print("EFODA")
 from skimage.measure import ransac, LineModelND
 import threading
 from landmarking import *
@@ -8,7 +7,6 @@ from mainWindow import *
 THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 10
 MIN_SAMPLES = 2
-#MIN_POINTS = 100  # NOT USED
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB):
@@ -97,10 +95,10 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     del inliersList[:]
                     del pointsToBeFitted[:]
                     del tempPoints[:]
-                else:
+                else:  # If the list is empty
                     del pointsToBeFitted[:]
                     checkEvent.clear()
-            else:#if inliersList != []:
+            else:  #if there is no flag indicating a new rotating
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 inliersList.append(tempList)
                 if newLandmark:
@@ -108,20 +106,6 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                         #print("Landmarks extraidas: {}".format(len(landmarks)))
                     landmarkNumber += 1                
                 checkEvent.clear()
-                #print(inliersList.copy())
-                #pairInliers.put(np.concatenate(inliersList.copy(), axis=0))
-                #print("TROQUEEEEEEEEEEEEEEEEEEEEI\n\n\n\n\n")
-                #pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
-                #allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
-                #a = time.time()
-                #print("Passando a bola para plot\n\n\n")
-                #print("Tempo:{:.8f}".format(time.time()-a))
-                #threadEvent.set()
-                #del inliersList[:]
-                #del pointsToBeFitted[:]
-                #del tempPoints[:]
-            #else:
-            #    del pointsToBeFitted[:]
 
 
 #   Here I run the landmark_extraction code inside an indepent process
@@ -140,6 +124,7 @@ def ransac_core(rawPoints, range_finder):#, pairInliers):
         ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB))#innerFlag))
         qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
         scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
+        
         ransac_checking.start()
         qt_plotting.start()
         scan.start()
