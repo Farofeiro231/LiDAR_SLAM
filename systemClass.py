@@ -52,9 +52,14 @@ def create_lmks_database(lmFD):
 
 
 
-def update_thread(lnmrkQueue, lnmrkDB):
-
-
+def update_thread(lmkQueue, lmkDB, updateThread, robotPose):
+    lmkList = []
+    tempPos = np.empty([1, 3])
+    while True:
+        lmkList = lmkQueue.get(True)
+        for lmk in lmkList:
+            tempPos = lmk.get_pos()
+            print(tempPos)
 
 
 

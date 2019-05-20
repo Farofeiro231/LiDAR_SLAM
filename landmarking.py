@@ -61,6 +61,7 @@ class Landmark():
     def reset_life(self):
         self.life = LIFE
 
+    #  This test includes the cases where one landmark in reobserved superposing itself from a former scan
     def distance_test(self, landmark):
         theSame = False
         if self.distance_origin_end(landmark) < TOLERANCE:
