@@ -52,17 +52,20 @@ def create_lmks_database(lmFD):
 
 
 
-def lmk_check(queue, sistema, updateEvent):
+def lmk_check(lmkQueue, sistema, updateEvent):
     lmkList = []
     tempPos = np.empty([1, 3])
     while True:
-        updateEvent.wait()
-        lmkList = queue.get(True)
+        print("Esperando...")
+        #updateEvent.wait()
+        print("Esperando queue...")
+        lmkList = lmkQueue.get(True)
         for lmk in lmkList:
             tempPos = lmk.get_pos()
             print(tempPos)
+        updateEvent.clear()
 
-def simulation(queue):  # This function is going to be used as the core of the UKF process
+def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
     try:
         ser = serial.Serial('/dev/ttyACM0', 115200)
     except:
@@ -73,6 +76,7 @@ def simulation(queue):  # This function is going to be used as the core of the U
     lmksDB = create_lmks_database(lmFD) 
     sistema = System(lmksDB)
     updateEvent = threading.Event()
+    predictEvent = threading.Event()
     predictCount = 0
     buff = b''
     index = 0
@@ -81,7 +85,7 @@ def simulation(queue):  # This function is going to be used as the core of the U
     u = np.zeros(2)   
     start = time.time()
 
-    updateThread = threading.Thread(target=lmk_check, args=(queue, sistema,))
+    updateThread = threading.Thread(target=lmk_check, args=(lmkQueue, sistema, updateEvent))
     updateThread.start()
 
     while time.time() - start < 10:
@@ -103,10 +107,9 @@ def simulation(queue):  # This function is going to be used as the core of the U
         sistema.ukf.predict(u=u)
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount == 100:
-           queue.put(0) 
-           updateEvent.set()
-    print(sistema.ukf.x)
-    print(sistema.ukf.P)
+        if predictCount >= 100:
+            flagQueue.put(0) 
+            predictCount = 0
+            print(sistema.ukf.x)
+            print(sistema.ukf.P)
 
-simulation()

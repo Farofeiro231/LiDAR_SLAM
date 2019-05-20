@@ -15,7 +15,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    discovering = True
+    discovering = False
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -47,14 +47,14 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             if discovering:  #  if it's the first turn in the field, this flag allows the storage of reference landmarks for further usage
                 addToDB = landmarks[i - 1].observed()
                 if addToDB and landmarks[i-1] not in landmarkDB:
-                    print("Adicionada à DB\n\n\n\n\n\n\n\n\n")
+                        #print("Adicionada à DB\n\n\n\n\n\n\n\n\n")
                     landmarkDB.append(landmarks[i - 1])
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
         else:
             yBase = a * xBase + b  # np.array(data[inliers, 1])
             newLandmark = True
-            print("Added Landmark! Landmarks: {}".format(len(landmarks)))
+                #print("Added Landmark! Landmarks: {}".format(len(landmarks)))
     else:
         yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
@@ -89,7 +89,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
                     allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                     #a = time.time()
-                    print("Passando a bola para plot\n\n\n")
+                        #print("Passando a bola para plot\n\n\n")
                     #print("Tempo:{:.8f}".format(time.time()-a))
                     threadEvent.set()
                     checkEvent.clear()
@@ -109,18 +109,17 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 checkEvent.clear()
 
 
-def send_lmks(queue, lmks):
+def send_lmks(flagQueue, lmkQueue, lmks):
     flag = 10
     while True:
-        flag = queue.get(True)
+        flag = flagQueue.get(True)
         if flag == 0:
-            queue.put(lmks)
+            lmkQueue.put(lmks)
 
 
 #   Here I run the landmark_extraction code inside an indepent process
-def ransac_core(rawPoints, range_finder):#, pairInliers):
-    landmarkFile = open('landmarks.txt', 'w+')
-    queue = mp.Queue()
+def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
+    #landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
     pointsToBeFitted = []
     allPoints = []
@@ -134,7 +133,7 @@ def ransac_core(rawPoints, range_finder):#, pairInliers):
         ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB))#innerFlag))
         qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
         scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
-        comm2proc = threading.Thread(target=send_lmks, args=(queue, landmarks)) 
+        comm2proc = threading.Thread(target=send_lmks, args=(flagQueue, lmkQueue, landmarks)) 
         ransac_checking.start()
         qt_plotting.start()
         scan.start()
@@ -150,10 +149,10 @@ def ransac_core(rawPoints, range_finder):#, pairInliers):
             #if temp != 0:
             #    tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
-        for lm in landmarkDB:
-            landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
+        #for lm in landmarkDB:
+            #landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
         print(landmarkDB)
-        landmarkFile.close()
+        #landmarkFile.close()
         del pointsToBeFitted
         del pairInliers
         del tempPoints

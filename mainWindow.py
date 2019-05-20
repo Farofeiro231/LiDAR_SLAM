@@ -97,7 +97,7 @@ class Window(QMainWindow):
         #print("Passando a bola para ransac\n\n\n")
         #print("Tempo:{:.8f}".format(time.time()-a))
         self.event.wait()
-        print("estou na plotting thread")
+        #print("estou na plotting thread")
         start = time.time()
         #self.lmrkPoints = self.queue.get(True)
         #fetch_time = time.time() - start

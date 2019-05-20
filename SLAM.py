@@ -13,21 +13,22 @@ if __name__ == '__main__':
     range_finder = Lidar('/dev/ttyUSB0')
     processes = []
     rawPoints = mp.Queue()
-    canal = mp.Queue()
+    lmkQueue = mp.Queue()
+    flagQueue = mp.Queue()
     #pairInliers = mp.Queue()
     #print("My queue pairInliers: {}".format(pairInliers))
     try:
         #my_queue = mp.Queue()
         #data_acquisition = mp.Process(target=scanning, args=(rawPoints,))
         #data_plotting = mp.Process(target=ploting, args=(pairInliers, ))#keyFlags, theta, distance, rawPoints, yPoints, xInliers, yInliers, x, y, ))
-        ransac_process = mp.Process(target=ransac_core, args=(rawPoints, range_finder))
-        system_process = mp.Process(target=simulation, args=(canal, ))
+        ransac_process = mp.Process(target=ransac_core, args=(flagQueue, lmkQueue, rawPoints, range_finder))
+        system_process = mp.Process(target=simulation, args=(flagQueue, lmkQueue,))
         #system_process
         #data_acquisition.start()
-        #data_plotting.start()
+        system_process.start()
         ransac_process.start()
         #processes.append(data_plotting)
-        #processes.append(data_acquisition)
+        processes.append(system_process)
         processes.append(ransac_process)
         for proc in processes:
             proc.join()

@@ -10,7 +10,7 @@ if __name__ == '__main__':
     vr = 0
     vd = 0
     try:
-        com = serial.Serial('/dev/ttyACM1', 115200)
+        com = serial.Serial('/dev/ttyACM0', 115200)
     except:
         print("Couldn't stabilish connection with serial port!")
         sys_exit(0)
