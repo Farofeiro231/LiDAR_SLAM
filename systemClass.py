@@ -55,6 +55,8 @@ def create_lmks_database(lmFD):
 
 def lmk_check(lmkQueue, sistema, predictEvent):
     lmkList = []
+    tempDB = []
+    tempZ = []
     equal = False
     #tempPos = np.empty([1, 3])
     while True:
@@ -64,21 +66,28 @@ def lmk_check(lmkQueue, sistema, predictEvent):
         lmkList = lmkQueue.get(True)
         print('recebido!')
         print(lmkList)
+        #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for lmk in lmkList:
             [x0, y0] = lmk.get_pos()
             [x1, y1] = lmk.get_end()
             [xR, yR, thetaR] = sistema.ukf.x
             d0 = sqrt(x0**2 + y0**2)
-            theta0 = atan2(y0/x0)
+            theta0 = atan2(y0, x0)
             d1 = sqrt(x1**2 + y1**2)
-            theta1 = atan2(y1/x1)
+            theta1 = atan2(y1, x1)
             orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
             end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
             orig += [xR, yR]
             end += [xR, yR]
+            #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
             tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
             for each in sistema.landmarks:
-                print (tmpLmk.is_equal(each))
+                equal = (tmpLmk.is_equal(each))
+                if equal:
+                    tempDB.append(each)
+                    tempZ.extend([d0, theta0])
+        sistema.ukf.diz_z = 2*len(landmarks)
+        sistema.ukf.update(z=tempZ, landmarks=tempDB)
         predictEvent.set()
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
