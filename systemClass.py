@@ -4,6 +4,7 @@ from robot import Robot
 from landmarking import Landmark
 from filterpy.kalman import UnscentedKalmanFilter as UKF
 from filterpy.kalman import MerweScaledSigmaPoints
+from math import sqrt, atan2, cos, sin
 import threading
 import serial
 import time
@@ -52,18 +53,33 @@ def create_lmks_database(lmFD):
 
 
 
-def lmk_check(lmkQueue, sistema, updateEvent):
+def lmk_check(lmkQueue, sistema, predictEvent):
     lmkList = []
-    tempPos = np.empty([1, 3])
+    equal = False
+    #tempPos = np.empty([1, 3])
     while True:
         print("Esperando...")
         #updateEvent.wait()
         print("Esperando queue...")
         lmkList = lmkQueue.get(True)
+        print('recebido!')
+        print(lmkList)
         for lmk in lmkList:
-            tempPos = lmk.get_pos()
-            print(tempPos)
-        updateEvent.clear()
+            [x0, y0] = lmk.get_pos()
+            [x1, y1] = lmk.get_end()
+            [xR, yR, thetaR] = sistema.ukf.x
+            d0 = sqrt(x0**2 + y0**2)
+            theta0 = atan2(y0/x0)
+            d1 = sqrt(x1**2 + y1**2)
+            theta1 = atan2(y1/x1)
+            orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
+            end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
+            orig += [xR, yR]
+            end += [xR, yR]
+            tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
+            for each in sistema.landmarks:
+                print (tmpLmk.is_equal(each))
+        predictEvent.set()
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
     try:
@@ -85,10 +101,12 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
     u = np.zeros(2)   
     start = time.time()
 
-    updateThread = threading.Thread(target=lmk_check, args=(lmkQueue, sistema, updateEvent))
+    updateThread = threading.Thread(target=lmk_check, args=(lmkQueue, sistema, predictEvent))
     updateThread.start()
+    predictEvent.set()
 
     while time.time() - start < 10:
+        predictEvent.wait()
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
         
@@ -96,6 +114,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
             index = buff.index(b'\xa8')
             vLeft = int(buff[1:index], 10)
             vRight = int(buff[index + 1:len(buff) - 1], 10)
+            print("Valor de buff {}: {}".format(predictCount, buff))
             buff = b''
         else:
             print("Wrong format received: {}".format(buff))
@@ -105,11 +124,13 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         u[1] = vRight
         print("Velocities: {}".format(u))
         sistema.ukf.predict(u=u)
+        print("Morre diabo")
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount >= 100:
-            flagQueue.put(0) 
+        if predictCount >= 10:
+            flagQueue.put(0)
             predictCount = 0
+            predictEvent.clear()
             print(sistema.ukf.x)
             print(sistema.ukf.P)
 

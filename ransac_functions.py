@@ -114,7 +114,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
     while True:
         flag = flagQueue.get(True)
         if flag == 0:
-            lmkQueue.put(lmks)
+            lmkQueue.put(lmks.copy())
 
 
 #   Here I run the landmark_extraction code inside an indepent process
