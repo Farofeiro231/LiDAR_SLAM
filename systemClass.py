@@ -52,11 +52,12 @@ def create_lmks_database(lmFD):
 
 
 
-def update_thread(queue, sistema, updateThread):
+def update_thread(queue, sistema, updateEvent):
     lmkList = []
     tempPos = np.empty([1, 3])
     while True:
-        lmkList = lmkQueue.get(True)
+        updateEvent.wait()
+        lmkList = queue.get(True)
         for lmk in lmkList:
             tempPos = lmk.get_pos()
             print(tempPos)
@@ -82,7 +83,7 @@ def simulation(queue):  # This function is going to be used as the core of the U
     u = np.zeros(2)   
     start = time.time()
 
-    updateThread = threading.Thread(target=updateUKF, args=(queue, sistema, updateThread))
+    updateThread = threading.Thread(target=updateUKF, args=(queue, sistema,))
 
     while time.time() - start < 10:
         while b'\x0c' not in buff:
@@ -102,8 +103,10 @@ def simulation(queue):  # This function is going to be used as the core of the U
         print("Velocities: {}".format(u))
         sistema.ukf.predict(u=u)
         predictCount += 1
+        #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
         if predictCount == 100:
-           updateEvent.set() 
+           queue.put(0) 
+           updateEvent.set()
     print(sistema.ukf.x)
     print(sistema.ukf.P)
 
