@@ -9,8 +9,8 @@ void setup() {
 }
 
 void loop() {
-  int vr = 50;
-  int vd = 50;
+  int vr = 0;
+  int vd = 0;
   
   //a = 0.174387;
   Serial.write(0x40);

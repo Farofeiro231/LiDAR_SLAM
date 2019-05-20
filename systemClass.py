@@ -11,7 +11,7 @@ import time
 import re
 import sys
 
-LANDMARK_NUMBER = 8 # got replaced by the size of self.landmarks
+LANDMARK_NUMBER = 1# got replaced by the size of self.landmarks
 VAR_DIST = 0.5**2
 VAR_ANGLE = 0.3**2
 DT = 0.005  # 5 ms
@@ -32,7 +32,7 @@ class System():
     def config_ukf(self):
         self.ukf.x = self.robot.get_pos()
         self.ukf.P = np.diag([.1, .1, 0.05])
-        self.ukf.R = np.diag([self.varDist, self.varAngle] * LANDMARK_NUMBER)
+        self.ukf.R = np.diag([self.varDist, self.varAngle] * len(self.landmarks))
         self.ukf.Q = np.eye(3) * 0.001
 
     def simulate_system(self, u):
@@ -60,12 +60,8 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     equal = False
     #tempPos = np.empty([1, 3])
     while True:
-        print("Esperando...")
-        #updateEvent.wait()
-        print("Esperando queue...")
         lmkList = lmkQueue.get(True)
         print('recebido!')
-        print(lmkList)
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for lmk in lmkList:
             [x0, y0] = lmk.get_pos()
@@ -87,8 +83,10 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                     tempDB.append(each)
                     tempZ.extend([d0, theta0])
         if tempZ != []:
-            sistema.ukf.diz_z = 2*len(tempDB)
-            sistema.ukf.update(z=tempZ, landmarks=tempDB)
+            print("Dim tempZ, tempDB: {}, {}".format(len(tempZ), len(tempDB)))
+            sistema.ukf.dim_z = 2*len(tempDB)
+            sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
+            sistema.ukf.update(tempZ, landmarks=tempDB)
         else:
             print("No ladnmarks corresponding to the db ones!")
         predictEvent.set()
@@ -122,7 +120,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
         
-        if buff[0] == 0x40:  # verification for good flag in the beginning of the message
+        if buff[0] == 0x40 and len(buff) < 20:  # verification for good flag in the beginning of the message
             index = buff.index(b'\xa8')
             vLeft = int(buff[1:index], 10)
             vRight = int(buff[index + 1:len(buff) - 1], 10)
