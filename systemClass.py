@@ -52,7 +52,7 @@ def create_lmks_database(lmFD):
 
 
 
-def update_thread(lmkQueue, lmkDB, updateThread, robotPose):
+def update_thread(queue, sistema, updateThread):
     lmkList = []
     tempPos = np.empty([1, 3])
     while True:
@@ -63,7 +63,7 @@ def update_thread(lmkQueue, lmkDB, updateThread, robotPose):
 
 
 
-def simulation():  # This function is going to be used as the core of the UKF process
+def simulation(queue):  # This function is going to be used as the core of the UKF process
     try:
         ser = serial.Serial('/dev/ttyACM0', 115200)
     except:
@@ -79,9 +79,11 @@ def simulation():  # This function is going to be used as the core of the UKF pr
     index = 0
     vLeft = 0
     vRight = 0
-    u = np.zeros(2)
-    
+    u = np.zeros(2)   
     start = time.time()
+
+    updateThread = threading.Thread(target=updateUKF, args=(queue, sistema, updateThread))
+
     while time.time() - start < 10:
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())

@@ -1,5 +1,6 @@
 from skimage.measure import ransac, LineModelND
 import threading
+import multiprocessing as mp
 from landmarking import *
 from functions import *
 from mainWindow import *
@@ -111,6 +112,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(rawPoints, range_finder):#, pairInliers):
     landmarkFile = open('landmarks.txt', 'w+')
+    queue = mp.Queue()
     pairInliers = []
     pointsToBeFitted = []
     allPoints = []
@@ -124,7 +126,7 @@ def ransac_core(rawPoints, range_finder):#, pairInliers):
         ransac_checking = threading.Thread(target=check_ransac, args=(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB))#innerFlag))
         qt_plotting = threading.Thread(target=ploting, args=(pairInliers, allPoints, threadEvent,))
         scan = threading.Thread(target=scanning, args=(pointsToBeFitted, tempPoints, checkEvent, threadEvent, range_finder))
-        
+        updateUKF = threading.Thread(target=update_thread, args=(queue, )) 
         ransac_checking.start()
         qt_plotting.start()
         scan.start()

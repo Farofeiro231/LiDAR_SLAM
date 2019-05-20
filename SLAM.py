@@ -2,6 +2,7 @@ import multiprocessing as mp
 from functions import *
 from ransac_functions import *
 from mainWindow import *
+from systemClass import *
 #keyFlags = {'go': False, 'plot': False}
 #x, y = list(), list()
 #theta, distance = list(), list()
@@ -20,6 +21,7 @@ if __name__ == '__main__':
         #data_acquisition = mp.Process(target=scanning, args=(rawPoints,))
         #data_plotting = mp.Process(target=ploting, args=(pairInliers, ))#keyFlags, theta, distance, rawPoints, yPoints, xInliers, yInliers, x, y, ))
         ransac_process = mp.Process(target=ransac_core, args=(rawPoints, range_finder))
+        system_process = mp.Process(target=simulation, args=(canal, ))
         #system_process
         #data_acquisition.start()
         #data_plotting.start()
