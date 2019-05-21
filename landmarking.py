@@ -62,7 +62,7 @@ class Landmark():
         self.life = LIFE
 
     #  This test includes the cases where one landmark in reobserved superposing itself from a former scan
-    def distance_test(self, landmark):
+'''    def distance_test(self, landmark):
         theSame = False
         if self.distance_origin_end(landmark) < TOLERANCE:
             theSame = True
@@ -88,7 +88,7 @@ class Landmark():
     
     def distance_end_origin(self, landmark):
         distance = np.linalg.norm(self.end - landmark.get_pos())
-        return distance
+        return distance'''
 
     def is_equal(self, landmark):
         distA = abs(self.a - landmark.get_a())
@@ -96,7 +96,7 @@ class Landmark():
         distanceOriginEnd = self.distance_origin_end(landmark)
         distanceEndOrigin = self.distance_end_origin(landmark)
         if distA <= TOLERANCE_A and distB <= TOLERANCE_B:
-            if self.distance_test(landmark):
+            if self.distance_origin_origin(landmark) < TOLERANCE:
             #if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
                 return True
             else:
