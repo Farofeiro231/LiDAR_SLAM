@@ -5,7 +5,7 @@ from landmarking import *
 from functions import *
 from mainWindow import *
 
-THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
+THRESHOLD = 50  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 10
 MIN_SAMPLES = 2
 
@@ -15,12 +15,17 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    discovering = False
+    discovering = True
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
-    model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
-                                   residual_threshold=THRESHOLD, max_trials=MAX_TRIALS) 
+    try:
+        model_robust, inliers = ransac(data, LineModelND, min_samples=MIN_SAMPLES, 
+                                       residual_threshold=THRESHOLD, max_trials=MAX_TRIALS)
+    except ValueError:
+        print("Couldn't find a fit for the given data")
+        return [], [], []
+        
     params = model_robust.params
     a = params[1][1]/params[1][0]  # Calculating the coefficients of the line ax + b
     b = params[0][1] - a * params[0][0]
@@ -39,7 +44,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                     if discovering:  # only needs to remove the landmark from database if it's in the discovery mode
                         if landmarks[i] in landmarkDB:
                             landmarkDB.remove(landmarks[i])
-                    #print("Excluded landmark: {}".format(landmarks[i]))
+                    print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
@@ -54,7 +59,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
         else:
             yBase = a * xBase + b  # np.array(data[inliers, 1])
             newLandmark = True
-                #print("Added Landmark! Landmarks: {}".format(len(landmarks)))
+                print("Added Landmark! Landmarks: {}".format(len(landmarks)))
     else:
         yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
@@ -81,17 +86,18 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
          #          print(pointsToBeFitted)
                     del pointsToBeFitted[-1] 
                     tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
-                    inliersList.append(tempList)
-                    if newLandmark:
-                        landmarks.append(extractedLandmark)
-                        #print("Landmarks extraidas: {}".format(len(landmarks)))
-                    landmarkNumber += 1
-                    pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
-                    allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
-                    #a = time.time()
-                        #print("Passando a bola para plot\n\n\n")
-                    #print("Tempo:{:.8f}".format(time.time()-a))
-                    threadEvent.set()
+                    if tempList != []:
+                        inliersList.append(tempList)
+                        if newLandmark:
+                            landmarks.append(extractedLandmark)
+                            #print("Landmarks extraidas: {}".format(len(landmarks)))
+                        landmarkNumber += 1
+                        pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
+                        allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
+                        #a = time.time()
+                            #print("Passando a bola para plot\n\n\n")
+                        #print("Tempo:{:.8f}".format(time.time()-a))
+                        threadEvent.set()
                     checkEvent.clear()
                     del inliersList[:]
                     del pointsToBeFitted[:]
@@ -101,11 +107,12 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     checkEvent.clear()
             else:  #if there is no flag indicating a new rotating
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
-                inliersList.append(tempList)
-                if newLandmark:
-                    landmarks.append(extractedLandmark)
-                        #print("Landmarks extraidas: {}".format(len(landmarks)))
-                    landmarkNumber += 1                
+                if tempList != []:
+                    inliersList.append(tempList)
+                    if newLandmark:
+                        landmarks.append(extractedLandmark)
+                            #print("Landmarks extraidas: {}".format(len(landmarks)))
+                        landmarkNumber += 1                
                 checkEvent.clear()
 
 
@@ -119,7 +126,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    discover = False
+    discover = True
     if discover:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []

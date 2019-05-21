@@ -7,7 +7,7 @@ from PyQt5.QtCore import QPointF
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
 ANGLE_TO_RAD = PI / 180
-MIN_NEIGHBOORS = 30 # minimum number of points to even be considered for RANSAC processing
+MIN_NEIGHBOORS = 20 # minimum number of points to even be considered for RANSAC processing
 
 
 #  Configuring the figure subplots to hold the point cloud plotting. Mode can be rectilinear of polar
@@ -48,34 +48,36 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     distancesList = []
     QdistancesList = []
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=450)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=500)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
             if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
-                dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD)
-                dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD)
-                distancesList.append([dX, dY])
-                QdistancesList.append(QPointF(dX, dY))
-                nbr_pairs += 1
-                nbr_points += 1
+                if measure[0][3] != 0:
+                    dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD)
+                    dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD)
+                    distancesList.append([dX, dY])
+                    QdistancesList.append(QPointF(dX, dY))
+                    nbr_pairs += 1
+                    nbr_points += 1
                 if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
                         #print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
                     rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
                     tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
                     if measure[0][0]:
-                            #print("Total points number: {}".format(nbr_points))
+                        print("Total points number: {}".format(nbr_points))
                         rawPoints.append(0)
+                        nbr_points = 0
                     checkEvent.set()
                     time.sleep(0.00001)
                     del distancesList[0:MIN_NEIGHBOORS]
                     del QdistancesList[0:MIN_NEIGHBOORS]
                     nbr_pairs = 0
-                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
-                        #print("Total points number: {}".format(nbr_points))
-                        #print("Length of actual list: {}\n".format(len(distancesList)))
+                elif measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
+                    print("Total points number: {}".format(nbr_points))
+                    print("Length of actual list: {}\n".format(len(distancesList)))
                     nbr_tours += 1
-                    if len(distancesList) > 2:
+                    if len(distancesList) >= 2:
                         rawPoints.append(distancesList[:])
                         tempPoints.append(QdistancesList[:])
                         rawPoints.append(0)

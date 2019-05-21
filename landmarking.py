@@ -1,7 +1,7 @@
 import numpy as np
 
 SEEN = 15
-LIFE = 25
+LIFE = 40
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
 TOLERANCE = 100
@@ -62,39 +62,39 @@ class Landmark():
         self.life = LIFE
 
     #  This test includes the cases where one landmark in reobserved superposing itself from a former scan
-'''    def distance_test(self, landmark):
-        theSame = False
-        if self.distance_origin_end(landmark) < TOLERANCE:
-            theSame = True
-        elif self.distance_end_origin(landmark) < TOLERANCE:
-            theSame = True
-        elif self.distance_origin_origin(landmark) < TOLERANCE:
-            theSame = True
-        elif self.distance_end_end(landmark) < TOLERANCE:
-            theSame = True
-        return theSame
-
-    def distance_origin_end(self, landmark):
-        distance = np.linalg.norm(self.pos - landmark.get_end())
-        return distance
-
+#    def distance_test(self, landmark):
+#        theSame = False
+#        if self.distance_origin_end(landmark) < TOLERANCE:
+#            theSame = True
+#        elif self.distance_end_origin(landmark) < TOLERANCE:
+#            theSame = True
+#        elif self.distance_origin_origin(landmark) < TOLERANCE:
+#            theSame = True
+#        elif self.distance_end_end(landmark) < TOLERANCE:
+#            theSame = True
+#        return theSame
+#
+#    def distance_origin_end(self, landmark):
+#        distance = np.linalg.norm(self.pos - landmark.get_end())
+#        return distance
+#
     def distance_origin_origin(self, landmark):
         distance = np.linalg.norm(self.pos - landmark.get_pos())
         return distance
-    
-    def distance_end_end(self, landmark):
-        distance = np.linalg.norm(self.end - landmark.get_end())
-        return distance
-    
-    def distance_end_origin(self, landmark):
-        distance = np.linalg.norm(self.end - landmark.get_pos())
-        return distance'''
+#    
+#    def distance_end_end(self, landmark):
+#        distance = np.linalg.norm(self.end - landmark.get_end())
+#        return distance
+#    
+#    def distance_end_origin(self, landmark):
+#        distance = np.linalg.norm(self.end - landmark.get_pos())
+#        return distance
 
     def is_equal(self, landmark):
         distA = abs(self.a - landmark.get_a())
         distB = abs(self.b - landmark.get_b())
-        distanceOriginEnd = self.distance_origin_end(landmark)
-        distanceEndOrigin = self.distance_end_origin(landmark)
+        #distanceOriginEnd = self.distance_origin_end(landmark)
+        #distanceEndOrigin = self.distance_end_origin(landmark)
         if distA <= TOLERANCE_A and distB <= TOLERANCE_B:
             if self.distance_origin_origin(landmark) < TOLERANCE:
             #if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
