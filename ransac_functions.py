@@ -119,7 +119,9 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    #landmarkFile = open('landmarks.txt', 'w+')
+    discover = False
+    if discover:
+        landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
     pointsToBeFitted = []
     allPoints = []
@@ -149,8 +151,9 @@ def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
             #if temp != 0:
             #    tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
-        #for lm in landmarkDB:
-            #landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
+        if discover:
+            for lm in landmarkDB:
+                landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
         print(landmarkDB)
         #landmarkFile.close()
         del pointsToBeFitted

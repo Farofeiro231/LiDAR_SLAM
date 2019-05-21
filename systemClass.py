@@ -31,7 +31,7 @@ class System():
 
     def config_ukf(self):
         self.ukf.x = self.robot.get_pos()
-        self.ukf.P = np.diag([.1, .1, 0.05])
+        self.ukf.P = np.diag([1., 1., 0.05])#([.1, .1, 0.05])
         self.ukf.R = np.diag([self.varDist, self.varAngle] * len(self.landmarks))
         self.ukf.Q = np.eye(3) * 0.001
 
