@@ -134,7 +134,6 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         u[1] = vRight
         print("Velocities: {}".format(u))
         sistema.ukf.predict(u=u)
-        print("Morre diabo")
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
         if predictCount >= 10:
