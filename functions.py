@@ -65,7 +65,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
                     tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
                     if measure[0][0]:
-                        print("Total points number: {}".format(nbr_points))
+                        #print("Total points number: {}".format(nbr_points))
                         rawPoints.append(0)
                         nbr_points = 0
                     checkEvent.set()
@@ -74,8 +74,8 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     del QdistancesList[0:MIN_NEIGHBOORS]
                     nbr_pairs = 0
                 elif measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
-                    print("Total points number: {}".format(nbr_points))
-                    print("Length of actual list: {}\n".format(len(distancesList)))
+                    #print("Total points number: {}".format(nbr_points))
+                    #print("Length of actual list: {}\n".format(len(distancesList)))
                     nbr_tours += 1
                     if len(distancesList) >= 2:
                         rawPoints.append(distancesList[:])

@@ -1,6 +1,6 @@
 import numpy as np
 
-SEEN = 15
+SEEN = 10
 LIFE = 40
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50

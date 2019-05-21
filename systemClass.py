@@ -80,6 +80,8 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             for each in sistema.landmarks:
                 equal = (tmpLmk.is_equal(each))
                 if equal:
+                    print("Landmark observada: {}".format(tmpLmk))
+                    print("Landmark da DB: {}".format(each))
                     tempDB.append(each)
                     tempZ.extend([d0, theta0])
         if tempZ != []:
@@ -89,7 +91,10 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             sistema.ukf.update(tempZ, landmarks=tempDB)
         else:
             print("No ladnmarks corresponding to the db ones!")
+        del tempZ[:]
+        del tempDB[:]
         predictEvent.set()
+
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
     try:
@@ -124,15 +129,15 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
             index = buff.index(b'\xa8')
             vLeft = int(buff[1:index], 10)
             vRight = int(buff[index + 1:len(buff) - 1], 10)
-            print("Valor de buff {}: {}".format(predictCount, buff))
+                #print("Valor de buff {}: {}".format(predictCount, buff))
             buff = b''
         else:
-            print("Wrong format received: {}".format(buff))
+            #print("Wrong format received: {}".format(buff))
             buff = b''
 
         u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
         u[1] = vRight
-        print("Velocities: {}".format(u))
+            #print("Velocities: {}".format(u))
         sistema.ukf.predict(u=u)
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process

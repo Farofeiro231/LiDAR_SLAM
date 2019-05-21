@@ -15,7 +15,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    discovering = True
+    discovering = False
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -44,7 +44,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                     if discovering:  # only needs to remove the landmark from database if it's in the discovery mode
                         if landmarks[i] in landmarkDB:
                             landmarkDB.remove(landmarks[i])
-                    print("Excluded landmark: {}".format(landmarks[i]))
+                    #print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
@@ -59,7 +59,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
         else:
             yBase = a * xBase + b  # np.array(data[inliers, 1])
             newLandmark = True
-                print("Added Landmark! Landmarks: {}".format(len(landmarks)))
+            #print("Added Landmark! Landmarks: {}".format(len(landmarks)))
     else:
         yBase = a * xBase + b  # np.array(data[inliers, 1])
         newLandmark = True
@@ -126,7 +126,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    discover = True
+    discover = False
     if discover:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
