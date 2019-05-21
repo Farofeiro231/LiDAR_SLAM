@@ -80,13 +80,15 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             for each in sistema.landmarks:
                 equal = (tmpLmk.is_equal(each))
                 if equal:
-                    print("Landmark observada: {}".format(tmpLmk))
-                    print("Landmark da DB: {}".format(each))
+                    #print("Landmark observada: {}".format(tmpLmk))
+                    #print("Landmark da DB: {}".format(each))
                     tempDB.append(each)
                     tempZ.extend([d0, theta0])
+            if len(tempDB) == len(sistema.landmarks):
+                break
         if tempZ != []:
             #  It is necessary to adapt the size of R for each number of seen landmarks
-            print("Dim tempZ, tempDB: {}, {}".format(len(tempZ), len(tempDB)))
+            #print("Dim tempZ, tempDB: {}, {}".format(len(tempZ), len(tempDB)))
             sistema.ukf.dim_z = 2*len(tempDB)
             sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
             sistema.ukf.update(tempZ, landmarks=tempDB)
@@ -121,7 +123,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
     updateThread.start()
     predictEvent.set()
 
-    while time.time() - start < 10:
+    while True:#time.time() - start < :
         predictEvent.wait()
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
@@ -142,7 +144,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         sistema.ukf.predict(u=u)
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount >= 10:
+        if predictCount >= 50:
             flagQueue.put(0)
             predictCount = 0
             predictEvent.clear()
