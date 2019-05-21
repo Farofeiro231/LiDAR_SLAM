@@ -85,6 +85,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                     tempDB.append(each)
                     tempZ.extend([d0, theta0])
         if tempZ != []:
+            #  It is necessary to adapt the size of R for each number of seen landmarks
             print("Dim tempZ, tempDB: {}, {}".format(len(tempZ), len(tempDB)))
             sistema.ukf.dim_z = 2*len(tempDB)
             sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
