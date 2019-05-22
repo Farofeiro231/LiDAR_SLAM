@@ -82,9 +82,9 @@ class Landmark():
         distance = np.linalg.norm(self.pos - landmark.get_pos())
         return distance
 #    
-#    def distance_end_end(self, landmark):
-#        distance = np.linalg.norm(self.end - landmark.get_end())
-#        return distance
+    def distance_end_end(self, landmark):
+        distance = np.linalg.norm(self.end - landmark.get_end())
+        return distance
 #    
 #    def distance_end_origin(self, landmark):
 #        distance = np.linalg.norm(self.end - landmark.get_pos())
@@ -104,6 +104,13 @@ class Landmark():
         else:
             return False
     
+    def ends_equal(self, landmark):
+        if self.distance_origin_origin(landmark) < TOLERANCE and self.distance_end_end(landmark) < TOLERANCE:
+            #if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
+                return True
+        else:
+                return False
+
 def landmarks_track(landmarks):
         for landmark in landmarks:
             if landmark.get_life == 0:
