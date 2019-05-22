@@ -15,7 +15,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    discovering = True
+    discovering = False
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -44,7 +44,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                     if discovering:  # only needs to remove the landmark from database if it's in the discovery mode
                         if landmarks[i] in landmarkDB:
                             landmarkDB.remove(landmarks[i])
-                    #print("Excluded landmark: {}".format(landmarks[i]))
+                            print("Excluded landmark: {}".format(landmarks[i]))
                     landmarks.remove(landmarks[i])
             i += 1
         if equal:  # Caso a landmark tenha sido reobservada, sua vida é recuperada
@@ -52,7 +52,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             if discovering:  #  if it's the first turn in the field, this flag allows the storage of reference landmarks for further usage
                 addToDB = landmarks[i - 1].observed()
                 if addToDB and landmarks[i-1] not in landmarkDB:
-                    print("Adicionada à DB\n\n\n\n\n\n\n\n\n")
+                    print("Adicionada à DB: {}".format(landmarks[i - 1].get_id()))
                     landmarkDB.append(landmarks[i - 1])
             yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
             newLandmark = False
@@ -76,6 +76,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
     #landmarks = list()
     landmarkNumber = 0
     newLandmark = True
+    excludedLmks = []
     while True:
         checkEvent.wait()
         #print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
@@ -126,7 +127,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    discovering = True
+    discovering = False
     if discovering:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
