@@ -30,13 +30,15 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     a = params[1][1]/params[1][0]  # Calculating the coefficients of the line ax + b
     b = params[0][1] - a * params[0][0]
     xBase = np.array(data[inliers, 0])
+    yBase = np.array(data[inliers, 1])
     tipX = xBase[-1]
-    tipY = tipX * a + b
+    tipY = yBase[-1]
+    #tipY = tipX * a + b
     fittedLine = Landmark(a, b, landmarkNumber, params[0][0], params[0][1], tipX, tipY)  # Creation of a landmark from the previously calculated coefs.
     #  If the landmark is the same as one previously seen, we use the latter to calculate y points.
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
-            equal = landmarks[i].is_equal(fittedLine)
+            equal = landmarks[i].ends_equal(fittedLine)
             #  If the landmark tested is not equal to the new one it means that it has not been seen again; decrease, then, its life. If its life reaches zero, the flag deleteLandmark becomes True and it is removed from the list
             if not equal:
                 deleteLandmark = landmarks[i].decrease_life()
@@ -54,14 +56,17 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 if addToDB and landmarks[i-1] not in landmarkDB:
                     print("Adicionada à DB: {}".format(landmarks[i - 1].get_id()))
                     landmarkDB.append(landmarks[i - 1])
-            yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#np.array(data[inliers, 1])
+            #yBase = landmarks[i - 1].get_a() * xBase + landmarks[i - 1].get_b()#
+            yBase = np.array(data[inliers, 1])
             newLandmark = False
         else:
+            yBase = np.array(data[inliers, 1])
             yBase = a * xBase + b  # np.array(data[inliers, 1])
             newLandmark = True
             #print("Added Landmark! Landmarks: {}".format(len(landmarks)))
     else:
-        yBase = a * xBase + b  # np.array(data[inliers, 1])
+        #yBase = a * xBase + b  #
+        yBase = np.array(data[inliers, 1])
         newLandmark = True
     qPointsList = [QPointF(xBase[i], yBase[i]) for i in range(xBase.shape[0])]
         #qPointsList.append(tempList) # Passo apenas os pontos em array para a lista final, ao invés de uma lista com um array de pointos

@@ -161,4 +161,5 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
             predictEvent.clear()
             print(sistema.ukf.x)
             print(sistema.ukf.P)
+            #print(sistema.ukf.K)
 
