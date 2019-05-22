@@ -36,7 +36,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     #  If the landmark is the same as one previously seen, we use the latter to calculate y points.
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
-            equal = landmarks[i].ends_equal(fittedLine)
+            equal = landmarks[i].is_equal(fittedLine)
             #  If the landmark tested is not equal to the new one it means that it has not been seen again; decrease, then, its life. If its life reaches zero, the flag deleteLandmark becomes True and it is removed from the list
             if not equal:
                 deleteLandmark = landmarks[i].decrease_life()

@@ -57,10 +57,12 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     lmkList = []
     tempDB = []
     tempZ = []
+    dependableLmks = []
     equal = False
     #tempPos = np.empty([1, 3])
     while True:
         lmkList = lmkQueue.get(True)
+        dependableLmks = sistema.landmarks.copy()
         print('{} landmarks recebidas.'.format(len(lmkList)))
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for lmk in lmkList:
@@ -73,7 +75,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             d1 = sqrt(x1**2 + y1**2)
             theta1 = atan2(y1, x1)
             
-            orig = np.array([x0, x0])
+            orig = np.array([x0, y0])
             end = np.array([x1, y1])
             rotM = np.array([[cos(thetaR), -sin(thetaR)], [sin(thetaR), cos(thetaR)]])
             orig = np.dot(rotM, orig)
@@ -84,18 +86,20 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             end += [xR, yR]
             #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
             tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
-            for each in sistema.landmarks:
+            for each in dependableLmks:
                 equal = (tmpLmk.ends_equal(each))
                 if equal:
+                    #print("Landmark: {}".format(tmpLmk))
                     #print("Landmark observada: {}".format(tmpLmk))
                     #print("Landmark da DB: {}".format(each))
                     tempDB.append(each)
                     tempZ.extend([d0, theta0])
-            if len(tempDB) == len(sistema.landmarks):
-                break
+                    dependableLmks.remove(each)
+            #if len(tempDB) == len(sistema.landmarks):
+            #    break
         if tempZ != []:
             #  It is necessary to adapt the size of R for each number of seen landmarks
-            #print("Dim tempZ, tempDB: {}, {}".format(len(tempZ), len(tempDB)))
+            print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
             sistema.ukf.dim_z = 2*len(tempDB)
             sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
             sistema.ukf.update(tempZ, landmarks=tempDB)
