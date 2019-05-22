@@ -5,7 +5,7 @@ from landmarking import *
 from functions import *
 from mainWindow import *
 
-THRESHOLD = 50  # maximum distance between a point and the line from the model for inlier classification
+THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 10
 MIN_SAMPLES = 2
 
@@ -15,7 +15,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    discovering = False
+    discovering = True
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -36,7 +36,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     #  If the landmark is the same as one previously seen, we use the latter to calculate y points.
     if len(landmarks) > 0:# and landmarks[-1].is_equal(fittedLine):
         while i < len(landmarks) and not equal:
-            equal = landmarks[i].is_equal(fittedLine)
+            equal = landmarks[i].ends_equal(fittedLine)
             #  If the landmark tested is not equal to the new one it means that it has not been seen again; decrease, then, its life. If its life reaches zero, the flag deleteLandmark becomes True and it is removed from the list
             if not equal:
                 deleteLandmark = landmarks[i].decrease_life()
@@ -126,7 +126,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    discovering = False
+    discovering = True
     if discovering:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []

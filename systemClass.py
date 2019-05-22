@@ -61,7 +61,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     #tempPos = np.empty([1, 3])
     while True:
         lmkList = lmkQueue.get(True)
-        print('recebido!')
+        print('{} landmarks recebidas.'.format(len(lmkList)))
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for lmk in lmkList:
             [x0, y0] = lmk.get_pos()
