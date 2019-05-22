@@ -59,45 +59,57 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     tempZ = []
     dependableLmks = []
     equal = False
+    i = 0
     #tempPos = np.empty([1, 3])
     while True:
         lmkList = lmkQueue.get(True)
         dependableLmks = sistema.landmarks.copy()
         print('{} landmarks recebidas.'.format(len(lmkList)))
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
-        for lmk in lmkList:
-            [x0, y0] = lmk.get_pos()
-            [x1, y1] = lmk.get_end()
-            [xR, yR, thetaR] = sistema.ukf.x
-            
-            d0 = sqrt(x0**2 + y0**2)
-            theta0 = atan2(y0, x0)
-            d1 = sqrt(x1**2 + y1**2)
-            theta1 = atan2(y1, x1)
-            
-            orig = np.array([x0, y0])
-            end = np.array([x1, y1])
-            rotM = np.array([[cos(thetaR), -sin(thetaR)], [sin(thetaR), cos(thetaR)]])
-            orig = np.dot(rotM, orig)
-            end = np.dot(rotM, end)
-            #orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
-            #end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
-            orig += [xR, yR]
-            end += [xR, yR]
-            #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
-            tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
-            for each in dependableLmks:
+        for each in dependableLmks:
+            x = False
+            distMin = 100000000000
+            i = 0
+            for lmk in lmkList:
+                [x0, y0] = lmk.get_pos()
+                [x1, y1] = lmk.get_end()
+                [xR, yR, thetaR] = sistema.ukf.x
+                
+                d0 = sqrt(x0**2 + y0**2)
+                theta0 = atan2(y0, x0)
+                d1 = sqrt(x1**2 + y1**2)
+                theta1 = atan2(y1, x1)
+                
+                orig = np.array([x0, y0])
+                end = np.array([x1, y1])
+                rotM = np.array([[cos(thetaR), -sin(thetaR)], [sin(thetaR), cos(thetaR)]])
+                orig = np.dot(rotM, orig)
+                end = np.dot(rotM, end)
+                #orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
+                #end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
+                orig += [xR, yR]
+                end += [xR, yR]
+                #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
+                tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
                 equal = (tmpLmk.ends_equal(each))
                 if equal:
+                    dist = tmpLmk.distance_origin_origin(each) + tmpLmk.distance_end_end(each)
+                    if dist < distMin:
+                        distMin = dist
+                        i = [d0, theta0]
                     #print("Landmark: {}".format(tmpLmk))
                     #print("Landmark observada: {}".format(tmpLmk))
                     #print("Landmark da DB: {}".format(each))
-                    tempDB.append(each)
-                    tempZ.extend([d0, theta0])
-                    dependableLmks.remove(each)
+                    if not x:
+                        tempDB.append(each)
+                        x = True
+                    #tempZ.extend([d0, theta0])
+                    #dependableLmks.remove(each)
             #if len(tempDB) == len(sistema.landmarks):
             #    break
-        if tempZ != []:
+            if x:
+                tempZ.extend(i)
+        if tempDB != []:
             #  It is necessary to adapt the size of R for each number of seen landmarks
             print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
             sistema.ukf.dim_z = 2*len(tempDB)
