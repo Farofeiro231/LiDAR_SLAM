@@ -15,7 +15,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    discovering = True
+    discovering = False
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -126,7 +126,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    discovering = True
+    discovering = False
     if discovering:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []

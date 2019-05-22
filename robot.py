@@ -3,7 +3,7 @@ import numpy as np
 class Robot():
     
     def __init__(self):
-        self.pos = np.array([0., 0., 0.])  # (x, y, theta)
+        self.pos = np.array([0., 0., np.pi/2.])  # (x, y, theta)
         self.dimX = self.pos.shape[0]
         self.name = "Main robot"
 
