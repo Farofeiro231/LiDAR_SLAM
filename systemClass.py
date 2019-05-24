@@ -10,11 +10,13 @@ import serial
 import time
 import re
 import sys
+import numpy as np
 
 LANDMARK_NUMBER = 1# got replaced by the size of self.landmarks
-VAR_DIST = 0.5**2
-VAR_ANGLE = 0.3**2
+VAR_DIST = 0.05**2
+VAR_ANGLE = 0.03**2
 DT = 0.005  # 5 ms
+ANGLE_TO_RAD = np.pi/180
 
 class System():
     
@@ -59,7 +61,8 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     tempZ = []
     dependableLmks = []
     equal = False
-    i = 0
+    winner = 0
+    match = False
     #tempPos = np.empty([1, 3])
     while True:
         lmkList = lmkQueue.get(True)
@@ -67,14 +70,16 @@ def lmk_check(lmkQueue, sistema, predictEvent):
         print('{} landmarks recebidas.'.format(len(lmkList)))
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for each in dependableLmks:
-            x = False
+            match = False
             distMin = 100000000000
-            i = 0
+            winner = 0
             for lmk in lmkList:
                 [x0, y0] = lmk.get_pos()
                 [x1, y1] = lmk.get_end()
                 [xR, yR, thetaR] = sistema.ukf.x
-                
+               
+                #thetaR = np.pi/2.
+
                 d0 = sqrt(x0**2 + y0**2)
                 theta0 = atan2(y0, x0)
                 d1 = sqrt(x1**2 + y1**2)
@@ -96,19 +101,19 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                     dist = tmpLmk.distance_origin_origin(each) + tmpLmk.distance_end_end(each)
                     if dist < distMin:
                         distMin = dist
-                        i = [d0, theta0]
+                        winner = [d0, theta0]
                     #print("Landmark: {}".format(tmpLmk))
                     #print("Landmark observada: {}".format(tmpLmk))
                     #print("Landmark da DB: {}".format(each))
-                    if not x:
+                    if not match:
                         tempDB.append(each)
-                        x = True
+                        match = True
                     #tempZ.extend([d0, theta0])
                     #dependableLmks.remove(each)
             #if len(tempDB) == len(sistema.landmarks):
             #    break
-            if x:
-                tempZ.extend(i)
+            if match:
+                tempZ.extend(winner)
         if tempDB != []:
             #  It is necessary to adapt the size of R for each number of seen landmarks
             print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
@@ -124,7 +129,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
     try:
-        ser = serial.Serial('/dev/ttyACM0', 115200)
+        ser = serial.Serial('/dev/ttyACM0', 1000000)
     except:
         print("Couldn't stabilish connection with arduino! Exiting...")
         sys.exit(0)
@@ -153,8 +158,11 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         
         if buff[0] == 0x40 and len(buff) < 20:  # verification for good flag in the beginning of the message
             index = buff.index(b'\xa8')
+            index_angle = buff.index(b'\xb9')
             vLeft = int(buff[1:index], 10)
-            vRight = int(buff[index + 1:len(buff) - 1], 10)
+            vRight = int(buff[index + 1:index_angle], 10)#len(buff) - 1], 10)
+            angle = float(buff[index_angle + 1:len(buff) - 1], 10)
+            angle = normalize_angle(angle * ANGLE_TO_RAD) 
                 #print("Valor de buff {}: {}".format(predictCount, buff))
             buff = b''
         else:
@@ -163,7 +171,8 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
 
         u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
         u[1] = vRight
-            #print("Velocities: {}".format(u))
+        sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
+        #print("Velocities: {}".format(u))
         sistema.ukf.predict(u=u)
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
