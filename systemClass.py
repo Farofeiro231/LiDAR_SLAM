@@ -71,7 +71,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for each in dependableLmks:
             match = False
-            distMin = 100000000000
+            distMin = 100000000000000000000000
             winner = 0
             for lmk in lmkList:
                 [x0, y0] = lmk.get_pos()
@@ -120,6 +120,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             sistema.ukf.dim_z = 2*len(tempDB)
             sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
             sistema.ukf.update(tempZ, landmarks=tempDB)
+            print("Nova posição:{}\n{}".format(sistema.ukf.x, sistema.ukf.P))
         else:
             print("No ladnmarks corresponding to the db ones!")
         del tempZ[:]
@@ -129,7 +130,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
     try:
-        ser = serial.Serial('/dev/ttyACM0', 1000000)
+        ser = serial.Serial('/dev/ttyACM0', 115200)
     except:
         print("Couldn't stabilish connection with arduino! Exiting...")
         sys.exit(0)
@@ -144,6 +145,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
     index = 0
     vLeft = 0
     vRight = 0
+    angle = 0
     u = np.zeros(2)   
     start = time.time()
 
@@ -156,12 +158,14 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
         
-        if buff[0] == 0x40 and len(buff) < 20:  # verification for good flag in the beginning of the message
+        if buff[0] == 0x40 and len(buff) < 100:  # verification for good flag in the beginning of the message
+            #print("Valor de buff:{}".format(buff))
             index = buff.index(b'\xa8')
             index_angle = buff.index(b'\xb9')
-            vLeft = int(buff[1:index], 10)
-            vRight = int(buff[index + 1:index_angle], 10)#len(buff) - 1], 10)
-            angle = float(buff[index_angle + 1:len(buff) - 1], 10)
+            index_end = buff.index(b'\x0c')
+            vLeft = float(buff[1:index])#, 10)
+            vRight = float(buff[index + 1:index_angle])#, 10)#len(buff) - 1], 10)
+            angle = float(buff[index_angle + 1:index_end])#, 10)
             angle = normalize_angle(angle * ANGLE_TO_RAD) 
                 #print("Valor de buff {}: {}".format(predictCount, buff))
             buff = b''
@@ -172,11 +176,13 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
         u[1] = vRight
         sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
-        #print("Velocities: {}".format(u))
-        sistema.ukf.predict(u=u)
+        #print("Velocities: {}, {}".format(u, angle))
+        #sistema.ukf.predict(u=u)
+        sistema.ukf.x[0] = vLeft
+        sistema.ukf.x[1] = vRight
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount >= 10:
+        if predictCount >= 100:
             flagQueue.put(0)
             predictCount = 0
             predictEvent.clear()
