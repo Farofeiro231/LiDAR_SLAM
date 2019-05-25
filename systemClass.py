@@ -36,6 +36,7 @@ class System():
         self.ukf.P = np.diag([1., 1., 0.05])#([.1, .1, 0.05])
         self.ukf.R = np.diag([self.varDist, self.varAngle] * len(self.landmarks))
         self.ukf.Q = np.eye(3) * 0.1
+        self.angle = 0.
 
     def simulate_system(self, u):
         self.ukf.predict(u)
@@ -77,7 +78,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 [x0, y0] = lmk.get_pos()
                 [x1, y1] = lmk.get_end()
                 [xR, yR, thetaR] = sistema.ukf.x
-               
+                thetaR = sistema.angle       
                 #thetaR = np.pi/2.
 
                 d0 = sqrt(x0**2 + y0**2)
@@ -120,7 +121,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             sistema.ukf.dim_z = 2*len(tempDB)
             sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
             sistema.ukf.update(tempZ, landmarks=tempDB)
-            print("Nova posição:{}\n{}".format(sistema.ukf.x, sistema.ukf.P))
+            print("-----------------Nova posição--------------------\n{}\n{}".format(sistema.ukf.x, sistema.ukf.P))
         else:
             print("No ladnmarks corresponding to the db ones!")
         del tempZ[:]
@@ -158,7 +159,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         while b'\x0c' not in buff:
             buff += ser.read(ser.inWaiting())
         
-        if buff[0] == 0x40 and len(buff) < 100:  # verification for good flag in the beginning of the message
+        if buff[0] == 0x40 and len(buff) < 200:  # verification for good flag in the beginning of the message
             #print("Valor de buff:{}".format(buff))
             index = buff.index(b'\xa8')
             index_angle = buff.index(b'\xb9')
@@ -168,21 +169,21 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
             angle = float(buff[index_angle + 1:index_end])#, 10)
             angle = normalize_angle(angle * ANGLE_TO_RAD) 
                 #print("Valor de buff {}: {}".format(predictCount, buff))
-            buff = b''
+            buff = buff[index_end + 1:]
         else:
             #print("Wrong format received: {}".format(buff))
             buff = b''
 
-        u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
-        u[1] = vRight
+        u[0] = vLeft/60  # Reception of the commands given to the motor (left_speed, right_speed)
+        u[1] = vRight/60
         #sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
-        x_temp = sistema.ukf.x
-        sistema.ukf.predict(u=u, angle=angle)
+        sistema.ukf.predict(u=u)
+        sistema.angle = angle
         #sistema.ukf.x[0] = vLeft
         #sistema.ukf.x[1] = vRight
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount >= 100:
+        if predictCount >= 10:
             print("Velocities: {}, {}".format(u, angle))
             flagQueue.put(0)
             predictCount = 0
