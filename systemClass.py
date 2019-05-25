@@ -13,8 +13,8 @@ import sys
 import numpy as np
 
 LANDMARK_NUMBER = 1# got replaced by the size of self.landmarks
-VAR_DIST = 0.05**2
-VAR_ANGLE = 0.03**2
+VAR_DIST = 0.005**2
+VAR_ANGLE = 0.003**2
 DT = 0.005  # 5 ms
 ANGLE_TO_RAD = np.pi/180
 
@@ -35,7 +35,7 @@ class System():
         self.ukf.x = self.robot.get_pos()
         self.ukf.P = np.diag([1., 1., 0.05])#([.1, .1, 0.05])
         self.ukf.R = np.diag([self.varDist, self.varAngle] * len(self.landmarks))
-        self.ukf.Q = np.eye(3) * 0.001
+        self.ukf.Q = np.eye(3) * 0.1
 
     def simulate_system(self, u):
         self.ukf.predict(u)
@@ -175,14 +175,15 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
 
         u[0] = vLeft  # Reception of the commands given to the motor (left_speed, right_speed)
         u[1] = vRight
-        sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
-        #print("Velocities: {}, {}".format(u, angle))
-        sistema.ukf.predict(u=u)
+        #sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
+        x_temp = sistema.ukf.x
+        sistema.ukf.predict(u=u, angle=angle)
         #sistema.ukf.x[0] = vLeft
         #sistema.ukf.x[1] = vRight
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
         if predictCount >= 100:
+            print("Velocities: {}, {}".format(u, angle))
             flagQueue.put(0)
             predictCount = 0
             predictEvent.clear()
