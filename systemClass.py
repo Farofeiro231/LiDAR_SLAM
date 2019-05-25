@@ -177,9 +177,9 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         u[1] = vRight
         sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
         #print("Velocities: {}, {}".format(u, angle))
-        #sistema.ukf.predict(u=u)
-        sistema.ukf.x[0] = vLeft
-        sistema.ukf.x[1] = vRight
+        sistema.ukf.predict(u=u)
+        #sistema.ukf.x[0] = vLeft
+        #sistema.ukf.x[1] = vRight
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
         if predictCount >= 100:
