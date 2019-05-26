@@ -5,9 +5,9 @@ from landmarking import *
 from functions import *
 from mainWindow import *
 
-THRESHOLD = 20  # maximum distance between a point and the line from the model for inlier classification
-MAX_TRIALS = 10
-MIN_SAMPLES = 2
+THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
+MAX_TRIALS = 100
+MIN_SAMPLES = 10
 
 #   Function to extract the line represented by the set of points for each subset of rangings. We create an x base array to be able to do << Boolean indexing >>.
 def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB):
@@ -73,6 +73,9 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
 
     #print("--------------------- Finished running RANSAC -----------------")
     return qPointsList, fittedLine, newLandmark  #yPredicted
+
+
+
 
 
 #  Check if the code has set the flag to do the RANSAC or to clear all of the points acquired because there are less of them then the MIN_NEIGHBOORS
