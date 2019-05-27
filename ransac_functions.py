@@ -88,6 +88,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
     excludedLmks = []
     while True:
         checkEvent.wait()
+        start = time.time()
         if pointsToBeFitted != []:
             if pointsToBeFitted[-1] == 0:  # Verifies if the last byte wasn't the plot flag -> 0
             #if inliersList != []:
@@ -97,10 +98,11 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 #tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 start = time.time()
                 tempList = lmk_extraction(pointsToBeFitted)
-                print("Time: {}".format(time.time()-start))
+                #print("Time: {}".format(time.time()-start))
+                
                 if tempList != []:
                     inliersList.append(tempList)
-                    print(np.concatenate(tempPoints.copy(), axis=0))
+                    #print(np.concatenate(tempPoints.copy(), axis=0))
                     #print(inliersList)
                     #print(tempPoints)
                     #if newLandmark:
@@ -112,10 +114,17 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                         #print("Passando a bola para plot\n\n\n")
                     #print("Tempo:{:.8f}".format(time.time()-a))
                     threadEvent.set()
-                checkEvent.clear()
-                del inliersList[:]
-                del pointsToBeFitted[:]
-                del tempPoints[:]
+                    checkEvent.clear()
+                    del inliersList[:]
+                    del pointsToBeFitted[:]
+                    del tempPoints[:]
+                else:
+                    print("No lmks found!")
+                    checkEvent.clear()
+                    del inliersList[:]
+                    del pointsToBeFitted[:]
+                    del tempPoints[:]
+                
             #else:  # If the list is empty
             #    del pointsToBeFitted[:]
             #    checkEvent.clear()
@@ -125,6 +134,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 del pointsToBeFitted[:]
                 del tempPoints[:]
                 checkEvent.clear()
+        print("Tempo no ransac_check: {}".format(time.time()-start))
             #    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             #    if tempList != []:
             #        inliersList.append(tempList)

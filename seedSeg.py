@@ -5,7 +5,7 @@ from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
 SNUM = 6
-PMIN = 20
+PMIN = 10
 P2L = 10
 P2P = 50
 

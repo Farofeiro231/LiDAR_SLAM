@@ -51,11 +51,12 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     distancesList = []
     QdistancesList = []
     start_time = time.time()
+    initial_time = time.time()
     iterator = range_finder.scan('express', max_buf_meas=False, speed=500)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
-            if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
+            if time.time() - initial_time > 1:  # Given the time for the Lidar to "heat up"
                 if measure[0][3] != 0:
                     if measure[0][0]:
                         flag = True
@@ -67,20 +68,6 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     #    arquivo.write("x,y:({} {})".format(dX, dY))
                     nbr_pairs += 1
                     nbr_points += 1
-                #if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
-                #        #print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
-                #    rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
-                #    tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
-                #    if measure[0][0]:
-                #        #print("Total points number: {}".format(nbr_pairs))
-                #        rawPoints.append(0)
-                #        nbr_points = 0
-                #        writeFlag = False
-                #    checkEvent.set()
-                #    time.sleep(0.00001)
-                #    del distancesList[0:MIN_NEIGHBOORS]
-                #    del QdistancesList[0:MIN_NEIGHBOORS]
-                #    nbr_pairs = 0
                 if flag and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
