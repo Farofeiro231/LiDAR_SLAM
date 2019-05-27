@@ -36,6 +36,10 @@ class Landmark():
     def get_pos(self):
         return self.pos
 
+    def get_orig(self):
+        return self.orig
+    
+
     def get_end(self):
         return self.end
 
@@ -82,7 +86,7 @@ class Landmark():
 #        return distance
 #
     def distance_origin_origin(self, landmark):
-        distance = np.linalg.norm(self.pos - landmark.get_pos())
+        distance = np.linalg.norm(self.orig - landmark.get_orig())
         return distance
 #    
     def distance_end_end(self, landmark):
@@ -114,6 +118,14 @@ class Landmark():
         else:
                 return False
 
+    def same(self, lmk):
+        if self.distance_origin_origin(lmk) < ORIG_THRESHOLD and self.distance_dirs(lmk) < DIR_THRESHOLD:
+            return True
+        else:
+            self.observed = False
+            return False
+
+
 def landmarks_track(landmarks):
     removed = [] 
     for landmark in landmarks:
@@ -122,6 +134,7 @@ def landmarks_track(landmarks):
         if landmark.get_life() <= 0:
             removed.append(landmark)
             landmarks.remove(landmark)
+    return removed
 
 
 def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, init):
@@ -142,8 +155,6 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, init):
             j = 0
             while j < len(landmarks) and not equal:
                 equal = lmk.same(landmarks[j])  # Here the observed flag is set to False
-                #if not equal: # Decrese landmark life and remove it from the database it its life has droped to zero
-                    #landmarks[j].decrease_life()
                 j += 1
             if equal:  # If the lmk is the same as one already in the list, increase the latter observed count
                 landmarks[j - 1].reset_life()
@@ -151,11 +162,10 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, init):
                     add2DB = landmarks[j-1].observed()
                     if add2DB and landmarks[j-1] not in landmarkDB:
                         landmarkDB.append(landmarks[j-1])
-        removed = landmarks_track(landmarks)
+        removed = landmarks_track(landmarks) #remove dead landmarks
         if firstRun:  # removes the removed landmarks also from the DB 
             for lmk in removed:
                 if lmk in landmarkDB:
                     landmarkDB.remove()
-
     else:
         landmarks.extend(temp) # places the landmarks in the list one by one, instead as a list of lmks
