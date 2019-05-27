@@ -4,8 +4,8 @@ import re
 from skimage.measure import LineModelND
 
 SNUM = 6
-PMIN = 10
-P2L = 10
+PMIN = 20
+P2L = 50
 P2P = 50
 
 
@@ -95,9 +95,11 @@ if __name__ == "__main__":
         else:
             i += 1
     
-    print(expandedSeeds)
+    print(expandedSeeds[0].T[0])
 
     plt.scatter(x, y)
+    for lmk in expandedSeeds:
+        plt.scatter(lmk.T[0], lmk.T[1])
     plt.show()
     fd.close()
 
