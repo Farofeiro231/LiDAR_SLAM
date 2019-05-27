@@ -57,7 +57,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
         for measure in iterator:
             #print("medindo...")
             if time.time() - initial_time > 1:  # Given the time for the Lidar to "heat up"
-                if measure[0][3] != 0 and measure[0][3] <= 2000:
+                if measure[0][3] != 0:
                     #if measure[0][0]:
                     #    flag = True
                     dX = measure[0][3] * np.cos(measure[0][2] * ANGLE_TO_RAD + PI/2.)

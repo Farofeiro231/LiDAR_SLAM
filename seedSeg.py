@@ -5,9 +5,9 @@ from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
 SNUM = 6
-PMIN = 10
-P2L = 20
-P2P = 50
+PMIN = 15
+P2L = 10
+#P2P = 50
 
 
 
@@ -118,9 +118,10 @@ def lmk_extraction(pointsToBeFitted):
                 lines.append(tempLine)
                 expandedSeeds.append(tempSeed) # adds the germinated seed to the lmk base
         else:
-            i += SNUM 
+            i += 1 
 
     if expandedSeeds != []: 
+        print(lines)
         temp = np.concatenate(expandedSeeds, axis=0)
         temp = temp.T
         xSeeds = temp[0] # Gets all x coordinates for the detected lmks
