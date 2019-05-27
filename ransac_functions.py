@@ -83,6 +83,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
 def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
+    lmks = []
     landmarkNumber = 0
     newLandmark = True
     excludedLmks = []
@@ -97,9 +98,9 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 del pointsToBeFitted[-1]
                 #tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 start = time.time()
-                tempList = lmk_extraction(pointsToBeFitted)
+                tempList, lmks = lmk_extraction(pointsToBeFitted)
                 #print("Time: {}".format(time.time()-start))
-                
+                print(lmks)
                 if tempList != []:
                     inliersList.append(tempList)
                     #print(np.concatenate(tempPoints.copy(), axis=0))

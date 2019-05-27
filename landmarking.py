@@ -10,19 +10,17 @@ TOLERANCE = 200
 class Landmark():
     spec = "line"
 
-    def __init__(self, a, b, ID, x, y, tipX, tipY):
-        self.a = a
-        self.b = b
+    def __init__(self, lm, ID):
+        self.orig = lm[0]
+        self.dir = lm[1]
         self.id = ID
         self.life = LIFE
-        self.pos = np.array([x, y])
-        self.end = np.array([tipX, tipY])
         self.timesObserved = 0
 
     def __str__(self):
         text = "Landmark ID: {}\n".format(self.id)
-        text += "(x, y): ({}, {})\n".format(self.pos[0], self.pos[1]) \
-                + "equation: {} * x + {}\n".format(self.a, self.b)
+        text += "(x, y): ({}, {})\n".format(self.orig[0], self.orig[1]) \
+                + "direction: {}, {}\n".format(self.dir[0], self.dir[1])
         return text
 
     def get_id(self):

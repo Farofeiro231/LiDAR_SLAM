@@ -6,7 +6,7 @@ from PyQt5.QtCore import QPointF
 
 SNUM = 6
 PMIN = 20
-P2L = 10
+P2L = 20
 #P2P = 50
 
 
@@ -123,17 +123,15 @@ def lmk_extraction(pointsToBeFitted):
             i += 1 
 
     if expandedSeeds != []: 
-        for each in lines:
-            print(each)
-        print("OK")
+        #print("OK")
         temp = np.concatenate(expandedSeeds, axis=0)
         temp = temp.T
         xSeeds = temp[0] # Gets all x coordinates for the detected lmks
         ySeeds = temp[1] # Gets all y coordinates for the detected lmks
         qPointsList = [QPointF(xSeeds[i], ySeeds[i]) for i in range(xSeeds.shape[0])]
-        return qPointsList
+        return qPointsList, lines
     else:
-        return []
+        return [], []
     
     #print(expandedSeeds[0].T[0])
 
