@@ -5,7 +5,7 @@ from skimage.measure import LineModelND
 
 SNUM = 6
 PMIN = 10
-P2L = 1
+P2L = 10
 P2P = 50
 
 
@@ -24,7 +24,7 @@ plt.show()
 
 
 # Here the seeds are expanded to form the landmarks. i is the point the seed begins.
-seed_expansion(lm, x, y, seed, N, i):
+def seed_expansion(lm, x, y, seed, N, i):
     outlier = False
     j = i + 7  # gets the next point, because the last seed's point is i + 6
     k = i - 1
@@ -45,12 +45,12 @@ seed_expansion(lm, x, y, seed, N, i):
             lm.estimate(seed)
             k -= 1
         else:
-            outlier = False
+            outlier = True
     k= k + 1
     if len(seed) > PMIN:  # Only returns the line and the seed if the final line has a minimum point number greater than PMIN previously set
-        return lm, seed, j
+        return lm, seed, j, k
     else:
-        return 0, 0, j
+        return 0, 0, j, k
 
 
 
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     x = []
     y = []
     i = 0
+    k = 0
     flag = True
     success = False
     lines = []
@@ -68,25 +69,33 @@ if __name__ == "__main__":
     
     temp = re.findall("x,y:\(([+-]?\d+\.\d*) ([+-]?\d+\.\d*)\)", fd.read())
     for item in temp:
-        x.append(item[0])
-        y.append(item[1])
-   
+        x.append(float(item[0]))
+        y.append(float(item[1]))
+  
     N = len(x)
-    lm = LineModelND
+    print(x[30:37])
+    lm = LineModelND()
 
     while i < N - SNUM:
-        seed = np.array([x[i:i+6],y[i:i+6]]).T
+        print("Valor de i: {}".format(i))
+        flag = True
+        seed = np.array([x[i:i+SNUM], y[i:i+SNUM]]).T
+        print(seed)
         success = lm.estimate(seed)
         if success:
             distancesPoint2Line = lm.residuals(seed)
             if not all(dist <= P2L for dist in distancesPoint2Line):
                 flag = False
-                break
+        if flag:  # It means that the seed is valid
+            tempLine, tempSeed, i, k = seed_expansion(lm, x, y, seed, N, i)
+            if tempLine != 0:
+                print("Inf lim., Sup lim.: [{}, {}]".format(k, i))
+                lines.append(tempLine)
+                expandedSeeds.append(tempSeed)
         else:
             i += 1
-        if flag:  # It means that the seed is valid
-           [tempLine, tempSeed, i] = seed_expansion(lm, x, y, seed, N, i)
-
+    
+    print(expandedSeeds)
 
     plt.scatter(x, y)
     plt.show()
