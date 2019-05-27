@@ -5,6 +5,8 @@ LIFE = 40
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
 TOLERANCE = 200
+ORIG_THRESHOLD = 20
+DIR_THRESHOLD = 0.1
 
 
 class Landmark():
@@ -89,8 +91,8 @@ class Landmark():
         distance = np.linalg.norm(self.orig - landmark.get_orig())
         return distance
 #    
-    def distance_end_end(self, landmark):
-        distance = np.linalg.norm(self.end - landmark.get_end())
+    def distance_dir_dir(self, landmark):
+        distance = np.linalg.norm(self.dir - landmark.get_dir())
         return distance
 #    
 #    def distance_end_origin(self, landmark):
@@ -112,7 +114,7 @@ class Landmark():
             return False
     
     def ends_equal(self, landmark):
-        if self.distance_origin_origin(landmark) < TOLERANCE and self.distance_end_end(landmark) < TOLERANCE:
+        if self.distance_origin_origin(landmark) < TOLERANCE and self.distance_dir_dir(landmark) < TOLERANCE:
             #if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
                 return True
         else:
@@ -122,8 +124,11 @@ class Landmark():
         if self.distance_origin_origin(lmk) < ORIG_THRESHOLD and self.distance_dirs(lmk) < DIR_THRESHOLD:
             return True
         else:
-            self.observed = False
             return False
+
+def renew_lmks(landmarks):
+    for lmk in landmarks:
+        lmk.observed = False
 
 
 def landmarks_track(landmarks):
@@ -137,7 +142,7 @@ def landmarks_track(landmarks):
     return removed
 
 
-def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, init):
+def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
     tempLmks = []
     ID = landmarkNumber
     copyList = landmarks.copy()
@@ -145,12 +150,12 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, init):
     i = 0
     j = 0
     equal = False
-    firstRun = init
     for lmk in lmks:
         temp = Landmark(lmk, ID)
         tempLmks.append(temp)
         ID += 1
     if len(landmarks) > 0:
+        renew_lmks(landmarks)
         for lmk in tempLmks:
             j = 0
             while j < len(landmarks) and not equal:
@@ -162,6 +167,8 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, init):
                     add2DB = landmarks[j-1].observed()
                     if add2DB and landmarks[j-1] not in landmarkDB:
                         landmarkDB.append(landmarks[j-1])
+            else: # if it is a new landmark, add it to the list
+                landmarks.append(lmk)
         removed = landmarks_track(landmarks) #remove dead landmarks
         if firstRun:  # removes the removed landmarks also from the DB 
             for lmk in removed:
