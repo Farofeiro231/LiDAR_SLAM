@@ -69,9 +69,9 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     nbr_pairs += 1
                     nbr_points += 1
                 if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
-                    print("Total points number: {}".format(nbr_points))
+                    #print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
-                    print("Tempo de um scan: {}".format(time.time()-start_time))
+                    #print("Tempo de um scan: {}".format(time.time()-start_time))
                     start_time = time.time()
                     nbr_tours += 1
                     if len(distancesList) >= 2:

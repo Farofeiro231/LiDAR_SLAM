@@ -123,7 +123,7 @@ class Window(QMainWindow):
             #self.chart.createDefaultAxes()
         end = time.time()
         self.event.clear()
-        print("Saindo do plot")
+        #print("Saindo do plot")
         #print("Fetch time: {:.7f}".format(fetch_time))
         #print("Elapsed time:{:.7f}".format(end-start))
 

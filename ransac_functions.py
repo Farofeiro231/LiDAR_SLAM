@@ -134,7 +134,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 del pointsToBeFitted[:]
                 del tempPoints[:]
                 checkEvent.clear()
-        print("Tempo no ransac_check: {}".format(time.time()-start))
+        #print("Tempo no ransac_check: {}".format(time.time()-start))
             #    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             #    if tempList != []:
             #        inliersList.append(tempList)
