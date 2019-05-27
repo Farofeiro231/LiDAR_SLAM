@@ -4,6 +4,8 @@ import multiprocessing as mp
 from landmarking import *
 from functions import *
 from mainWindow import *
+from seedSeg import *
+
 
 THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 100
@@ -96,13 +98,14 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 del pointsToBeFitted[-1] 
                 
                 
-                tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
+                #tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
+                tempList = lmk_extraction(pointsToBeFitted)
                 if tempList != []:
                     inliersList.append(tempList)
-                    if newLandmark:
-                        landmarks.append(extractedLandmark)
+                    #if newLandmark:
+                    #    landmarks.append(extractedLandmark)
                         #print("Landmarks extraidas: {}".format(len(landmarks)))
-                    landmarkNumber += 1
+                    #landmarkNumber += 1
                     pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
                     allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
                     #a = time.time()
@@ -117,14 +120,18 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
             #    del pointsToBeFitted[:]
             #    checkEvent.clear()
             else:  #if there is no flag indicating a new rotating
-                tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
-                if tempList != []:
-                    inliersList.append(tempList)
-                    if newLandmark:
-                        landmarks.append(extractedLandmark)
-                            #print("Landmarks extraidas: {}".format(len(landmarks)))
-                        landmarkNumber += 1                
-                checkEvent.clear()
+                print("Wrong format") 
+                del inliersList[:]
+                del pointsToBeFitted[:]
+                del tempPoints[:]
+            #    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
+            #    if tempList != []:
+            #        inliersList.append(tempList)
+            #        if newLandmark:
+            #            landmarks.append(extractedLandmark)
+            #                #print("Landmarks extraidas: {}".format(len(landmarks)))
+            #            landmarkNumber += 1                
+            #    checkEvent.clear()
 
 
 def send_lmks(flagQueue, lmkQueue, lmks):

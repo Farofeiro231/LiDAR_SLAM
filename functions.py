@@ -82,7 +82,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     #print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
                     nbr_tours += 1
-                    if len(distancesList) >= 2:
+                    if len(distancesList) >= 100:
                         rawPoints.append(distancesList[:])
                         tempPoints.append(QdistancesList[:])
                         rawPoints.append(0)

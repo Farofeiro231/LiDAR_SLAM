@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import re
 from skimage.measure import LineModelND
+from PyQt5.QtCore import QPointF
 
 SNUM = 6
 PMIN = 20
@@ -54,31 +55,45 @@ def seed_expansion(lm, x, y, seed, N, i):
 
 
 
-if __name__ == "__main__":
-    fd = open("data_test.txt", "r")
-    x = []
-    y = []
+#if __name__ == "__main__":
+#    fd = open("data_test.txt", "r")
+#    x = []
+#    y = []
+#    i = 0
+#    k = 0
+#    flag = True
+#    success = False
+#    lines = []
+#    expandedSeeds = []
+#    tempLine = 0
+#    tempSeed = 0
+#    
+#    temp = re.findall("x,y:\(([+-]?\d+\.\d*) ([+-]?\d+\.\d*)\)", fd.read())
+#    for item in temp:
+#        x.append(float(item[0]))
+#        y.append(float(item[1]))
+#  
+#    N = len(x)
+#    lm = LineModelND()
+
+def lmk_extraction(pointsToBeFitted): 
     i = 0
     k = 0
     flag = True
     success = False
     lines = []
     expandedSeeds = []
+    qPointsList = []
     tempLine = 0
     tempSeed = 0
-    
-    temp = re.findall("x,y:\(([+-]?\d+\.\d*) ([+-]?\d+\.\d*)\)", fd.read())
-    for item in temp:
-        x.append(float(item[0]))
-        y.append(float(item[1]))
-  
-    N = len(x)
-    print(x[30:37])
-    lm = LineModelND()
+    xSeeds = []
+    ySeeds = []
 
-def lmk_extraction(pointsToBeFitted):
     x = pointsToBeFitted[0][:][0]
     y = pointsToBeFitted[0][:][1]
+    N = len(x)
+    print(N)
+    lm = LineModelND()
 
     while i < N - SNUM:
         print("Valor de i: {}".format(i))
@@ -95,16 +110,23 @@ def lmk_extraction(pointsToBeFitted):
             if tempLine != 0:
                 print("Inf lim., Sup lim.: [{}, {}]".format(k, i))
                 lines.append(tempLine)
-                expandedSeeds.append(tempSeed)
+                expandedSeeds.append(tempSeed) # adds the germinated seed to the lmk base
         else:
             i += 1
     
-    print(expandedSeeds[0].T[0])
+    temp = np.concatenate(expandedSeeds, axis=0)
+    temp = temp.T
+    xSeeds = temp[0] # Gets all x coordinates for the detected lmks
+    ySeeds = temp[1] # Gets all y coordinates for the detected lmks
+    qPointsList = [QPointF(xSeeds[i], ySeeds[i]) for i in range(xSeeds.shape[0])]
+    return qPointsList 
+    
+    #print(expandedSeeds[0].T[0])
 
-    plt.scatter(x, y)
-    for lmk in expandedSeeds:
-        plt.scatter(lmk.T[0], lmk.T[1])
-    plt.show()
-    fd.close()
+    #plt.scatter(x, y)
+    #for lmk in expandedSeeds:
+    #    plt.scatter(lmk.T[0], lmk.T[1])
+    #plt.show()
+    #fd.close()
 
 
