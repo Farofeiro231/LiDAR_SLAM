@@ -6,7 +6,7 @@ from PyQt5.QtCore import QPointF
 
 SNUM = 6
 PMIN = 10
-P2L = 10
+P2L = 20
 P2P = 50
 
 
@@ -118,7 +118,7 @@ def lmk_extraction(pointsToBeFitted):
                 lines.append(tempLine)
                 expandedSeeds.append(tempSeed) # adds the germinated seed to the lmk base
         else:
-            i += 1
+            i += SNUM 
 
     if expandedSeeds != []: 
         temp = np.concatenate(expandedSeeds, axis=0)

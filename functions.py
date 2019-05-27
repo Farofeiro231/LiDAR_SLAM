@@ -57,9 +57,9 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
         for measure in iterator:
             #print("medindo...")
             if time.time() - initial_time > 1:  # Given the time for the Lidar to "heat up"
-                if measure[0][3] != 0:
-                    if measure[0][0]:
-                        flag = True
+                if measure[0][3] != 0 and measure[0][3] <= 2000:
+                    #if measure[0][0]:
+                    #    flag = True
                     dX = measure[0][3] * np.cos(measure[0][2] * ANGLE_TO_RAD + PI/2.)
                     dY = measure[0][3] * np.sin(measure[0][2] * ANGLE_TO_RAD + PI/2.)
                     distancesList.append([dX, dY])
@@ -68,7 +68,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                     #    arquivo.write("x,y:({} {})".format(dX, dY))
                     nbr_pairs += 1
                     nbr_points += 1
-                if flag and not threadEvent.is_set() and not checkEvent.is_set():
+                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
                     print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
                     print("Tempo de um scan: {}".format(time.time()-start_time))
