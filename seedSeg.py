@@ -76,6 +76,10 @@ if __name__ == "__main__":
     print(x[30:37])
     lm = LineModelND()
 
+def lmk_extraction(pointsToBeFitted):
+    x = pointsToBeFitted[0][:][0]
+    y = pointsToBeFitted[0][:][1]
+
     while i < N - SNUM:
         print("Valor de i: {}".format(i))
         flag = True

@@ -64,27 +64,27 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                         arquivo.write("x,y:({} {})".format(dX, dY))
                     nbr_pairs += 1
                     nbr_points += 1
-                if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
-                        #print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
-                    rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
-                    tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
-                    if measure[0][0]:
-                        #print("Total points number: {}".format(nbr_pairs))
-                        rawPoints.append(0)
-                        nbr_points = 0
-                        writeFlag = False
-                    checkEvent.set()
-                    time.sleep(0.00001)
-                    del distancesList[0:MIN_NEIGHBOORS]
-                    del QdistancesList[0:MIN_NEIGHBOORS]
-                    nbr_pairs = 0
-                elif measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
+                #if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
+                #        #print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
+                #    rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
+                #    tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
+                #    if measure[0][0]:
+                #        #print("Total points number: {}".format(nbr_pairs))
+                #        rawPoints.append(0)
+                #        nbr_points = 0
+                #        writeFlag = False
+                #    checkEvent.set()
+                #    time.sleep(0.00001)
+                #    del distancesList[0:MIN_NEIGHBOORS]
+                #    del QdistancesList[0:MIN_NEIGHBOORS]
+                #    nbr_pairs = 0
+                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
                     #print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
                     nbr_tours += 1
                     if len(distancesList) >= 2:
-                        rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
-                        tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
+                        rawPoints.append(distancesList[:])
+                        tempPoints.append(QdistancesList[:])
                         rawPoints.append(0)
                         writeFlag = False
                         checkEvent.set()

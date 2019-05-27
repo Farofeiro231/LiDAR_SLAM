@@ -90,30 +90,32 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
         #print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
         if pointsToBeFitted != []:
             if pointsToBeFitted[-1] == 0:  # Verifies if the last byte wasn't the plot flag -> 0
-                if inliersList != []:
-         #          print("Entrei")
-         #          print(pointsToBeFitted)
-                    del pointsToBeFitted[-1] 
-                    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
-                    if tempList != []:
-                        inliersList.append(tempList)
-                        if newLandmark:
-                            landmarks.append(extractedLandmark)
-                            #print("Landmarks extraidas: {}".format(len(landmarks)))
-                        landmarkNumber += 1
-                        pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
-                        allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
-                        #a = time.time()
-                            #print("Passando a bola para plot\n\n\n")
-                        #print("Tempo:{:.8f}".format(time.time()-a))
-                        threadEvent.set()
-                    checkEvent.clear()
-                    del inliersList[:]
-                    del pointsToBeFitted[:]
-                    del tempPoints[:]
-                else:  # If the list is empty
-                    del pointsToBeFitted[:]
-                    checkEvent.clear()
+            #if inliersList != []:
+     #          print("Entrei")
+     #          print(pointsToBeFitted)
+                del pointsToBeFitted[-1] 
+                
+                
+                tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
+                if tempList != []:
+                    inliersList.append(tempList)
+                    if newLandmark:
+                        landmarks.append(extractedLandmark)
+                        #print("Landmarks extraidas: {}".format(len(landmarks)))
+                    landmarkNumber += 1
+                    pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
+                    allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
+                    #a = time.time()
+                        #print("Passando a bola para plot\n\n\n")
+                    #print("Tempo:{:.8f}".format(time.time()-a))
+                    threadEvent.set()
+                checkEvent.clear()
+                del inliersList[:]
+                del pointsToBeFitted[:]
+                del tempPoints[:]
+            #else:  # If the list is empty
+            #    del pointsToBeFitted[:]
+            #    checkEvent.clear()
             else:  #if there is no flag indicating a new rotating
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 if tempList != []:
