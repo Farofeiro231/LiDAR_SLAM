@@ -78,13 +78,15 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                 #    del distancesList[0:MIN_NEIGHBOORS]
                 #    del QdistancesList[0:MIN_NEIGHBOORS]
                 #    nbr_pairs = 0
-                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
+                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():                    
                     #print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
+                    #print("Tempo de um scan: {}".format(time.time()-start_time))
+                    start_time = time.time()
                     nbr_tours += 1
-                    if len(distancesList) >= 100:
-                        rawPoints.append(distancesList[:])
-                        tempPoints.append(QdistancesList[:])
+                    if len(distancesList) >= 20:
+                        rawPoints.append(distancesList) # it contains a list of points inside a list. the first element is a list
+                        tempPoints.append(QdistancesList)
                         rawPoints.append(0)
                         writeFlag = False
                         checkEvent.set()

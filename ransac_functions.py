@@ -6,7 +6,6 @@ from functions import *
 from mainWindow import *
 from seedSeg import *
 
-
 THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 100
 MIN_SAMPLES = 10
@@ -96,10 +95,10 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
      #          print("Entrei")
      #          print(pointsToBeFitted)
                 del pointsToBeFitted[-1] 
-                
-                
                 #tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
+                start = time.time()
                 tempList = lmk_extraction(pointsToBeFitted)
+                print("Time: {}".format(time.time()-start))
                 if tempList != []:
                     inliersList.append(tempList)
                     #if newLandmark:
@@ -108,7 +107,6 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     #landmarkNumber += 1
                     pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
                     allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
-                    #a = time.time()
                         #print("Passando a bola para plot\n\n\n")
                     #print("Tempo:{:.8f}".format(time.time()-a))
                     threadEvent.set()
