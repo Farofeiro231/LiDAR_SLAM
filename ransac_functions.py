@@ -115,7 +115,9 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     del pointsToBeFitted[:]
                     checkEvent.clear()
             else:  #if there is no flag indicating a new rotating
+                a = time.time()
                 tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
+                print("Tempo:{}".format(time.time() - a))
                 if tempList != []:
                     inliersList.append(tempList)
                     if newLandmark:
