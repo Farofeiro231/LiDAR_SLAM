@@ -88,19 +88,21 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
     excludedLmks = []
     while True:
         checkEvent.wait()
-        #print("Estou na ransac check tread....landmarkDB: {}".format(landmarkDB))
         if pointsToBeFitted != []:
             if pointsToBeFitted[-1] == 0:  # Verifies if the last byte wasn't the plot flag -> 0
             #if inliersList != []:
      #          print("Entrei")
      #          print(pointsToBeFitted)
-                del pointsToBeFitted[-1] 
+                del pointsToBeFitted[-1]
                 #tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
                 start = time.time()
                 tempList = lmk_extraction(pointsToBeFitted)
                 print("Time: {}".format(time.time()-start))
                 if tempList != []:
                     inliersList.append(tempList)
+                    print(np.concatenate(tempPoints.copy(), axis=0))
+                    #print(inliersList)
+                    #print(tempPoints)
                     #if newLandmark:
                     #    landmarks.append(extractedLandmark)
                         #print("Landmarks extraidas: {}".format(len(landmarks)))
@@ -122,6 +124,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 del inliersList[:]
                 del pointsToBeFitted[:]
                 del tempPoints[:]
+                checkEvent.clear()
             #    tempList, extractedLandmark, newLandmark = landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
             #    if tempList != []:
             #        inliersList.append(tempList)

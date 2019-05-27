@@ -108,6 +108,7 @@ class Window(QMainWindow):
         #a = []
         #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
         if self.count == 0 and self.lmrkPoints != []:
+            print(self.lmrkPoints[0][:])
             self.series.append(self.lmrkPoints[0][:])
             self.allSeries.append(self.allPoints[0][:])
             del self.lmrkPoints[:]
