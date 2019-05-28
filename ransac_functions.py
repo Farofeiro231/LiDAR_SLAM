@@ -158,18 +158,11 @@ def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
         scan.join()
         qt_plotting.join()
         comm2proc.join()
-    #try:
-        #while True:
-            #time.sleep(0.000001)  # 0.00001 or 0.000001 are optimal values
-            #temp = rawPoints.get(True)
-            #pointsToBeFitted.append(temp)
-            #if temp != 0:
-            #    tempPoints.append([QPointF(point[0], point[1]) for point in temp])
     except KeyboardInterrupt:
         if firstRun:
             for lm in landmarkDB:
                 print(lm)
-                #landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
+                landmarkFile.write("x0:{},y0:{},x1:{},y1:{},ID:{}\n".format(lm.get_orig()[0], lm.get_orig()[0], lm.get_dir()[0], lm.get_dir()[1], lm.get_id()))
         print(landmarkDB)
         #landmarkFile.close()
         del pointsToBeFitted

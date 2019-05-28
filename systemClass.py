@@ -44,7 +44,7 @@ class System():
 
 def create_lmks_database(lmFD):
     lmParams = re.findall(r"\w+:([\+\-]?\d+.\d*)[\n,]", lmFD.read())
-    lmksNbr = int(len(lmParams)/6) # Needs to be int for usage in the range method
+    lmksNbr = int(len(lmParams)/5) # Needs to be int for usage in the range method
     params = [float(x) for x in lmParams]  # The original list contains strings
     lmksDB = []
     for i in range(lmksNbr):  # the i is going to number the landmark
@@ -73,33 +73,33 @@ def lmk_check(lmkQueue, sistema, predictEvent):
         for each in dependableLmks:
             match = False
             distMin = 100000000000000000000000
-            winner = 0
+            winner = []
             for lmk in lmkList:
-                [x0, y0] = lmk.get_pos()
-                [x1, y1] = lmk.get_end()
+                #[x0, y0]
+                orig = lmk.get_orig()
+                direction = lmk.get_dir()
                 [xR, yR, thetaR] = sistema.ukf.x
                 thetaR = sistema.angle       
                 #thetaR = np.pi/2.
 
-                d0 = sqrt(x0**2 + y0**2)
-                theta0 = atan2(y0, x0)
-                d1 = sqrt(x1**2 + y1**2)
-                theta1 = atan2(y1, x1)
+                d0 = sqrt(orig[0]**2 + orig[1]**2)
+                theta0 = atan2(orig[1], orig[0])
+                #d1 = sqrt(x1**2 + y1**2)
+                #theta1 = atan2(y1, x1)
                 
-                orig = np.array([x0, y0])
-                end = np.array([x1, y1])
                 rotM = np.array([[cos(thetaR), -sin(thetaR)], [sin(thetaR), cos(thetaR)]])
                 orig = np.dot(rotM, orig)
-                end = np.dot(rotM, end)
+                direction = np.dot(rotM, direction)
+                #end = np.dot(rotM, end)
                 #orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
                 #end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
-                orig += [xR, yR]
-                end += [xR, yR]
+                orig += np.array([xR, yR])
+                #end += [xR, yR]
                 #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
-                tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
-                equal = (tmpLmk.ends_equal(each))
+                #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
+                equal = each.same_decomposed(orig, direction)
                 if equal:
-                    dist = tmpLmk.distance_origin_origin(each) + tmpLmk.distance_end_end(each)
+                    dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
                     if dist < distMin:
                         distMin = dist
                         winner = [d0, theta0]
@@ -179,8 +179,6 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         #sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
         sistema.ukf.predict(u=u)
         sistema.angle = angle
-        #sistema.ukf.x[0] = vLeft
-        #sistema.ukf.x[1] = vRight
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
         if predictCount >= 10:

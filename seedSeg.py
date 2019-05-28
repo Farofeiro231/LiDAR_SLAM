@@ -5,7 +5,7 @@ from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
 SNUM = 6
-PMIN = 10
+PMIN = 20
 P2L = 20
 LMIN = 200
 #P2P = 50
@@ -77,6 +77,8 @@ def seed_expansion(lm, x, y, seed, N, i):
 #  
 #    N = len(x)
 #    lm = LineModelND()
+
+
 
 def lmk_extraction(pointsToBeFitted): 
     #print(pointsToBeFitted[0][:])

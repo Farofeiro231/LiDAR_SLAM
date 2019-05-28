@@ -12,9 +12,9 @@ DIR_THRESHOLD = 0.1
 class Landmark():
     spec = "line"
 
-    def __init__(self, lm, ID):
-        self.orig = lm[0]
-        self.dir = lm[1]
+    def __init__(self, lm_orig, lm_dir, ID):
+        self.orig = lm_orig
+        self.dir = lm_dir
         self.id = ID
         self.life = LIFE
         self.timesObserved = 0
@@ -132,6 +132,15 @@ class Landmark():
         else:
             return False
 
+    def same_decomposed(self, orig, direction):
+        distOrig = np.linalg.norm(self.get_orig() - orig)
+        distDir  = np.linalg.norm(self.get_dir() - direction)
+        if distOrig <= ORIG_THRESHOLD and distDir <= DIR_THRESHOLD:
+            return True
+        else:
+            return False
+
+
 def renew_lmks(landmarks):
     for lmk in landmarks:
         lmk.observed = False
@@ -157,7 +166,7 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
     j = 0
     equal = False
     for lmk in lmks:
-        temp = Landmark(lmk, ID)
+        temp = Landmark(lmk[0], lmk[1], ID)
         tempLmks.append(temp)
         ID += 1
     if len(landmarks) > 0:
