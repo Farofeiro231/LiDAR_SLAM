@@ -44,13 +44,15 @@ class System():
 
 def create_lmks_database(lmFD):
     lmParams = re.findall(r"\w+:([\+\-]?\d+.\d*)[\n,]", lmFD.read())
+    print(lmParams)
     lmksNbr = int(len(lmParams)/5) # Needs to be int for usage in the range method
     params = [float(x) for x in lmParams]  # The original list contains strings
     lmksDB = []
     for i in range(lmksNbr):  # the i is going to number the landmark
-        extractedLandmark = Landmark(params[i * 6], params[(i * 6) + 1]
-                            , i, params[(i * 6) + 2], params[(i * 6) + 3]
-                            , params[(i * 6) + 4], params[(i * 6) + 5])
+        print(i)
+        orig = np.array([params[i * 5], params[(i * 5) + 1]])
+        direction = np.array([params[(i * 5) + 2], params[(i * 5) + 3]])
+        extractedLandmark = Landmark(orig, direction, params[(i * 5) + 4])
         lmksDB.append(extractedLandmark)
     return lmksDB
 
@@ -74,6 +76,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             match = False
             distMin = 100000000000000000000000
             winner = []
+            print("Landmark in the base: {}".format(each))
             for lmk in lmkList:
                 #[x0, y0]
                 orig = lmk.get_orig()
@@ -97,9 +100,13 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #end += [xR, yR]
                 #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
                 #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
-                equal = each.same_decomposed(orig, direction)
+                tmpLmk = Landmark(orig, direction, 0)
+                print("Tested landmark: {}".format(tmpLmk))
+                equal = each.same(tmpLmk)
+                #each.same_decomposed(orig, direction)
                 if equal:
-                    dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
+                    #dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
+                    dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs
                     if dist < distMin:
                         distMin = dist
                         winner = [d0, theta0]

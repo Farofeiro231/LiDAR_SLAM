@@ -126,8 +126,8 @@ class Landmark():
         distOrig = self.distance_origin_origin(lmk)
         distDir = self.distance_dirs(lmk)
         if distOrig < ORIG_THRESHOLD and distDir < DIR_THRESHOLD:
-            print("DistOrig: {}".format(distOrig))
-            print("DistDir: {}".format(distDir))
+            #print("DistOrig: {}".format(distOrig))
+            #print("DistDir: {}".format(distDir))
             return True
         else:
             return False

@@ -83,7 +83,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
 def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
-    firstRun = True
+    firstRun = False
     lmks = []
     landmarkNumber = 0
     newLandmark = True
@@ -99,7 +99,7 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun)
                 landmarkNumber += len(lmks)
                 #print("Time: {}".format(time.time()-start))
-                print(lmks)
+                #print(lmks)
                 if tempList != []:
                     inliersList.append(tempList)
                     pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
@@ -134,7 +134,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    firstRun = True
+    firstRun = False
     if firstRun:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
