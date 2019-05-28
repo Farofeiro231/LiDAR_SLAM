@@ -1,6 +1,6 @@
 import numpy as np
 
-SEEN = 20 # Good value to avoid miss insertions
+SEEN = 10 # Good value to avoid miss insertions
 LIFE = 40 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
@@ -71,24 +71,7 @@ class Landmark():
 
     def reset_life(self):
         self.life = LIFE
-
-    #  This test includes the cases where one landmark in reobserved superposing itself from a former scan
-#    def distance_test(self, landmark):
-#        theSame = False
-#        if self.distance_origin_end(landmark) < TOLERANCE:
-#            theSame = True
-#        elif self.distance_end_origin(landmark) < TOLERANCE:
-#            theSame = True
-#        elif self.distance_origin_origin(landmark) < TOLERANCE:
-#            theSame = True
-#        elif self.distance_end_end(landmark) < TOLERANCE:
-#            theSame = True
-#        return theSame
-#
-#    def distance_origin_end(self, landmark):
-#        distance = np.linalg.norm(self.pos - landmark.get_end())
-#        return distance
-#
+    
     def distance_origin_origin(self, landmark):
         distance = np.linalg.norm(self.orig - landmark.get_orig())
         return distance
@@ -159,7 +142,7 @@ def landmarks_track(landmarks):
 
 def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
     tempLmks = []
-    ID = landmarkNumber
+    ID = float(landmarkNumber)
     copyList = landmarks.copy()
     removed = []
     i = 0

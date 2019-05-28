@@ -5,9 +5,9 @@ from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
 SNUM = 6
-PMIN = 20
-P2L = 20
-LMIN = 200
+PMIN = 10
+P2L = 10
+LMIN = 100
 #P2P = 50
 
 
@@ -28,7 +28,7 @@ plt.show()
 # Here the seeds are expanded to form the landmarks. i is the point the seed begins.
 def seed_expansion(lm, x, y, seed, N, i):
     outlier = False
-    j = i + 7  # gets the next point, because the last seed's point is i + 6
+    j = i + SNUM + 1  # gets the next point, because the last seed's point is i + 6
     k = i - 1
     while not outlier and j < N:
         nextPoint = np.array([[x[j], y[j]]])

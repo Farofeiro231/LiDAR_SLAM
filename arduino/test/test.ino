@@ -9,8 +9,8 @@ void setup() {
 }
 
 void loop() {
-  int vr = 0;
-  int vd = 0;
+  int vr = 10;
+  int vd = 10;
   int angle = 90.0;
   //a = 0.174387;
   

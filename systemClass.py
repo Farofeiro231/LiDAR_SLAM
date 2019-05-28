@@ -4,7 +4,7 @@ from robot import Robot
 from landmarking import Landmark
 from filterpy.kalman import UnscentedKalmanFilter as UKF
 from filterpy.kalman import MerweScaledSigmaPoints
-from math import sqrt, atan2, cos, sin
+from math import sqrt, atan2, cos, sin, ceil
 import threading
 import serial
 import time
@@ -45,7 +45,7 @@ class System():
 def create_lmks_database(lmFD):
     lmParams = re.findall(r"\w+:([\+\-]?\d+.\d*)[\n,]", lmFD.read())
     print(lmParams)
-    lmksNbr = int(len(lmParams)/5) # Needs to be int for usage in the range method
+    lmksNbr = ceil(len(lmParams)/5) # Needs to be int for usage in the range method
     params = [float(x) for x in lmParams]  # The original list contains strings
     lmksDB = []
     for i in range(lmksNbr):  # the i is going to number the landmark
@@ -106,7 +106,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #each.same_decomposed(orig, direction)
                 if equal:
                     #dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
-                    dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs
+                    dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs(tmpLmk)
                     if dist < distMin:
                         distMin = dist
                         winner = [d0, theta0]

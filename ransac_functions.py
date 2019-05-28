@@ -162,7 +162,7 @@ def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
         if firstRun:
             for lm in landmarkDB:
                 print(lm)
-                landmarkFile.write("x0:{},y0:{},x1:{},y1:{},ID:{}\n".format(lm.get_orig()[0], lm.get_orig()[0], lm.get_dir()[0], lm.get_dir()[1], lm.get_id()))
+                landmarkFile.write("x0:{},y0:{},x1:{},y1:{},ID:{}\n".format(lm.get_orig()[0], lm.get_orig()[1], lm.get_dir()[0], lm.get_dir()[1], lm.get_id()))
         print(landmarkDB)
         #landmarkFile.close()
         del pointsToBeFitted
