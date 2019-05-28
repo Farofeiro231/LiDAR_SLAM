@@ -5,8 +5,9 @@ from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
 SNUM = 6
-PMIN = 20
+PMIN = 10
 P2L = 20
+LMIN = 200
 #P2P = 50
 
 
@@ -48,7 +49,7 @@ def seed_expansion(lm, x, y, seed, N, i):
         else:
             outlier = True
     k= k + 1
-    if len(seed) > PMIN:  # Only returns the line and the seed if the final line has a minimum point number greater than PMIN previously set
+    if len(seed) > PMIN and np.linalg.norm(seed[0] - seed[-1]) > LMIN:  # Only returns the line and the seed if the final line has a minimum point number greater than PMIN previously set
         #print(lm.params)
         return lm, seed, j, k
     else:

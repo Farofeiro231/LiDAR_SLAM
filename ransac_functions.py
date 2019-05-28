@@ -102,17 +102,8 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 print(lmks)
                 if tempList != []:
                     inliersList.append(tempList)
-                    #print(np.concatenate(tempPoints.copy(), axis=0))
-                    #print(inliersList)
-                    #print(tempPoints)
-                    #if newLandmark:
-                    #    landmarks.append(extractedLandmark)
-                        #print("Landmarks extraidas: {}".format(len(landmarks)))
-                    #landmarkNumber += 1
                     pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
                     allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
-                        #print("Passando a bola para plot\n\n\n")
-                    #print("Tempo:{:.8f}".format(time.time()-a))
                     threadEvent.set()
                     checkEvent.clear()
                     del inliersList[:]
@@ -177,7 +168,8 @@ def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
     except KeyboardInterrupt:
         if firstRun:
             for lm in landmarkDB:
-                landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
+                print(lm)
+                #landmarkFile.write("a:{},b:{},x0:{},y0:{},x1:{},y1:{}\n".format(lm.get_a(), lm.get_b(), lm.get_pos()[0], lm.get_pos()[1], lm.get_end()[0], lm.get_end()[1]))
         print(landmarkDB)
         #landmarkFile.close()
         del pointsToBeFitted

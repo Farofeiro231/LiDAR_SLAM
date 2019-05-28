@@ -1,11 +1,11 @@
 import numpy as np
 
-SEEN = 50
-LIFE = 40
+SEEN = 20 # Good value to avoid miss insertions
+LIFE = 40 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
 TOLERANCE = 200
-ORIG_THRESHOLD = 20
+ORIG_THRESHOLD = 40
 DIR_THRESHOLD = 0.1
 
 
@@ -40,7 +40,9 @@ class Landmark():
 
     def get_orig(self):
         return self.orig
-    
+   
+    def get_dir(self):
+        return self.dir
 
     def get_end(self):
         return self.end
@@ -51,7 +53,7 @@ class Landmark():
     def get_observed(self):
         return self.observed
     
-    def observed(self):
+    def seen(self):
         self.timesObserved += 1
         self.observed = True
         if self.timesObserved >= SEEN:
@@ -91,10 +93,10 @@ class Landmark():
         distance = np.linalg.norm(self.orig - landmark.get_orig())
         return distance
 #    
-    def distance_dir_dir(self, landmark):
-        distance = np.linalg.norm(self.dir - landmark.get_dir())
+    def distance_dirs(self, landmark):
+        distance = np.linalg.norm(np.absolute(self.dir) - np.absolute(landmark.get_dir()))
         return distance
-#    
+#   
 #    def distance_end_origin(self, landmark):
 #        distance = np.linalg.norm(self.end - landmark.get_pos())
 #        return distance
@@ -121,7 +123,11 @@ class Landmark():
                 return False
 
     def same(self, lmk):
-        if self.distance_origin_origin(lmk) < ORIG_THRESHOLD and self.distance_dirs(lmk) < DIR_THRESHOLD:
+        distOrig = self.distance_origin_origin(lmk)
+        distDir = self.distance_dirs(lmk)
+        if distOrig < ORIG_THRESHOLD and distDir < DIR_THRESHOLD:
+            print("DistOrig: {}".format(distOrig))
+            print("DistDir: {}".format(distDir))
             return True
         else:
             return False
@@ -164,7 +170,7 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
             if equal:  # If the lmk is the same as one already in the list, increase the latter observed count
                 landmarks[j - 1].reset_life()
                 if firstRun:
-                    add2DB = landmarks[j-1].observed()
+                    add2DB = landmarks[j-1].seen()
                     if add2DB and landmarks[j-1] not in landmarkDB:
                         landmarkDB.append(landmarks[j-1])
             else: # if it is a new landmark, add it to the list
@@ -173,6 +179,8 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
         if firstRun:  # removes the removed landmarks also from the DB 
             for lmk in removed:
                 if lmk in landmarkDB:
-                    landmarkDB.remove()
+                    print("--------------Removed landmark-----------")
+                    print(lmk)
+                    landmarkDB.remove(lmk)
     else:
-        landmarks.extend(temp) # places the landmarks in the list one by one, instead as a list of lmks
+        landmarks.extend(tempLmks) # places the landmarks in the list one by one, instead as a list of lmks

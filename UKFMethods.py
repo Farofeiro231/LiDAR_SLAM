@@ -17,9 +17,9 @@ def normalize_angle(angle):
 def transition_function(x, dt, u):  # The shape of u: u = [vl vr].T
     n = x.shape[0]  # The dimension of the state space
     fx = np.identity(n)
-    bx = np.array([[R/2.0 * cos( x[2] ), R/2.0 * cos( x[2] )],
-                 [R/2.0 * sin( x[2] ), R/2.0 * sin( x[2] )],
-                 [-1.0 * R/L, 1.0 * R/L]])
+    bx = np.array([[(R/2.0) * cos( x[2] ), (R/2.0) * cos( x[2] )],
+                 [(R/2.0) * sin( x[2] ), (R/2.0) * sin( x[2] )],
+                 [-1.0 * (R/L), 1.0 * (R/L)]])
     xBar = np.dot(fx, x) + dt * np.dot(bx, u)
     #x = np.array([u[0], u[1], angle])
     #xBar = np.array([u[0], u[1], angle])
