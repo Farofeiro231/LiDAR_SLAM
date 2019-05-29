@@ -4,9 +4,9 @@ SEEN = 10 # Good value to avoid miss insertions
 LIFE = 40 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
-TOLERANCE = 200
-ORIG_THRESHOLD = 40
-DIR_THRESHOLD = 0.1
+TOLERANCE = 200 # Bom valor é 100
+ORIG_THRESHOLD = 100
+DIR_THRESHOLD = 0.2
 
 
 class Landmark():
@@ -114,6 +114,17 @@ class Landmark():
             return True
         else:
             return False
+    
+    def same_update(self, lmk, tolerance):
+        distOrig = self.distance_origin_origin(lmk)
+        distDir = self.distance_dirs(lmk)
+        if distOrig < tolerance and distDir < DIR_THRESHOLD:
+            return True
+        else:
+            return False
+
+
+
 
     def same_decomposed(self, orig, direction):
         distOrig = np.linalg.norm(self.get_orig() - orig)
@@ -176,3 +187,17 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
                     landmarkDB.remove(lmk)
     else:
         landmarks.extend(tempLmks) # places the landmarks in the list one by one, instead as a list of lmks
+
+
+def lmks_keep_match(lmks, landmarks, landmarkNumber):
+    ID = float(landmarkNumber)
+    tempLmks = []
+
+    for lmk in lmks:
+        temp = Landmark(lmk[0], lmk[1], ID)
+        tempLmks.append(temp)
+        ID += 1
+
+    del landmarks[:]
+    landmarks.extend(tempLmks)
+

@@ -6,8 +6,8 @@ from PyQt5.QtCore import QPointF
 
 SNUM = 6
 PMIN = 10
-P2L = 10
-LMIN = 100
+P2L = 20
+LMIN = 150
 #P2P = 50
 
 

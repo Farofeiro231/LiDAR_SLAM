@@ -1,7 +1,7 @@
 import numpy as np
 from UKFMethods import *
 from robot import Robot
-from landmarking import Landmark
+from landmarking import *
 from filterpy.kalman import UnscentedKalmanFilter as UKF
 from filterpy.kalman import MerweScaledSigmaPoints
 from math import sqrt, atan2, cos, sin, ceil
@@ -102,7 +102,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
                 tmpLmk = Landmark(orig, direction, 0)
                 print("Tested landmark: {}".format(tmpLmk))
-                equal = each.same(tmpLmk)
+                equal = each.same_update(tmpLmk, TOLERANCE)
                 #each.same_decomposed(orig, direction)
                 if equal:
                     #dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
@@ -122,6 +122,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             #    break
             if match:
                 tempZ.extend(winner)
+                dependableLmks.remove(each)
         if tempDB != []:
             #  It is necessary to adapt the size of R for each number of seen landmarks
             print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
@@ -138,7 +139,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
     try:
-        ser = serial.Serial('/dev/ttyACM0', 115200)
+        ser = serial.Serial('/dev/ttyACM0', 1000000)
     except:
         print("Couldn't stabilish connection with arduino! Exiting...")
         sys.exit(0)
