@@ -5,12 +5,12 @@
 int state = LOW;
 
 void setup() {
-  Serial.begin(115200); // setup serial connection speed
+  Serial.begin(1000000); // setup serial connection speed
 }
 
 void loop() {
-  int vr = 10;
-  int vd = 10;
+  int vr = 0;
+  int vd = 0;
   int angle = 90.0;
   //a = 0.174387;
   

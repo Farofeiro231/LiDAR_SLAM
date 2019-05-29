@@ -108,6 +108,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                     #dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
                     dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs(tmpLmk)
                     if dist < distMin:
+                        print("Winner: {}".format(tmpLmk))
                         distMin = dist
                         winner = [d0, theta0]
                     #print("Landmark: {}".format(tmpLmk))
