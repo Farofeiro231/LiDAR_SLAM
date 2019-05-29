@@ -15,15 +15,15 @@ def normalize_angle(angle):
 
 
 def transition_function(x, dt, u):  # The shape of u: u = [vl vr].T
-    n = x.shape[0]  # The dimension of the state space
-    fx = np.identity(n)
-    bx = np.array([[(R/2.0) * cos( x[2] ), (R/2.0) * cos( x[2] )],
-                 [(R/2.0) * sin( x[2] ), (R/2.0) * sin( x[2] )],
-                 [-1.0 * (R/L), 1.0 * (R/L)]])
-    xBar = np.dot(fx, x) + dt * np.dot(bx, u)
+    #n = x.shape[0]  # The dimension of the state space
+    #fx = np.identity(n)
+    #bx = np.array([[(R/2.0) * cos( x[2] ), (R/2.0) * cos( x[2] )],
+    #             [(R/2.0) * sin( x[2] ), (R/2.0) * sin( x[2] )],
+    #             [-1.0 * (R/L), 1.0 * (R/L)]])
+    #xBar = np.dot(fx, x) + dt * np.dot(bx, u)
     #x = np.array([u[0], u[1], angle])
     #xBar = np.array([u[0], u[1], angle])
-    return xBar
+    return x#Bar
 
 def transfer_function(x, landmarks):
     hx = []  #  Array to keep the pairs: distance, angle, to all given landmarks
@@ -39,6 +39,7 @@ def transfer_function(x, landmarks):
 
 def state_mean(sigmas, Wm):  # Sigmas is of the form M(2n+1)xn
     x = np.zeros(3)
+    
     sum_sin = np.sum(sin(np.dot(sigmas[:, 2], Wm)))#np.dot(sin(np.dot(sigmas[:, 2], Wm)))) 
     sum_cos = np.sum(cos(np.dot(sigmas[:, 2], Wm)))
     x[0] = np.sum(np.dot(sigmas[:, 0], Wm))

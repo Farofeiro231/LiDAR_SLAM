@@ -13,29 +13,30 @@ import sys
 import numpy as np
 
 LANDMARK_NUMBER = 1# got replaced by the size of self.landmarks
-VAR_DIST = 0.005**2
-VAR_ANGLE = 0.003**2
+VAR_DIST = 0.05**2
+VAR_ANGLE = 0.03**2
 DT = 0.005  # 5 ms
 ANGLE_TO_RAD = np.pi/180
 
 class System():
     
-    def __init__(self, landmarks):
+    def __init__(self):
         self.robot = Robot()
         self.dt = DT
         self.varDist = VAR_DIST
         self.varAngle = VAR_ANGLE
-        self.landmarks = landmarks
-        self.sigmas = MerweScaledSigmaPoints(n=self.robot.get_dim_x(), alpha=0.0001, beta=2, kappa=0)
-        self.ukf = UKF(dim_x=self.robot.get_dim_x(), dim_z=2*len(landmarks), fx=transition_function, hx=transfer_function, dt=self.dt, points=self.sigmas, x_mean_fn=state_mean, z_mean_fn=z_mean, residual_x=residual_x, residual_z=residual_h)
+        self.landmarks = []
+        self.old = np.array([0., 0., np.pi/2])
+        self.sigmas = MerweScaledSigmaPoints(n=self.robot.get_dim_x(), alpha=0.0001, beta=2, kappa=0, subtract=residual_x)
+        self.ukf = UKF(dim_x=self.robot.get_dim_x(), dim_z=0, fx=transition_function, hx=transfer_function, dt=self.dt, points=self.sigmas, x_mean_fn=state_mean, z_mean_fn=z_mean, residual_x=residual_x, residual_z=residual_h) # diz_z = 2*len(landmarks)
         self.config_ukf()
 
 
     def config_ukf(self):
         self.ukf.x = self.robot.get_pos()
         self.ukf.P = np.diag([1., 1., 0.05])#([.1, .1, 0.05])
-        self.ukf.R = np.diag([self.varDist, self.varAngle] * len(self.landmarks))
-        self.ukf.Q = np.eye(3) * 0.1
+        self.ukf.R = np.diag([self.varDist, self.varAngle])# * len(self.landmarks))
+        self.ukf.Q = np.eye(3) * 0.001
         self.angle = 0.
 
     def simulate_system(self, u):
@@ -66,76 +67,90 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     equal = False
     winner = 0
     match = False
+    i = 0
     #tempPos = np.empty([1, 3])
     while True:
         lmkList = lmkQueue.get(True)
-        dependableLmks = sistema.landmarks.copy()
-        print('{} landmarks recebidas.'.format(len(lmkList)))
-        #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
-        for each in dependableLmks:
-            match = False
-            distMin = 100000000000000000000000
-            winner = []
-            print("Landmark in the base: {}".format(each))
-            for lmk in lmkList:
-                #[x0, y0]
-                orig = lmk.get_orig()
-                direction = lmk.get_dir()
-                [xR, yR, thetaR] = sistema.ukf.x
-                thetaR = sistema.angle       
-                #thetaR = np.pi/2.
-
-                d0 = sqrt(orig[0]**2 + orig[1]**2)
-                theta0 = atan2(orig[1], orig[0])
-                #d1 = sqrt(x1**2 + y1**2)
-                #theta1 = atan2(y1, x1)
-                
-                rotM = np.array([[cos(thetaR), -sin(thetaR)], [sin(thetaR), cos(thetaR)]])
-                orig = np.dot(rotM, orig)
-                direction = np.dot(rotM, direction)
-                #end = np.dot(rotM, end)
-                #orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
-                #end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
-                orig += np.array([xR, yR])
-                #end += [xR, yR]
-                #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
-                #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
-                tmpLmk = Landmark(orig, direction, 0)
-                print("Tested landmark: {}".format(tmpLmk))
-                equal = each.same_update(tmpLmk, TOLERANCE)
-                #each.same_decomposed(orig, direction)
-                if equal:
-                    #dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
-                    dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs(tmpLmk)
-                    if dist < distMin:
-                        print("Winner: {}".format(tmpLmk))
-                        distMin = dist
-                        winner = [d0, theta0]
-                    #print("Landmark: {}".format(tmpLmk))
-                    #print("Landmark observada: {}".format(tmpLmk))
-                    #print("Landmark da DB: {}".format(each))
-                    if not match:
-                        tempDB.append(each)
-                        match = True
-                    #tempZ.extend([d0, theta0])
-                    #dependableLmks.remove(each)
-            #if len(tempDB) == len(sistema.landmarks):
-            #    break
-            if match:
-                tempZ.extend(winner)
-                dependableLmks.remove(each)
-        if tempDB != []:
-            #  It is necessary to adapt the size of R for each number of seen landmarks
-            print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
-            sistema.ukf.dim_z = 2*len(tempDB)
-            sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
-            sistema.ukf.update(tempZ, landmarks=tempDB)
-            print("-----------------Nova posição--------------------\n{}\n{}".format(sistema.ukf.x, sistema.ukf.P))
+        print("PASSED!")
+        if sistema.landmarks == []:  # If it's the first run, create the initial lmk list
+            sistema.landmarks = lmkList[:]
+            print("LOOL")
+            predictEvent.set()
         else:
-            print("No ladnmarks corresponding to the db ones!")
-        del tempZ[:]
-        del tempDB[:]
-        predictEvent.set()
+            print("SISTEMA.LANDMARKS: {}".format(sistema.landmarks.copy()))
+            dependableLmks = sistema.landmarks.copy()
+            print("SISTEMA.LANDMARKS: {}".format(dependableLmks))
+            print('POSITION INSIDE UPDATE: {}'.format(sistema.ukf.x))
+            #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
+            for each in dependableLmks:
+                match = False
+                distMin = 100000000000000000000000
+                winner = []
+                print("-------------- Landmark in the base: {}".format(each))
+                i = 0
+                for lmk in lmkList:
+                    #[x0, y0]
+                    orig = lmk.get_orig()
+                    direction = lmk.get_dir()
+                    [xR, yR, thetaR] = sistema.ukf.x
+                    [xOld, yOld, thetaOld] = sistema.old
+                    thetaR = sistema.angle       
+                    thetaR -= thetaOld
+                    thetaR = normalize_angle(thetaR)
+                    
+                    dX = xR - xOld
+                    dY = yR - yOld
+                    #thetaR = np.pi/2.
+
+                    d0 = sqrt(orig[0]**2 + orig[1]**2)
+                    theta0 = atan2(orig[1], orig[0])
+                    #d1 = sqrt(x1**2 + y1**2)
+                    #theta1 = atan2(y1, x1)
+                    
+                    rotM = np.array([[cos(thetaR), -sin(thetaR)],
+                                     [sin(thetaR), cos(thetaR)]])
+                    orig = np.dot(rotM, orig)
+                    direction = np.dot(rotM, direction)
+                    #end = np.dot(rotM, end)
+                    #orig = [d0 * cos(normalize_angle(theta0 + thetaR)), d0 * sin(normalize_angle(theta0 + thetaR))]
+                    #end =  [d1 * cos(normalize_angle(theta1 + thetaR)), d1 * sin(normalize_angle(theta1 + thetaR))]
+                    orig += np.array([dX, dY])
+                    #end += [xR, yR]
+                    #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
+                    #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
+                    tmpLmk = Landmark(orig, direction, i)
+                    #print("Tested landmark: {}".format(tmpLmk))
+                    equal = each.same_update(tmpLmk, TOLERANCE)
+                    #each.same_decomposed(orig, direction)
+                    i += 1
+                    if equal:
+                        #dist = np.linalg.norm(each.get_orig() - orig) + np.linalg.norm(each.get_dir() - direction)
+                        dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs(tmpLmk)
+                        if dist < distMin:
+                            print("Winner: {}".format(tmpLmk))
+                            distMin = dist
+                            winner = [d0, theta0]
+                        if not match:
+                            tempDB.append(each)
+                            match = True
+                        #tempZ.extend([d0, theta0])
+                        #dependableLmks.remove(each)
+                if match:
+                    tempZ.extend(winner)
+                    #dependableLmks.remove(each)
+            if tempDB != []:
+                #  It is necessary to adapt the size of R for each number of seen landmarks
+                print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
+                sistema.ukf.dim_z = 2*len(tempDB)
+                sistema.ukf.R = np.diag([sistema.varDist, sistema.varAngle] * len(tempDB))
+                sistema.ukf.update(tempZ, landmarks=tempDB)
+                print("-----------------Nova posição--------------------\n{}\n{}".format(sistema.ukf.x, sistema.ukf.P))
+            else:
+                print("No ladnmarks corresponding to the db ones!")
+            sistema.landmarks = lmkList.copy()
+            del tempZ[:]
+            del tempDB[:]
+            predictEvent.set()
 
 
 def simulation(flagQueue, lmkQueue):  # This function is going to be used as the core of the UKF process
@@ -145,9 +160,9 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         print("Couldn't stabilish connection with arduino! Exiting...")
         sys.exit(0)
 
-    lmFD = open('landmarks.txt','r')
-    lmksDB = create_lmks_database(lmFD) 
-    sistema = System(lmksDB)
+    #lmFD = open('landmarks.txt','r')
+    #lmksDB = create_lmks_database(lmFD) 
+    sistema = System()
     updateEvent = threading.Event()
     predictEvent = threading.Event()
     predictCount = 0
@@ -182,20 +197,22 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         else:
             #print("Wrong format received: {}".format(buff))
             buff = b''
-
-        u[0] = vLeft/60  # Reception of the commands given to the motor (left_speed, right_speed)
-        u[1] = vRight/60
+        
+        u[0] = vLeft#/60  # Reception of the commands given to the motor (left_speed, right_speed)
+        u[1] = vRight#/60
         #sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
+        sistema.old = sistema.ukf.x
+        sistema.ukf.x = np.array([u[0], u[1], angle])
         sistema.ukf.predict(u=u)
         sistema.angle = angle
-        predictCount += 1
+        #predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount >= 10:
-            print("Velocities: {}, {}".format(u, angle))
-            flagQueue.put(0)
-            predictCount = 0
-            predictEvent.clear()
-            print(sistema.ukf.x)
-            print(sistema.ukf.P)
+        #if predictCount >= 10:
+        print("Velocities: {}, {}".format(u, angle))
+        flagQueue.put(0)
+        predictEvent.clear()
+        predictCount = 0
+        print(sistema.ukf.x)
+        print(sistema.ukf.P)
             #print(sistema.ukf.K)
 

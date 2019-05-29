@@ -6,8 +6,8 @@ from PyQt5.QtCore import QPointF
 
 SNUM = 6
 PMIN = 10
-P2L = 20
-LMIN = 150
+P2L = 30
+LMIN = 300
 #P2P = 50
 
 
@@ -51,32 +51,12 @@ def seed_expansion(lm, x, y, seed, N, i):
     k= k + 1
     if len(seed) > PMIN and np.linalg.norm(seed[0] - seed[-1]) > LMIN:  # Only returns the line and the seed if the final line has a minimum point number greater than PMIN previously set
         #print(lm.params)
-        return lm, seed, j, k
+        midPoint = int(seed.shape[0]/2) # We set the origin of the line to its middle
+        normalizedLm = (seed[midPoint], lm.params[1])
+        print("Origin of lm: {}\nMidpoint: {}".format(lm.params[0], seed[midPoint]))
+        return normalizedLm, seed, j, k
     else:
         return 0, 0, j, k
-
-
-
-#if __name__ == "__main__":
-#    fd = open("data_test.txt", "r")
-#    x = []
-#    y = []
-#    i = 0
-#    k = 0
-#    flag = True
-#    success = False
-#    lines = []
-#    expandedSeeds = []
-#    tempLine = 0
-#    tempSeed = 0
-#    
-#    temp = re.findall("x,y:\(([+-]?\d+\.\d*) ([+-]?\d+\.\d*)\)", fd.read())
-#    for item in temp:
-#        x.append(float(item[0]))
-#        y.append(float(item[1]))
-#  
-#    N = len(x)
-#    lm = LineModelND()
 
 
 
@@ -120,7 +100,7 @@ def lmk_extraction(pointsToBeFitted):
             if tempLine != 0:
                 #print(tempLine.params)
                 #print("Inf lim., Sup lim.: [{}, {}]".format(k, i))
-                lines.append(tempLine.params)
+                lines.append(tempLine)#.params)
                 expandedSeeds.append(tempSeed) # adds the germinated seed to the lmk base
         else:
             i += 1 

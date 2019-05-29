@@ -100,7 +100,6 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                     landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun)
                 else:
                     lmks_keep_match(lmks, landmarks, landmarkNumber)
-                print(landmarks)
                 landmarkNumber += len(lmks)
                 #print("Time: {}".format(time.time()-start))
                 #print(lmks)

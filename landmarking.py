@@ -4,9 +4,9 @@ SEEN = 10 # Good value to avoid miss insertions
 LIFE = 40 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
-TOLERANCE = 200 # Bom valor é 100
-ORIG_THRESHOLD = 100
-DIR_THRESHOLD = 0.2
+TOLERANCE = 100 # Bom valor é 100
+ORIG_THRESHOLD = 500
+DIR_THRESHOLD = 0.05
 
 
 class Landmark():
