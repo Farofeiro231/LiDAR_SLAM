@@ -11,7 +11,7 @@ void setup() {
 void loop() {
   int vr = 0;
   int vd = 0;
-  int angle = 90.0;
+  int angle = 90;
   //a = 0.174387;
   
   Serial.write(0x40);

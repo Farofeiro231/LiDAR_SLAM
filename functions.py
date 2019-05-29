@@ -52,7 +52,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     QdistancesList = []
     start_time = time.time()
     initial_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=300)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=250)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")

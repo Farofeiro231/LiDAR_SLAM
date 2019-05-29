@@ -101,7 +101,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
                 #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
                 tmpLmk = Landmark(orig, direction, 0)
-                print("Tested landmark: {}".format(tmpLmk))
+                #print("Tested landmark: {}".format(tmpLmk))
                 equal = each.same_update(tmpLmk, TOLERANCE)
                 #each.same_decomposed(orig, direction)
                 if equal:
@@ -123,7 +123,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
             #    break
             if match:
                 tempZ.extend(winner)
-                dependableLmks.remove(each)
+                #dependableLmks.remove(each)
         if tempDB != []:
             #  It is necessary to adapt the size of R for each number of seen landmarks
             print("Dim tempZ, tempDB, system: {}, {}, {}".format(len(tempZ), len(tempDB), len(sistema.landmarks)))
@@ -183,19 +183,21 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
             #print("Wrong format received: {}".format(buff))
             buff = b''
 
-        u[0] = vLeft/60  # Reception of the commands given to the motor (left_speed, right_speed)
-        u[1] = vRight/60
-        #sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
+        u[0] = vLeft#/60  # Reception of the commands given to the motor (left_speed, right_speed)
+        u[1] = vRight#/60
+        sistema.ukf.x[0] = u[0]
+        sistema.ukf.x[1] = u[1]#sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
         sistema.ukf.predict(u=u)
         sistema.angle = angle
         predictCount += 1
         #  If we've done 100 predict steps, we send the flag to the other process asking for the most recent landmarks; only after is the update thread enabled in order to avoid it getting the flag, instead of the other process
-        if predictCount >= 10:
-            print("Velocities: {}, {}".format(u, angle))
-            flagQueue.put(0)
-            predictCount = 0
-            predictEvent.clear()
-            print(sistema.ukf.x)
-            print(sistema.ukf.P)
+        #if predictCount >= 10:
+        print("Velocities: {}, {}".format(u, angle))
+        predictEvent.clear()
+        print("Prediction:\n") 
+        print(sistema.ukf.x)
+        print(sistema.ukf.P)
+        flagQueue.put(0)
+        predictCount = 0
             #print(sistema.ukf.K)
 

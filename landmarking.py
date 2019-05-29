@@ -4,9 +4,9 @@ SEEN = 10 # Good value to avoid miss insertions
 LIFE = 40 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
-TOLERANCE = 200 # Bom valor é 100
-ORIG_THRESHOLD = 100
-DIR_THRESHOLD = 0.2
+TOLERANCE = 100 # Bom valor é 100
+ORIG_THRESHOLD = 200
+DIR_THRESHOLD = 0.1
 
 
 class Landmark():
@@ -175,6 +175,8 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
                 if firstRun:
                     add2DB = landmarks[j-1].seen()
                     if add2DB and landmarks[j-1] not in landmarkDB:
+                        print("--------------Added landmark-----------")
+                        print(landmarks[j-1])    
                         landmarkDB.append(landmarks[j-1])
             else: # if it is a new landmark, add it to the list
                 landmarks.append(lmk)
