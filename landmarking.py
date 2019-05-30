@@ -1,28 +1,32 @@
 import numpy as np
 
-SEEN = 50
-LIFE = 40
+SEEN = 10 # Good value to avoid miss insertions
+LIFE = 10 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
-TOLERANCE = 200
+TOLERANCE = 200 # Bom valor é 100
+TOL_LENGTH = 200
+ORIG_THRESHOLD = 200
+DIR_THRESHOLD = 0.1
 
 
 class Landmark():
     spec = "line"
 
-    def __init__(self, a, b, ID, x, y, tipX, tipY):
-        self.a = a
-        self.b = b
+    def __init__(self, lm_orig, lm_dir, lm_size, ID):
+        self.orig = lm_orig
+        self.dir = lm_dir
+        self.size = lm_size 
         self.id = ID
         self.life = LIFE
-        self.pos = np.array([x, y])
-        self.end = np.array([tipX, tipY])
         self.timesObserved = 0
+        self.observed = False
 
     def __str__(self):
         text = "Landmark ID: {}\n".format(self.id)
-        text += "(x, y): ({}, {})\n".format(self.pos[0], self.pos[1]) \
-                + "equation: {} * x + {}\n".format(self.a, self.b)
+        text += "(x, y): ({}, {})\n".format(self.orig[0], self.orig[1]) \
+                + "direction: {}, {}\n".format(self.dir[0], self.dir[1]) \
+                + "size: {}\n".format(self.size)
         return text
 
     def get_id(self):
@@ -37,14 +41,27 @@ class Landmark():
     def get_pos(self):
         return self.pos
 
+    def get_orig(self):
+        return self.orig
+   
+    def get_dir(self):
+        return self.dir
+
     def get_end(self):
         return self.end
 
     def get_life(self):
         return self.life
+
+    def get_size(self):
+        return self.size
+
+    def get_observed(self):
+        return self.observed
     
-    def observed(self):
+    def seen(self):
         self.timesObserved += 1
+        self.observed = True
         if self.timesObserved >= SEEN:
             return True
         else:
@@ -60,35 +77,22 @@ class Landmark():
 
     def reset_life(self):
         self.life = LIFE
-
-    #  This test includes the cases where one landmark in reobserved superposing itself from a former scan
-#    def distance_test(self, landmark):
-#        theSame = False
-#        if self.distance_origin_end(landmark) < TOLERANCE:
-#            theSame = True
-#        elif self.distance_end_origin(landmark) < TOLERANCE:
-#            theSame = True
-#        elif self.distance_origin_origin(landmark) < TOLERANCE:
-#            theSame = True
-#        elif self.distance_end_end(landmark) < TOLERANCE:
-#            theSame = True
-#        return theSame
-#
-#    def distance_origin_end(self, landmark):
-#        distance = np.linalg.norm(self.pos - landmark.get_end())
-#        return distance
-#
+    
     def distance_origin_origin(self, landmark):
-        distance = np.linalg.norm(self.pos - landmark.get_pos())
+        distance = np.linalg.norm(self.orig - landmark.get_orig())
         return distance
 #    
-    def distance_end_end(self, landmark):
-        distance = np.linalg.norm(self.end - landmark.get_end())
+    def distance_dirs(self, landmark):
+        distance = np.linalg.norm(self.dir - landmark.get_dir())
         return distance
-#    
+#   
 #    def distance_end_origin(self, landmark):
 #        distance = np.linalg.norm(self.end - landmark.get_pos())
 #        return distance
+
+    def diff_sizes(self, lmk):
+        distance = np.absolute(self.size - self.get_size())
+        return distance
 
     def is_equal(self, landmark):
         distA = abs(self.a - landmark.get_a())
@@ -105,13 +109,109 @@ class Landmark():
             return False
     
     def ends_equal(self, landmark):
-        if self.distance_origin_origin(landmark) < TOLERANCE and self.distance_end_end(landmark) < TOLERANCE:
+        if self.distance_origin_origin(landmark) < TOLERANCE and self.distance_dir_dir(landmark) < TOLERANCE:
             #if distanceOriginEnd <= TOLERANCE or distanceEndOrigin <= TOLERANCE:
                 return True
         else:
                 return False
 
+    def same(self, lmk):
+        distOrig = self.distance_origin_origin(lmk)
+        distDir = self.distance_dirs(lmk)
+        diffSize = self.diff_sizes(lmk)
+        if distOrig < ORIG_THRESHOLD and distDir < DIR_THRESHOLD and diffSize < TOL_LENGTH:
+            #print("DistOrig: {}".format(distOrig))
+            #print("DistDir: {}".format(distDir))
+            return True
+        else:
+            return False
+    
+    def same_update(self, lmk, tolerance):
+        distOrig = self.distance_origin_origin(lmk)
+        distDir = self.distance_dirs(lmk)
+        diffSize = self.diff_sizes(lmk)
+        if distOrig < tolerance and distDir < DIR_THRESHOLD and diffSize < TOL_LENGTH:
+            return True
+        else:
+            return False
+
+
+
+
+    def same_decomposed(self, orig, direction):
+        distOrig = np.linalg.norm(self.get_orig() - orig)
+        distDir  = np.linalg.norm(self.get_dir() - direction)
+        if distOrig <= ORIG_THRESHOLD and distDir <= DIR_THRESHOLD:
+            return True
+        else:
+            return False
+
+
+def renew_lmks(landmarks):
+    for lmk in landmarks:
+        lmk.observed = False
+
+
 def landmarks_track(landmarks):
-        for landmark in landmarks:
-            if landmark.get_life == 0:
-                landmarks.remove(landmark)
+    removed = [] 
+    for landmark in landmarks:
+        if not landmark.get_observed():
+            landmark.decrease_life()
+        if landmark.get_life() <= 0:
+            removed.append(landmark)
+            landmarks.remove(landmark)
+    return removed
+
+
+def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
+    tempLmks = []
+    ID = float(landmarkNumber)
+    copyList = landmarks.copy()
+    removed = []
+    i = 0
+    j = 0
+    equal = False
+    for lmk in lmks:
+        temp = Landmark(lmk[0], lmk[1], lmk[2], ID) #orig, dir, size, ID
+        tempLmks.append(temp)
+        ID += 1
+    if len(landmarks) > 0:
+        renew_lmks(landmarks)
+        for lmk in tempLmks:
+            j = 0
+            while j < len(landmarks) and not equal:
+                equal = lmk.same(landmarks[j])  # Here the observed flag is set to False
+                j += 1
+            if equal:  # If the lmk is the same as one already in the list, increase the latter observed count
+                landmarks[j - 1].reset_life()
+                if firstRun:
+                    add2DB = landmarks[j-1].seen()
+                    if add2DB and landmarks[j-1] not in landmarkDB:
+                        print("--------------Added landmark-----------")
+                        print(landmarks[j-1])    
+                        landmarkDB.append(landmarks[j-1])
+            else: # if it is a new landmark, add it to the list
+                landmarks.append(lmk)
+        removed = landmarks_track(landmarks) #remove dead landmarks
+        if firstRun:  # removes the removed landmarks also from the DB 
+            for lmk in removed:
+                if lmk in landmarkDB:
+                    print("--------------Removed landmark-----------")
+                    print(lmk)
+                    landmarkDB.remove(lmk)
+    else:
+        landmarks.extend(tempLmks) # places the landmarks in the list one by one, instead as a list of lmks
+
+
+def lmks_keep_match(lmks, landmarks, landmarkNumber):
+    ID = float(landmarkNumber)
+    tempLmks = []
+
+    for lmk in lmks:
+        temp = Landmark(lmk[0], lmk[1], lmk[2], ID)
+        tempLmks.append(temp)
+        ID += 1
+
+    del landmarks[:]
+    landmarks.extend(tempLmks)
+

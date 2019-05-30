@@ -42,57 +42,50 @@ def distance_between_measures(new_measure, old_measure):
 
 def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     #range_finder = Lidar('/dev/ttyUSB0')  # initializes serial connection with the lidar
-    arquivo = open('data_test.txt', 'w+')
-    writeFlag = True
+    #arquivo = open('data_test.txt', 'w+')
+    #writeFlag = True
+    flag = False
     nbr_tours = 0
     nbr_pairs = 0
     nbr_points = 0
     distancesList = []
     QdistancesList = []
     start_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=500)  # returns a yield containing each measure
+    initial_time = time.time()
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=250)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
-            if time.time() - start_time > 1:  # Given the time for the Lidar to "heat up"
-                if measure[0][3] != 0:
+            if time.time() - initial_time > 1:  # Given the time for the Lidar to "heat up"
+                if measure[0][3] != 0 and measure[0][3] < 4000:
+                    #if measure[0][0]:
+                    #    flag = True
                     dX = measure[0][3] * np.cos(measure[0][2] * ANGLE_TO_RAD + PI/2.)
                     dY = measure[0][3] * np.sin(measure[0][2] * ANGLE_TO_RAD + PI/2.)
                     distancesList.append([dX, dY])
                     QdistancesList.append(QPointF(dX, dY))
-                    if writeFlag:
-                        arquivo.write("x,y:({} {})".format(dX, dY))
+                    #if writeFlag:
+                    #    arquivo.write("x,y:({} {})".format(dX, dY))
                     nbr_pairs += 1
                     nbr_points += 1
-                if nbr_pairs >= MIN_NEIGHBOORS and not threadEvent.is_set() and not checkEvent.is_set():
-                        #print("Estou na scan thread; Valor de threadEvent: {}".format(threadEvent.is_set()))
-                    rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
-                    tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
-                    if measure[0][0]:
-                        #print("Total points number: {}".format(nbr_pairs))
-                        rawPoints.append(0)
-                        nbr_points = 0
-                        writeFlag = False
-                    checkEvent.set()
-                    time.sleep(0.00001)
-                    del distancesList[0:MIN_NEIGHBOORS]
-                    del QdistancesList[0:MIN_NEIGHBOORS]
-                    nbr_pairs = 0
-                elif measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
+                if measure[0][0] and not threadEvent.is_set() and not checkEvent.is_set():
                     #print("Total points number: {}".format(nbr_points))
                     #print("Length of actual list: {}\n".format(len(distancesList)))
+                    #print("Tempo de um scan: {}".format(time.time()-start_time))
+                    start_time = time.time()
                     nbr_tours += 1
                     if len(distancesList) >= 2:
-                        rawPoints.append(distancesList[0:MIN_NEIGHBOORS])
-                        tempPoints.append(QdistancesList[0:MIN_NEIGHBOORS])
+                        rawPoints.append(distancesList[:]) # it contains a list of points inside a list. the first element is a list
+                        tempPoints.append(QdistancesList[:])
                         rawPoints.append(0)
-                        writeFlag = False
+                        #writeFlag = False
                         checkEvent.set()
                     time.sleep(0.000001)
                     del distancesList[:]
                     del QdistancesList[:]
                     nbr_pairs = 0
                     nbr_points = 0
+                    flag = False
     except (KeyboardInterrupt, SystemExit):
             print("Saindo...")
             range_finder.stop_motor()

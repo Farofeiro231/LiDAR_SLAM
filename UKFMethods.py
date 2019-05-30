@@ -17,9 +17,9 @@ def normalize_angle(angle):
 def transition_function(x, dt, u):  # The shape of u: u = [vl vr].T
     n = x.shape[0]  # The dimension of the state space
     fx = np.identity(n)
-    bx = np.array([[R/2.0 * cos( x[2] ), R/2.0 * cos( x[2] )],
-                 [R/2.0 * sin( x[2] ), R/2.0 * sin( x[2] )],
-                 [-1.0 * R/L, 1.0 * R/L]])
+    bx = np.array([[(R/2.0) * cos( x[2] ), (R/2.0) * cos( x[2] )],
+                 [(R/2.0) * sin( x[2] ), (R/2.0) * sin( x[2] )],
+                 [-1.0 * (R/L), 1.0 * (R/L)]])
     xBar = np.dot(fx, x) + dt * np.dot(bx, u)
     #x = np.array([u[0], u[1], angle])
     #xBar = np.array([u[0], u[1], angle])
@@ -29,7 +29,7 @@ def transfer_function(x, landmarks):
     hx = []  #  Array to keep the pairs: distance, angle, to all given landmarks
     # the extend command is useful to append items to a list individually instead of in array form
     for lndmrk in landmarks:
-        pos = lndmrk.get_pos()
+        pos = lndmrk.get_orig()
         px, py = pos[0], pos[1]
         dist = sqrt((px - x[0])**2 + (py - x[1])**2)  # Calculates distance from the robot to the landmark
         angle = atan2(py - x[1], px - x[0]) # Calculates the angle between the robot and the landmark

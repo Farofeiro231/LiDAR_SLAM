@@ -5,18 +5,21 @@
 int state = LOW;
 
 void setup() {
-  Serial.begin(115200); // setup serial connection speed
+  Serial.begin(1000000); // setup serial connection speed
 }
 
 void loop() {
   int vr = 0;
   int vd = 0;
-  
+  int angle = 90;
   //a = 0.174387;
+  
   Serial.write(0x40);
   Serial.print(vr);
   Serial.write(0xA8);
   Serial.print(vd);
+  Serial.write(0xB9);
+  Serial.print(angle);
   Serial.write(0x0C);
   Serial.flush();
   delay(100);

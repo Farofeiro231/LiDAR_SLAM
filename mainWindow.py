@@ -3,7 +3,7 @@ import sys, time
 sys.dont_write_bytecode = True
 import numpy as np
 from numpy.random import randn
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox, QGridLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow, QDockWidget, QCheckBox, QGridLayout, QPushButton
 from PyQt5.QtChart import QScatterSeries, QChart, QChartView, QValueAxis
 
 from PyQt5.QtCore import QTimer, QPointF, Qt, QObject
@@ -33,11 +33,13 @@ class Window(QMainWindow):
         self.label = QLabel(self)
         self.lmrkBox = QCheckBox("Landmark points", self)
         self.ptsBox = QCheckBox("Data points", self)
+        self.pushButton = QPushButton("Snapshot", self)
 
         self.boxArea = QWidget()
         self.mainLayout = QGridLayout()
         self.mainLayout.addWidget(self.lmrkBox, 0, 0)
         self.mainLayout.addWidget(self.ptsBox, 1, 0)
+        self.mainLayout.addWidget(self.pushButton, 2, 0)
         self.mainLayout.setVerticalSpacing(5)
         self.boxArea.setLayout(self.mainLayout)
         crote = QDockWidget("Hide", self)
@@ -124,8 +126,12 @@ class Window(QMainWindow):
             #self.chart.createDefaultAxes()
         end = time.time()
         self.event.clear()
+        #print("Saindo do plot")
         #print("Fetch time: {:.7f}".format(fetch_time))
         #print("Elapsed time:{:.7f}".format(end-start))
+
+    def test(self):
+        print("\n\n\n\n\n\n\n\n\n\-------------------\n\n\n\n\n")
 
     def hide_show_points(self):
         self.series.setVisible(not self.series.isVisible())
@@ -147,6 +153,7 @@ class Window(QMainWindow):
         self.timer.timeout.connect(self.update)
         self.lmrkBox.stateChanged.connect(self.hide_show_points)
         self.ptsBox.stateChanged.connect(self.hide_show_all_points)
+        self.pushButton.clicked.connect(self.test)
 
         self.timer.start(0)
         self.show()
