@@ -60,7 +60,7 @@ def seed_expansion(lm, x, y, seed, N, i):
                 normalizedLM = (seed[midPoint], direction, size)
         else:
             normalizedLM = (seed[midPoint], lm.params[1], size)
-        print("Found line origin, end: {} --- {}".format(seed[0], seed[-1]))
+        #print("Found line origin, end: {} --- {}".format(seed[0], seed[-1]))
         return normalizedLM, seed, j, k
     else:
         return 0, 0, j, k
@@ -79,7 +79,6 @@ def lmk_extraction(pointsToBeFitted):
     #print(pointsToBeFitted[0][:])
     # now we put the points in the proper shape
     newPoints = np.array(pointsToBeFitted[0][:])
-    print(newPoints)
     newPoints = newPoints.T
     i = 0
     k = 0
@@ -121,7 +120,7 @@ def lmk_extraction(pointsToBeFitted):
         else:
             i += 1 
 
-    print("\n\n")
+    #print("\n\n")
     if expandedSeeds != []: 
         #print("OK")
         temp = np.concatenate(expandedSeeds, axis=0)

@@ -18,6 +18,9 @@ class Window(QMainWindow):
     def __init__(self, landmarkPoints, allPoints, threadEvent):
         super().__init__()
         self.title = "Lidar data points"
+        self.filename = 'field.txt'
+        self.fd = 0
+        self.snapshotPoints = []
         #self.queue = queue
         self.color = Qt.darkRed
         self.lmrkPoints = landmarkPoints
@@ -110,9 +113,11 @@ class Window(QMainWindow):
         #a = []
         #a.append([QPointF(500 + 100 * randn(), 500 + 100 * randn()) for i in range(10)])
         if self.count == 0 and self.lmrkPoints != []:
-            print(self.lmrkPoints[0][:])
+            #print(float(self.allPoints[0][:]))
+            #print(self.lmrkPoints[0][:])
             self.series.append(self.lmrkPoints[0][:])
             self.allSeries.append(self.allPoints[0][:])
+            self.snapshotPoints = self.allPoints[0][:]
             del self.lmrkPoints[:]
             del self.allPoints[:]
             self.count = 1
@@ -120,6 +125,7 @@ class Window(QMainWindow):
         elif self.lmrkPoints != []:
             self.series.replace(self.lmrkPoints[0][:])
             self.allSeries.replace(self.allPoints[0][:])
+            self.snapshotPoints = self.allPoints[0][:]
             del self.lmrkPoints[:]
             del self.allPoints[:]
             #self.series.replace(np.array(a[0][:]))
@@ -131,7 +137,21 @@ class Window(QMainWindow):
         #print("Elapsed time:{:.7f}".format(end-start))
 
     def test(self):
-        print("\n\n\n\n\n\n\n\n\n\-------------------\n\n\n\n\n")
+        
+        try:
+            self.fd = open(self.filename, "w+")
+            print("Openned file with success! {}".format(self.fd))
+        except:
+            print("Couldn't open file {}".format(self.filename))
+        
+        
+        if self.snapshotPoints != []:
+            print(self.snapshotPoints)
+            for point in self.snapshotPoints:
+                self.fd.write("x,y:{}\n".format(point))
+        else:
+            print("No points to create the snapshot")
+            print("\n\n\n\n\n\n\n\n\n\-------------------\n\n\n\n\n")
 
     def hide_show_points(self):
         self.series.setVisible(not self.series.isVisible())
