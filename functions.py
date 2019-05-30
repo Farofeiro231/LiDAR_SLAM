@@ -52,7 +52,7 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
     QdistancesList = []
     start_time = time.time()
     initial_time = time.time()
-    iterator = range_finder.scan('express', max_buf_meas=False, speed=250)  # returns a yield containing each measure
+    iterator = range_finder.scan('express', max_buf_meas=False, speed=300)  # returns a yield containing each measure
     try:
         for measure in iterator:
             #print("medindo...")
@@ -60,8 +60,8 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                 if measure[0][3] != 0 and measure[0][3] < 4000:
                     #if measure[0][0]:
                     #    flag = True
-                    dX = measure[0][3] * np.cos(measure[0][2] * ANGLE_TO_RAD + PI/2.)
-                    dY = measure[0][3] * np.sin(measure[0][2] * ANGLE_TO_RAD + PI/2.)
+                    dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2.)
+                    dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2.)
                     distancesList.append([dX, dY])
                     QdistancesList.append(QPointF(dX, dY))
                     #if writeFlag:

@@ -147,7 +147,7 @@ class Window(QMainWindow):
         
         if self.snapshotPoints != []:
             print(self.snapshotPoints)
-            for point in self.snapshotPoints:
+            for point in self.snapshotPoints.copy():
                 self.fd.write("x,y:{}\n".format(point))
         else:
             print("No points to create the snapshot")
