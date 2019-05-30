@@ -35,7 +35,7 @@ class System():
         self.ukf.x = self.robot.get_pos()
         self.ukf.P = np.diag([1., 1., 0.05])#([.1, .1, 0.05])
         self.ukf.R = np.diag([self.varDist, self.varAngle] * len(self.landmarks))
-        self.ukf.Q = np.eye(3) * 0.1
+        self.ukf.Q = np.eye(3) * 0.01
         self.angle = 0.
 
     def simulate_system(self, u):
@@ -45,14 +45,14 @@ class System():
 def create_lmks_database(lmFD):
     lmParams = re.findall(r"\w+:([\+\-]?\d+.\d*)[\n,]", lmFD.read())
     print(lmParams)
-    lmksNbr = ceil(len(lmParams)/5) # Needs to be int for usage in the range method
+    lmksNbr = ceil(len(lmParams)/6) # Needs to be int for usage in the range method
     params = [float(x) for x in lmParams]  # The original list contains strings
     lmksDB = []
     for i in range(lmksNbr):  # the i is going to number the landmark
         print(i)
-        orig = np.array([params[i * 5], params[(i * 5) + 1]])
-        direction = np.array([params[(i * 5) + 2], params[(i * 5) + 3]])
-        extractedLandmark = Landmark(orig, direction, params[(i * 5) + 4])
+        orig = np.array([params[i * 6], params[(i * 6) + 1]])
+        direction = np.array([params[(i * 6) + 2], params[(i * 6) + 3]])
+        extractedLandmark = Landmark(orig, direction, params[(i * 6) + 4], params[(i * 6) + 5])
         lmksDB.append(extractedLandmark)
     return lmksDB
 
@@ -66,6 +66,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
     equal = False
     winner = 0
     match = False
+    i = 0
     #tempPos = np.empty([1, 3])
     while True:
         lmkList = lmkQueue.get(True)
@@ -73,6 +74,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
         print('{} landmarks recebidas.'.format(len(lmkList)))
         #  Convertion of observed lanmarks into possible equivalents of the database ones. This will give the system the number of scans it should take into account for the update step
         for each in dependableLmks:
+            i = 0
             match = False
             distMin = 100000000000000000000000
             winner = []
@@ -81,6 +83,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #[x0, y0]
                 orig = lmk.get_orig()
                 direction = lmk.get_dir()
+                size = lmk.get_size()
                 [xR, yR, thetaR] = sistema.ukf.x
                 thetaR = sistema.angle       
                 #thetaR = np.pi/2.
@@ -90,7 +93,8 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #d1 = sqrt(x1**2 + y1**2)
                 #theta1 = atan2(y1, x1)
                 
-                rotM = np.array([[cos(thetaR), -sin(thetaR)], [sin(thetaR), cos(thetaR)]])
+                rotM = np.array([[cos(thetaR), -sin(thetaR)],
+                                 [sin(thetaR), cos(thetaR)]])
                 orig = np.dot(rotM, orig)
                 direction = np.dot(rotM, direction)
                 #end = np.dot(rotM, end)
@@ -100,7 +104,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                 #end += [xR, yR]
                 #  The tmpLmk is the correspondence of the seen landmark in the ground reference system
                 #tmpLmk = Landmark(lmk.get_a(), lmk.get_b(), 0, orig[0], orig[1], end[0], end[1])
-                tmpLmk = Landmark(orig, direction, 0)
+                tmpLmk = Landmark(orig, direction, size, i)
                 #print("Tested landmark: {}".format(tmpLmk))
                 equal = each.same_update(tmpLmk, TOLERANCE)
                 #each.same_decomposed(orig, direction)
@@ -109,6 +113,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                     dist  = each.distance_origin_origin(tmpLmk) + each.distance_dirs(tmpLmk)
                     if dist < distMin:
                         print("Winner: {}".format(tmpLmk))
+                        print("Distance: {}\n".format(dist))
                         distMin = dist
                         winner = [d0, theta0]
                     #print("Landmark: {}".format(tmpLmk))
@@ -117,6 +122,7 @@ def lmk_check(lmkQueue, sistema, predictEvent):
                     if not match:
                         tempDB.append(each)
                         match = True
+                i += 1
                     #tempZ.extend([d0, theta0])
                     #dependableLmks.remove(each)
             #if len(tempDB) == len(sistema.landmarks):
@@ -187,6 +193,7 @@ def simulation(flagQueue, lmkQueue):  # This function is going to be used as the
         u[1] = vRight#/60
         sistema.ukf.x[0] = u[0]
         sistema.ukf.x[1] = u[1]#sistema.ukf.x[2] = angle  # Here the angle got from odometry is fed to the lidar
+        sistema.ukf.x[2] = angle
         sistema.ukf.predict(u=u)
         sistema.angle = angle
         predictCount += 1

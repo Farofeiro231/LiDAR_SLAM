@@ -16,7 +16,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    firstRun = False
+    firstRun = True
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -83,14 +83,15 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
 def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
-    firstRun = False
+    firstRun = True
     lmks = []
     landmarkNumber = 0
     newLandmark = True
     excludedLmks = []
+    start = time.time()
     while True:
         checkEvent.wait()
-        start = time.time()
+        #start = time.time()
         if pointsToBeFitted != []:
             if pointsToBeFitted[-1] == 0:  # Verifies if the last byte wasn't the plot flag -> 0
                 del pointsToBeFitted[-1]
@@ -139,7 +140,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    firstRun = False
+    firstRun = True
     if firstRun:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []
@@ -167,7 +168,7 @@ def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
         if firstRun:
             for lm in landmarkDB:
                 print(lm)
-                landmarkFile.write("x0:{},y0:{},x1:{},y1:{},ID:{}\n".format(lm.get_orig()[0], lm.get_orig()[1], lm.get_dir()[0], lm.get_dir()[1], lm.get_id()))
+                landmarkFile.write("x0:{},y0:{},x1:{},y1:{},s:{},ID:{}\n".format(lm.get_orig()[0], lm.get_orig()[1], lm.get_dir()[0], lm.get_dir()[1], lm.get_size(), lm.get_id()))
         print(landmarkDB)
         #landmarkFile.close()
         del pointsToBeFitted

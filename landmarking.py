@@ -1,10 +1,11 @@
 import numpy as np
 
 SEEN = 10 # Good value to avoid miss insertions
-LIFE = 40 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
+LIFE = 10 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
-TOLERANCE = 100 # Bom valor é 100
+TOLERANCE = 200 # Bom valor é 100
+TOL_LENGTH = 200
 ORIG_THRESHOLD = 200
 DIR_THRESHOLD = 0.1
 
@@ -12,9 +13,10 @@ DIR_THRESHOLD = 0.1
 class Landmark():
     spec = "line"
 
-    def __init__(self, lm_orig, lm_dir, ID):
+    def __init__(self, lm_orig, lm_dir, lm_size, ID):
         self.orig = lm_orig
         self.dir = lm_dir
+        self.size = lm_size 
         self.id = ID
         self.life = LIFE
         self.timesObserved = 0
@@ -23,7 +25,8 @@ class Landmark():
     def __str__(self):
         text = "Landmark ID: {}\n".format(self.id)
         text += "(x, y): ({}, {})\n".format(self.orig[0], self.orig[1]) \
-                + "direction: {}, {}\n".format(self.dir[0], self.dir[1])
+                + "direction: {}, {}\n".format(self.dir[0], self.dir[1]) \
+                + "size: {}\n".format(self.size)
         return text
 
     def get_id(self):
@@ -49,6 +52,9 @@ class Landmark():
 
     def get_life(self):
         return self.life
+
+    def get_size(self):
+        return self.size
 
     def get_observed(self):
         return self.observed
@@ -77,12 +83,16 @@ class Landmark():
         return distance
 #    
     def distance_dirs(self, landmark):
-        distance = np.linalg.norm(np.absolute(self.dir) - np.absolute(landmark.get_dir()))
+        distance = np.linalg.norm(self.dir - landmark.get_dir())
         return distance
 #   
 #    def distance_end_origin(self, landmark):
 #        distance = np.linalg.norm(self.end - landmark.get_pos())
 #        return distance
+
+    def diff_sizes(self, lmk):
+        distance = np.absolute(self.size - self.get_size())
+        return distance
 
     def is_equal(self, landmark):
         distA = abs(self.a - landmark.get_a())
@@ -108,7 +118,8 @@ class Landmark():
     def same(self, lmk):
         distOrig = self.distance_origin_origin(lmk)
         distDir = self.distance_dirs(lmk)
-        if distOrig < ORIG_THRESHOLD and distDir < DIR_THRESHOLD:
+        diffSize = self.diff_sizes(lmk)
+        if distOrig < ORIG_THRESHOLD and distDir < DIR_THRESHOLD and diffSize < TOL_LENGTH:
             #print("DistOrig: {}".format(distOrig))
             #print("DistDir: {}".format(distDir))
             return True
@@ -118,7 +129,8 @@ class Landmark():
     def same_update(self, lmk, tolerance):
         distOrig = self.distance_origin_origin(lmk)
         distDir = self.distance_dirs(lmk)
-        if distOrig < tolerance and distDir < DIR_THRESHOLD:
+        diffSize = self.diff_sizes(lmk)
+        if distOrig < tolerance and distDir < DIR_THRESHOLD and diffSize < TOL_LENGTH:
             return True
         else:
             return False
@@ -160,7 +172,7 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
     j = 0
     equal = False
     for lmk in lmks:
-        temp = Landmark(lmk[0], lmk[1], ID)
+        temp = Landmark(lmk[0], lmk[1], lmk[2], ID) #orig, dir, size, ID
         tempLmks.append(temp)
         ID += 1
     if len(landmarks) > 0:
@@ -196,7 +208,7 @@ def lmks_keep_match(lmks, landmarks, landmarkNumber):
     tempLmks = []
 
     for lmk in lmks:
-        temp = Landmark(lmk[0], lmk[1], ID)
+        temp = Landmark(lmk[0], lmk[1], lmk[2], ID)
         tempLmks.append(temp)
         ID += 1
 
