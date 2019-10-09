@@ -4,25 +4,30 @@ import re
 from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
-SNUM = 6
+# seedSeg.py: this file contains the functions to extract landmarks
+# from the data cloud received from each lidar sweep
+# Created by: Emanoel DE SOUSA COSTA
+
+
+SNUM = 10
 PMIN = 20
 P2L = 30
-LMIN = 300
+LMIN = 340
 #P2P = 50
 
 
 
-fd = open("data_test.txt", "r")
-x = []
-y = []
+#fd = open("data_test.txt", "r")
+#x = []
+#y = []
 
-temp = re.findall("x,y:\(([+-]?\d+\.\d*) ([+-]?\d+\.\d*)\)", fd.read())
-for item in temp:
-    x.append(float(item[0]))
-    y.append(float(item[1]))
+#temp = re.findall("x,y:\(([+-]?\d+\.\d*) ([+-]?\d+\.\d*)\)", fd.read())
+#for item in temp:
+#    x.append(float(item[0]))
+#    y.append(float(item[1]))
 
 
-plt.show()
+#plt.show()
 
 
 # Here the seeds are expanded to form the landmarks. i is the point the seed begins.
@@ -56,23 +61,20 @@ def seed_expansion(lm, x, y, seed, N, i):
         midPoint = int(len(seed[0])/2)
         #if lm.params[1][0]/lm.params[1][1] < 0: # Puts ambiguous
         if lm.params[1][0] < 0:  # Always gets the slope with positive x
-                direction = lm.params[1] * -1
-                normalizedLM = (seed[midPoint], direction, size)
+            direction = lm.params[1] * -1
+            #normalizedLM = (seed[midPoint], direction, size)
+            # lm.params[0] is the middle of the line
+            normalizedLM = (lm.params[0], direction, size, seed[-1])
         else:
-            normalizedLM = (seed[midPoint], lm.params[1], size)
+            #normalizedLM = (seed[midPoint], lm.params[1], size)
+            normalizedLM = (lm.params[0], lm.params[1], size, seed[-1])
+            
+
         #print("Found line origin, end: {} --- {}".format(seed[0], seed[-1]))
         return normalizedLM, seed, j, k
     else:
         return 0, 0, j, k
 
-
-#def overlap_correction(lines, seeds, newPoints):
-#    N = len(lines)
-#    i = 0
-#    while i < N - 1:
-#        j = i + 1 
-#        seeds[0][0] 
-#        i++
 
 
 def lmk_extraction(pointsToBeFitted): 

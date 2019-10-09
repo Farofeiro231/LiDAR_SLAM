@@ -4,6 +4,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 from find_lmk import *
+#from seedSeg import *
 from landmarking import *
 
 def file_read(filename):
@@ -21,11 +22,12 @@ def file_read(filename):
     y = clouds[1]
 
     seeds, lines = lmk_extraction(cloud)
-    
-    i = 0
+    print(lines)
+
+    i = 0.
 
     for line in lines:
-        lmks.append(Landmark(line[0], line[1], line[2], i))
+        lmks.append(Landmark(line[0], line[1], line[2], i*1.0, line[3]))
         i+=1 
 
     plt.scatter(x, y)
@@ -36,7 +38,7 @@ def file_read(filename):
     plt.show()
 
     for lmk in lmks:
-        fdW.write("x0:{},y0:{},x1:{},y1:{},s:{},ID:{}\n".format(lmk.get_orig()[0], lmk.get_orig()[1], lmk.get_dir()[0], lmk.get_dir()[1], lmk.get_size(), lmk.get_id()))
+        fdW.write("x0:{},y0:{},x1:{},y1:{},s:{},ID:{},xf:{},yf:{}\n".format(lmk.get_orig()[0], lmk.get_orig()[1], lmk.get_dir()[0], lmk.get_dir()[1], lmk.get_size(), lmk.get_id(), lmk.get_end()[0], lmk.get_end()[1]))
     fd.close()
     fdW.close()
 

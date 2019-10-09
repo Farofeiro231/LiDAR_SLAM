@@ -6,6 +6,9 @@ from functions import *
 from mainWindow import *
 from seedSeg import *
 
+# ransac_functions.py: this is the core of the scanning and plotting process. All # of the related threads are here.
+# Created by: Emanoel DE SOUSA COSTA
+
 THRESHOLD = 10  # maximum distance between a point and the line from the model for inlier classification
 MAX_TRIALS = 100
 MIN_SAMPLES = 10
@@ -16,7 +19,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
     equal = False
     deleteLandmark = False
     addToDB = False
-    firstRun = True
+    firstRun = False
     data = np.array(pointsToBeFitted[0][:])
     #print(data)
     del pointsToBeFitted[:]
@@ -83,7 +86,7 @@ def landmark_extraction(pointsToBeFitted, landmarkNumber, landmarks, landmarkDB)
 def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks, threadEvent, checkEvent, landmarkDB):#n, innerFlag):
     inliersList = list()
     #landmarks = list()
-    firstRun = True
+    firstRun = False
     lmks = []
     landmarkNumber = 0
     newLandmark = True
@@ -107,8 +110,8 @@ def check_ransac(pairInliers, tempPoints, allPoints, pointsToBeFitted, landmarks
                 #print(lmks)
                 if tempList != []:
                     inliersList.append(tempList)
-                    pairInliers.append(np.concatenate(inliersList.copy(), axis=0))
-                    allPoints.append(np.concatenate(tempPoints.copy(), axis=0))
+                    pairInliers.append(np.concatenate(inliersList.copy(), axis=0))# Only the landmark points to be plotted
+                    allPoints.append(np.concatenate(tempPoints.copy(), axis=0)) # Whole data cloud to be plotted
                     threadEvent.set()
                     checkEvent.clear()
                     del inliersList[:]
@@ -140,7 +143,7 @@ def send_lmks(flagQueue, lmkQueue, lmks):
 
 #   Here I run the landmark_extraction code inside an indepent process
 def ransac_core(flagQueue, lmkQueue, rawPoints, range_finder):#, pairInliers):
-    firstRun = True
+    firstRun = False
     if firstRun:
         landmarkFile = open('landmarks.txt', 'w+')
     pairInliers = []

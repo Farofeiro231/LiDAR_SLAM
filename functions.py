@@ -3,6 +3,7 @@ import numpy as np
 import time
 from PyQt5.QtCore import QPointF
 
+# functions.py: here are the functions related to data acquisition and transmission# to the ransac functions. Among them are the function
 
 PI = np.pi
 DISTANCE_LIMIT = 30  # maximum tolerable distance between two points - in mm - for them to undergo RANSAC
@@ -60,8 +61,8 @@ def scanning(rawPoints, tempPoints, checkEvent, threadEvent, range_finder):
                 if measure[0][3] != 0 and measure[0][3] < 4000:
                     #if measure[0][0]:
                     #    flag = True
-                    dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD + PI/2.)
-                    dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD + PI/2.)
+                    dX = measure[0][3] * np.cos(-measure[0][2] * ANGLE_TO_RAD)# + PI/2.)
+                    dY = measure[0][3] * np.sin(-measure[0][2] * ANGLE_TO_RAD)# + PI/2.)
                     distancesList.append([dX, dY])
                     QdistancesList.append(QPointF(dX, dY))
                     #if writeFlag:

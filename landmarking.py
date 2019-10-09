@@ -1,33 +1,44 @@
 import numpy as np
+from skimage.measure import LineModelND
+
+# Landmarking.py: contains the Landmark class and all its related methods
+# Create by: Emanoel DE SOUSA COSTA
 
 SEEN = 10 # Good value to avoid miss insertions
-LIFE = 10 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
+LIFE = 20 # Now for the life to be decreased the lmk needs to go unseen through a whole sweep
 TOLERANCE_A = 0.1
 TOLERANCE_B = 50
 TOLERANCE = 200 # Bom valor é 100
 TOL_LENGTH = 200
 ORIG_THRESHOLD = 200
-DIR_THRESHOLD = 0.1
+DIR_THRESHOLD = 0.2
 
 
 class Landmark():
-    spec = "line"
 
-    def __init__(self, lm_orig, lm_dir, lm_size, ID):
+    def __init__(self, lm_orig, lm_dir, lm_size, ID, lm_end):
         self.orig = lm_orig
+        self.end = lm_end
         self.dir = lm_dir
         self.size = lm_size 
         self.id = ID
+        self.lm = LineModelND()
         self.life = LIFE
         self.timesObserved = 0
         self.observed = False
+        
+        self.lm.estimate(np.array([self.orig, self.end]).T)
 
     def __str__(self):
         text = "Landmark ID: {}\n".format(self.id)
         text += "(x, y): ({}, {})\n".format(self.orig[0], self.orig[1]) \
                 + "direction: {}, {}\n".format(self.dir[0], self.dir[1]) \
-                + "size: {}\n".format(self.size)
+                + "size: {}\n".format(self.size) \
+                + "end: {}\n".format(self.end)
         return text
+
+    def __copy__(self):
+        return Landmark(self.orig, self.dir, self.size, self.id, self.end)
 
     def get_id(self):
         return self.id
@@ -172,7 +183,7 @@ def landmarks_keep(lmks, landmarks, landmarkDB, landmarkNumber, firstRun):
     j = 0
     equal = False
     for lmk in lmks:
-        temp = Landmark(lmk[0], lmk[1], lmk[2], ID) #orig, dir, size, ID
+        temp = Landmark(lmk[0], lmk[1], lmk[2], ID, lmk[3]) #orig, dir, size, ID
         tempLmks.append(temp)
         ID += 1
     if len(landmarks) > 0:
@@ -208,7 +219,7 @@ def lmks_keep_match(lmks, landmarks, landmarkNumber):
     tempLmks = []
 
     for lmk in lmks:
-        temp = Landmark(lmk[0], lmk[1], lmk[2], ID)
+        temp = Landmark(lmk[0], lmk[1], lmk[2], ID, lmk[3])
         tempLmks.append(temp)
         ID += 1
 

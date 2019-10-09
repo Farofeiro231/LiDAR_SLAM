@@ -4,10 +4,10 @@ import re
 from skimage.measure import LineModelND
 from PyQt5.QtCore import QPointF
 
-SNUM = 6
+SNUM = 10
 PMIN = 20
-P2L = 20
-LMIN = 200
+P2L = 30
+LMIN = 340
 #P2P = 50
 
 
@@ -45,9 +45,11 @@ def seed_expansion(lm, x, y, seed, N, i):
         #if lm.params[1][0]/lm.params[1][1] < 0: # Puts ambiguous
         if lm.params[1][0] < 0:  # Always gets the slope with positive x
                 direction = lm.params[1] * -1
-                normalizedLM = (seed[midPoint], direction, size)
+                #normalizedLM = (seed[midPoint], direction, size)
+                normalizedLM = (lm.params[0], direction, size, seed[-1])
         else:
-            normalizedLM = (seed[midPoint], lm.params[1], size)
+            #normalizedLM = (seed[midPoint], lm.params[1], size)
+            normalizedLM = (lm.params[0], lm.params[1], size, seed[-1])
         #print("Found line origin, end: {} --- {}".format(seed[0], seed[-1]))
         return normalizedLM, seed, j, k
     else:
